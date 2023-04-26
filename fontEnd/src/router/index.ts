@@ -31,6 +31,24 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "table" */ '../views/table.vue'),
             },
             {
+                path: '/redis_table',
+                name: 'redis_table',
+                meta: {
+                    title: 'redis_demo表格',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/redis_table.vue'),
+            },
+            {
+                path: '/echart',
+                name: 'echart测试',
+                meta: {
+                    title: 'echart测试',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/disc_table.vue'),
+            },
+            {
                 path: '/charts',
                 name: 'basecharts',
                 meta: {
@@ -163,7 +181,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    document.title = `${to.meta.title} | vue-manage-system`;
+    document.title = `${to.meta.title} | crawlRaXi`;
     const role = localStorage.getItem('ms_username');
     const permiss = usePermissStore();
     if (!role && to.path !== '/login') {

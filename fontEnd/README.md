@@ -12,7 +12,7 @@
   <a href="https://github.com/lin-xin/vue-manage-system/releases">
     <img src="https://img.shields.io/github/release/lin-xin/vue-manage-system.svg" alt="GitHub release">
   </a>
-  <a href="https://lin-xin.gitee.io/example/work/#/donate">
+  <a href="https://lin-xin.gitee.io/example/work/#/donate">schart
     <img src="https://img.shields.io/badge/%24-donate-ff69b4.svg" alt="donate">
   </a>
 
@@ -122,16 +122,16 @@ const options = ref({
 </style>
 ```
 
-## 项目截图
+[comment]: <> (## 项目截图)
 
-### 登录
+[comment]: <> (### 登录)
 
-![Image text](https://github.com/lin-xin/manage-system/raw/master/screenshots/wms3.png)
+[comment]: <> (![Image text]&#40;https://github.com/lin-xin/manage-system/raw/master/screenshots/wms3.png&#41;)
 
-### 首页
+[comment]: <> (### 首页)
 
-![Image text](https://github.com/lin-xin/manage-system/raw/master/screenshots/wms1.png)
+[comment]: <> (![Image text]&#40;https://github.com/lin-xin/manage-system/raw/master/screenshots/wms1.png&#41;)
 
-## License
+[comment]: <> (## License)
 
-[MIT](https://github.com/lin-xin/vue-manage-system/blob/master/LICENSE)
+[comment]: <> ([MIT]&#40;https://github.com/lin-xin/vue-manage-system/blob/master/LICENSE&#41;)

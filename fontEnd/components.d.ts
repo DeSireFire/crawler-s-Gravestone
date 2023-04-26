@@ -51,4 +51,7 @@ declare module '@vue/runtime-core' {
     Sidebar_raw: typeof import('./src/components/sidebar_raw.vue')['default']
     Tags: typeof import('./src/components/tags.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

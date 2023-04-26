@@ -73,6 +73,16 @@ const items = [
                 title: '常用表格',
                 permiss: '2',
             },
+          {
+            index: '/redis_table',
+            title: 'redis表格',
+            permiss: '2',
+          },
+          {
+            index: '/echart',
+            title: 'echart测试',
+            permiss: '2',
+          },
             {
                 index: '/import',
                 title: '导入Excel',
