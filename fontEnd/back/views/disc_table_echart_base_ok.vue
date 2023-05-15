@@ -7,7 +7,7 @@
 <script setup lang="ts"  name="basecharts">
 import { reactive, ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
-import {fetchCharts} from '../api/index';
+import {fetchCharts} from '../../src/api';
 const vecharts = ref()
 onMounted(() => {
   initEcgarts()

@@ -14,7 +14,7 @@
 <script setup lang="ts" name="basecharts">
 import { ref } from 'vue';
 import Schart from 'vue-schart';
-import {fetchdisc} from '../api/index';
+import {fetchdisc} from '../../src/api';
 const datas = ref({});
 
 // 获取表格数据

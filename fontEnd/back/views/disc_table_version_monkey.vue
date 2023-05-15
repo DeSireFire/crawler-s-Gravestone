@@ -7,17 +7,27 @@
 <script setup lang="ts"  name="basecharts">
 import { reactive, ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
-import {fetchCharts} from '../api/index';
+import {fetchCharts} from '../../src/api';
 const vecharts = ref(null)
 let option = ref({})
-const initEcgarts = async () => {
-  option.value = (await fetchCharts()).data
+
+// 获取表格数据
+const getData = async () => {
+  fetchCharts().then(res => {
+    option.value = res.data;
+    initEcgarts();
+  });
+};
+
+const initEcgarts = () => {
   const mainEchart = echarts.init(vecharts.value)
+  console.log("option==>",option)
+  console.log("option.value==>",option.value)
   mainEchart.setOption(option.value)
 }
 
 onMounted(() => {
-  initEcgarts()
+  getData();
 })
 </script>
 
