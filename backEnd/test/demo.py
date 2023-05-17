@@ -64,7 +64,7 @@ async def read_root():
 
 
 @app.get("/table.test")
-async def read_root():
+async def read_root1():
     temp = {
         "list": [{
             "id": 1,
@@ -451,3 +451,4 @@ if __name__ == "__main__":
     HOST = "127.0.0.1"
     PORT = 8000
     uvicorn.run(app, host=HOST, port=PORT)
+
