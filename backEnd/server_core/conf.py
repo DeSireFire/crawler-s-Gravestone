@@ -37,6 +37,13 @@ class BaseConfig(BaseModel):
     access_records = False
 
 
+class Redisbase(BaseModel):
+    host: str
+    port: int
+    db: str
+    password: str
+
+
 class Database(BaseModel):
     host: str
     port = 3306
@@ -75,7 +82,9 @@ def parserconf():
         configfile = os.path.join(BASE_DIR, conffile)
         parserconfig.read(configfile, encoding='utf-8')
         parserconfig.items('base')
+        parserconfig.items('redis')
         parserconfig.items('mysql')
+        parserconfig.items('postgresql')
         return parserconfig
     except:
         logger.exception("配置文件错误！")
@@ -84,6 +93,7 @@ def parserconf():
 pconf = parserconf()
 conf = Config(**dict(pconf.items('base')))
 
+redisconf = Redisbase(**dict(pconf.items('redis')))
 mysqlconf = Database(**dict(pconf.items('mysql')))
 pgdbconf = Database(**dict(pconf.items('postgresql')))
 LogLevel = "DEBUG" if conf.debug else "INFO"
