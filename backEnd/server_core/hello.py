@@ -7,7 +7,7 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
-from .conf import conf,mysqlconf,LogLevel,pgdbconf
+from .conf import conf,mysqlconf,LogLevel
 from .log import initlog
 from .log import logger
 from apps.models import initdb

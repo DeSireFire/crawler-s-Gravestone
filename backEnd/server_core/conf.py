@@ -15,13 +15,15 @@ from pathlib import Path
 from starlette.templating import Jinja2Templates
 from loguru import logger
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 fastapi_env = os.environ.get('FASTAPI_ENV')
 # fastapi_env=None
 
-venv ='开发环境' if fastapi_env else '生产环境'
+venv = '开发环境' if fastapi_env else '生产环境'
+
+
 class BaseConfig(BaseModel):
-    VERSION = 'Revision 1.0.0 build-20211209'
+    VERSION = 'Revision 1.0.0 build-20230510'
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 天
     SECRET_KEY: str = '-*&^)()sd(*A%&^aWEQaasda_asdasd*&*)(asd%$#'
     # 文档地址 成产环境可以关闭 None
@@ -32,7 +34,7 @@ class BaseConfig(BaseModel):
     REDOC_URL = "/redoc"
     # 环境名称
     ENV = venv
-    access_records=False
+    access_records = False
 
 
 class Database(BaseModel):
@@ -52,6 +54,7 @@ class Config(BaseConfig):
     host = '0.0.0.0'
     db = 'sqlite'
 
+
 # if fastapi_env:
 #     config.DOCS_URL = "/docs"
 #     config.OPENAPI_URL = "/openapi.json"
@@ -63,6 +66,7 @@ class Config(BaseConfig):
 
 templates = Jinja2Templates(directory="apps/templates")
 
+
 @logger.catch()
 def parserconf():
     try:
@@ -70,14 +74,16 @@ def parserconf():
         conffile = 'conf.ini' if fastapi_env else 'conf.ini'
         configfile = os.path.join(BASE_DIR, conffile)
         parserconfig.read(configfile, encoding='utf-8')
-        parserconfig.items('comm')
+        parserconfig.items('base')
         parserconfig.items('mysql')
         return parserconfig
     except:
         logger.exception("配置文件错误！")
-pconf=parserconf()
-conf = Config(**dict(pconf.items('comm')))
 
-mysqlconf=Database(**dict(pconf.items('mysql')))
+
+pconf = parserconf()
+conf = Config(**dict(pconf.items('base')))
+
+mysqlconf = Database(**dict(pconf.items('mysql')))
 pgdbconf = Database(**dict(pconf.items('postgresql')))
-LogLevel="DEBUG" if conf.debug else "INFO"
+LogLevel = "DEBUG" if conf.debug else "INFO"
