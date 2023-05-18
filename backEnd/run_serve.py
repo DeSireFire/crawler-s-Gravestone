@@ -12,6 +12,7 @@ from server_core.conf import conf, LogLevel
 from server_core.hello import hello, logger
 from server_core.server import createapp
 
+
 app = createapp()
 if __name__ == "__main__":
     try:

@@ -17,7 +17,6 @@ class RedisDBHelper(object):
             max_connections=100
         )
         self.server = redis.Redis(connection_pool=self.rdb_pool)
-        print(self.server.keys())
 
     def __del__(self):
         self.server.close()

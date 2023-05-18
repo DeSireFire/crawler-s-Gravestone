@@ -7,4 +7,4 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
-from apps import test
+from apps import users

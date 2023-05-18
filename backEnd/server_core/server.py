@@ -30,6 +30,7 @@ def createapp():
     # app.include_router(user.route, tags=["用户"])
     # app.include_router(menu.route, tags=["菜单"])
     # app.include_router(test.route, tags=["测试"])
+    app.include_router(users.route, tags=["redis测试"])
 
     # @app.get("/")
     # def home():
