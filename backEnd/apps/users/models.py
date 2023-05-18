@@ -83,6 +83,3 @@ def get_user_info(username):
         return user
     else:
         return None
-
-def SQLAlchemy2dict(sa_obj):
-    return sa_obj.__dict__
