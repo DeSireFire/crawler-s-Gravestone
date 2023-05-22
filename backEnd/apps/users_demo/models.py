@@ -11,8 +11,10 @@ import datetime
 from sqlalchemy.sql import func
 from server_core.log import logger
 from sqlalchemy.orm import declarative_base
+from server_core.db import engine, Newsession
 from pydantic import BaseModel, Field, validator
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+
 Base = declarative_base()
 
 class Basejson():
@@ -52,12 +54,9 @@ class UserInDB(BaseModel):
     status: bool = True
 
 class UserLogin(BaseModel):
-    username: str = Field(..., example="test")
-    password: str = Field(..., example="123456")
+    username: str = Field(..., example="tom")
+    password: str = Field(..., example="123")
 
-
-# 模型工具函数
-from server_core.db import engine, Newsession
 # 检测用户名
 def check_user(username):
     session = Newsession()
@@ -84,4 +83,3 @@ def get_user_info(username):
         return user
     else:
         return None
-

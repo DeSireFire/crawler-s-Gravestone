@@ -38,13 +38,14 @@ import { usePermissStore } from '../store/permiss';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
-// import {userLogin} from '../../src/api';
+import {userLogin} from '../../src/api';
 import { Lock, User } from '@element-plus/icons-vue';
 
 interface LoginInfo {
 	username: string;
 	password: string;
 }
+
 const router = useRouter();
 const param = reactive<LoginInfo>({
 	username: 'admin',
