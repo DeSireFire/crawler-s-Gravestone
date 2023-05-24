@@ -43,6 +43,7 @@ class Users(Base, Basejson):
     password = Column(String(64))
     nicename = Column(String(64))
     role = Column(String(64))
+    face = Column(String(255), default='https://i2.hdslb.com/bfs/face/62151cc59344a92a777fddc21119b22956e63e09.jpg@240w_240h_1c_1s.webp')
     status = Column(String(64), default=1)
     create = Column(DateTime(), default=datetime.datetime.now())
     lastlogin = Column(DateTime())

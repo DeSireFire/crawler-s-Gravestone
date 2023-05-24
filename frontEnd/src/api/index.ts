@@ -1,24 +1,26 @@
 import request from '../utils/request';
+import LoginParam from '../types/account';
 
-// export const signIn1 = (data) => {
-//     return request({
-//         url: 'http://127.0.0.1:8089/login',
-//         method: 'post',
-//         data: data
-//     });
-// };
-//
-// export function signIn2(params: object) {
-//     const s = request({
-//         url: 'http://127.0.0.1:8089/login',
-//         method: 'post',
-//         data: params,
-//     });
-//     console.log(s)
-//     return s;
-// }
+
+export const userLogin = (payload: LoginParam) => {
+    return $fetch(
+        request, {
+            url: 'http://127.0.0.1:8089/login',
+            method: 'post',
+            data: payload,
+        }
+    )
+}
+
 
 // 测试用的demo请求们
+export const get_ip_info = () => {
+    return request({
+        url: 'https://api.live.bilibili.com/xlive/web-room/v1/index/getIpInfo',
+        method: 'get'
+    });
+}
+
 export const fetchData = () => {
     return request({
         url: 'http://127.0.0.1:8000/table.test',

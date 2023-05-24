@@ -38,8 +38,20 @@ import { usePermissStore } from '../store/permiss';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
-// import {userLogin} from '../../src/api';
+// import { userLogin } from '../api/index';
 import { Lock, User } from '@element-plus/icons-vue';
+import LoginParam from "../types/account";
+import request from "../utils/request";
+
+export const userLogin = (payload: LoginParam) => {
+  return $fetch(
+      request, {
+        url: 'http://127.0.0.1:8089/login',
+        method: 'post',
+        data: payload,
+      }
+  )
+}
 
 interface LoginInfo {
 	username: string;
@@ -47,8 +59,8 @@ interface LoginInfo {
 }
 const router = useRouter();
 const param = reactive<LoginInfo>({
-	username: 'admin',
-	password: '123123'
+	username: '',
+	password: ''
 });
 
 const rules: FormRules = {
@@ -64,6 +76,9 @@ const rules: FormRules = {
 const permiss = usePermissStore();
 const login = ref<FormInstance>();
 const submitForm = (formEl: FormInstance | undefined) => {
+
+
+
 	if (!formEl) return;
 	formEl.validate((valid: boolean) => {
 		if (valid) {

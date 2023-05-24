@@ -12,11 +12,11 @@
 					</div>
 					<div class="user-info-list">
 						上次登录时间：
-						<span>2022-10-01</span>
+						<span>2023-05-10</span>
 					</div>
 					<div class="user-info-list">
 						上次登录地点：
-						<span>东莞</span>
+						<span>{{ local_name }}</span>
 					</div>
 				</el-card>
 				<el-card shadow="hover" style="height: 252px">
@@ -118,12 +118,24 @@
 
 <script setup lang="ts" name="dashboard">
 import Schart from 'vue-schart';
-import { reactive } from 'vue';
+import {reactive, ref} from 'vue';
 // import imgurl from '../assets/img/img.jpg';
+import {get_ip_info} from '../../src/api';
 const imgurl = 'https://avatars.githubusercontent.com/u/64947085?v=4'
 
 const name = localStorage.getItem('ms_username');
 const role: string = name === 'admin' ? '超级管理员' : '普通用户';
+const local_name = ref('未知');
+
+// 获取登录ip地区
+const getLocal = () => {
+  get_ip_info().then(res => {
+    local_name.value = res.data.city;
+    console.log("666")
+    console.log(local_name.value)
+  });
+};
+getLocal();
 
 const options = {
 	type: 'bar',

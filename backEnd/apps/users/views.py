@@ -49,9 +49,7 @@ def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @route.get("/me", summary="个人信息")
 def get_my_info(me: Users = Depends(auth_depend)):
-    print(type(me))
-    print(me)
-    show_keys = ['name', 'lastlogin', 'nicename', 'role']
+    show_keys = ['name', 'lastlogin', 'nicename', 'role', 'face']
     temp = {k:v for k,v in me.json().items() if k in show_keys} or {}
 
     return {
