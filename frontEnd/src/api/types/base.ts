@@ -1,0 +1,26 @@
+export class RestResponse<T = any> {
+  httpCode?: number;
+  httpStatus?: string;
+  data?: Partial<T>;
+  errCode?: string;
+  errMsg?: string;
+
+  constructor(data?: Partial<RestResponse<T>>) {
+    Object.assign(this, data);
+  }
+
+  static from = <T>(data?: Partial<RestResponse<T>>) =>
+    new RestResponse<T>(data);
+
+  get isSuccess() {
+    return this.httpCode === 200 && this.errCode === undefined;
+  }
+
+  get isFailure() {
+    return !this.isSuccess;
+  }
+
+  get hasData() {
+    return !!this.data;
+  }
+}
