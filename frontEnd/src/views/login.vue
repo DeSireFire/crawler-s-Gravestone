@@ -38,9 +38,8 @@ import { usePermissStore } from '../store/permiss';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
-// import { userLogin } from '../api/index';
+import { userLogin } from '../api/index';
 import { Lock, User } from '@element-plus/icons-vue';
-import { LoginParam } from "../types/account";
 import {fetchChartss} from "../api";
 
 interface LoginInfo {
@@ -66,6 +65,9 @@ const rules: FormRules = {
 const permiss = usePermissStore();
 const login = ref<FormInstance>();
 const submitForm = (formEl: FormInstance | undefined) => {
+
+  // 啊啊啊啊
+  // const demo = (await userLogin(param)).data
 
 	if (!formEl) return;
 	formEl.validate((valid: boolean) => {
