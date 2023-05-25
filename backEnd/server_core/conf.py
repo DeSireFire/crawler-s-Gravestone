@@ -12,7 +12,7 @@ import os, sys
 from configparser import ConfigParser, RawConfigParser
 from typing import Optional
 from pathlib import Path
-from starlette.templating import Jinja2Templates
+# from starlette.templating import Jinja2Templates
 from loguru import logger
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -71,7 +71,7 @@ class Config(BaseConfig):
 # if config.debug:
 #     config.LOGLEVEL = "DEBUG"
 
-templates = Jinja2Templates(directory="apps/templates")
+# templates = Jinja2Templates(directory="apps/templates")
 
 
 @logger.catch()
