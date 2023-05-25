@@ -5,7 +5,7 @@ import LoginParam from '../types/account';
 export const userLogin = (payload: LoginParam) => {
     return $fetch(
         request, {
-            url: 'http://127.0.0.1:8089/login',
+            url: 'http://127.0.0.1:6701/login',
             method: 'post',
             data: payload,
         }
