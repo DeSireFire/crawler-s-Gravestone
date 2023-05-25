@@ -1,7 +1,7 @@
-export class RestResponse<T = any> {
+export class RestResponse<T extends any> {
   httpCode?: number;
   httpStatus?: string;
-  data?: Partial<T>;
+  data?: T;
   errCode?: string;
   errMsg?: string;
 

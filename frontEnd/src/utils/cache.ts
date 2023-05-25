@@ -24,6 +24,8 @@ const useJsonStorage = <T = unknown>(
 };
 
 export const useStateStorage = () => ({
+  // 缓存 基本 数据
   useSimpleStorage,
+  // 缓存 对象 数据
   useJsonStorage,
 });

@@ -34,8 +34,8 @@ async function request<T>(args: AxiosRequestConfig) {
       httpCode: response.status,
       httpStatus: response.statusText,
       data: data,
-      errMsg: `${err_msg}`,
-      errCode: `${err_code}`,
+      errMsg: err_msg,
+      errCode: err_code,
     });
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -43,8 +43,8 @@ async function request<T>(args: AxiosRequestConfig) {
       return RestResponse.from<T>({
         httpCode: response?.status || 500,
         httpStatus: response?.statusText || "Internal Server Error",
-        errMsg: `${response?.data?.err_msg}` || error.message,
-        errCode: `${response?.data?.err_code}` || "500",
+        errMsg: response?.data?.err_msg || error.message,
+        errCode: response?.data?.err_code || "500",
       });
     } else {
       return RestResponse.from<T>({
@@ -57,7 +57,7 @@ async function request<T>(args: AxiosRequestConfig) {
   }
 }
 
-const useHttp = {
+const useHttp = () => ({
   http,
 
   request,
@@ -70,7 +70,7 @@ const useHttp = {
   },
 
   handlePost<T>(args: AxiosRequestConfig) {
-    return http<T>({
+    return request<T>({
       method: REQUEST_METHOD.POST,
       ...args,
     });
@@ -96,6 +96,6 @@ const useHttp = {
       ...args,
     });
   },
-};
+});
 
 export default useHttp;
