@@ -30,22 +30,40 @@ def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     password = form_data.password
     # 第二步 通过用户名去数据库中查找到对应的 user
     if not check_user(username):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            # detail="Incorrect username or password",
-            detail="登陆失败，用户名与密码不匹配",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        # return {"msg": "登陆失败，用户名与密码不匹配"}
+        err_temp = {
+            "err_code": "404",
+            "err_msg": "登陆失败，用户名与密码不匹配",
+            "data": {}
+        }
+        # raise HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     # detail="Incorrect username or password",
+        #     detail=err_temp,
+        #     headers={"WWW-Authenticate": "Bearer"},
+        # )
+        return err_temp
     # 第三步 检查密码
     if not check_password(username, password):
-        return {"msg": "登陆失败，用户名与密码还是不匹配"}
+        err_temp = {
+            "err_code": "404",
+            "err_msg": "登陆失败，用户名与密码还是不匹配",
+            "data": {}
+        }
+        return err_temp
     # 第四步 生成 token
     # Authorization: bearer header.payload.sign
     token = create_access_token({"name": username})
     # 给前端响应信息
     # return {"token": f"bearer {token}"}
-    return {"access_token": token, "token_type": "bearer"}
+
+    data = {"access_token": token, "token_type": "bearer"}
+    temp = {
+        "code": 0,
+        "message": "OK",
+        "data": data,
+    }
+
+    return temp
 
 @route.get("/me", summary="个人信息")
 def get_my_info(me: Users = Depends(auth_depend)):
@@ -59,6 +77,16 @@ def get_my_info(me: Users = Depends(auth_depend)):
         "data": temp
     }
 
+@route.get("/demo_err", summary="错误返回演示")
+def error_demo():
+
+    temp = {
+        "err_code": "404",
+        "err_msg": "一大坨错误信息！",
+        "data": {}
+    }
+
+    return temp
 
 # @route.post("/auth_token",
 #                    summary='登录接口，获取 token',
