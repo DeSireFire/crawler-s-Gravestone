@@ -30,7 +30,7 @@ def createapp():
     # app.include_router(user.route, tags=["用户"])
     # app.include_router(menu.route, tags=["菜单"])
     # app.include_router(test.route, tags=["测试"])
-    app.include_router(users.route, tags=["redis测试"])
+    app.include_router(users.route, tags=["用户模块"])
 
     # @app.get("/")
     # def home():
@@ -40,7 +40,8 @@ def createapp():
     def test():
         return {"holy": "shit！"}
 
+    #
     register_cors(app)  # 跨域设置
-    # register_exception(app)
+    # register_exception(app) # 异常处理
 
     return app

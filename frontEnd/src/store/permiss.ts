@@ -36,6 +36,7 @@ export const usePermissStore = defineStore("permiss", {
   actions: {
     handleSet(val: string[]) {
       this.key = val;
+      // console.log(this.key, val)
     },
   },
 });

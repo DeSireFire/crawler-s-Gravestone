@@ -1,7 +1,9 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, {AxiosInstance, AxiosRequestConfig, AxiosResponse} from "axios";
 import { RestResponse } from "~/api/types/base";
 import { BASE_URL } from "~/constants/api";
 import { REQUEST_METHOD } from "~/constants/request";
+
+axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 
 const http: AxiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -26,10 +28,44 @@ http.interceptors.response.use(
   }
 );
 
-async function request<T>(args: AxiosRequestConfig) {
+// async function request<T>(args: AxiosRequestConfig) {
+//   try {
+//     const response = await http.request(args);
+//     const { data, err_msg, err_code } = response.data;
+//     return RestResponse.from<T>({
+//       httpCode: response.status,
+//       httpStatus: response.statusText,
+//       data: data,
+//       errMsg: err_msg,
+//       errCode: err_code,
+//     });
+//   } catch (error) {
+//     if (axios.isAxiosError(error)) {
+//       const response = error.response;
+//       return RestResponse.from<T>({
+//         httpCode: response?.status || 500,
+//         httpStatus: response?.statusText || "Internal Server Error",
+//         errMsg: response?.data?.err_msg || error.message,
+//         errCode: response?.data?.err_code || "500",
+//       });
+//     } else {
+//       return RestResponse.from<T>({
+//         httpCode: 500,
+//         httpStatus: "Internal Server Error",
+//         errMsg: (error as Error).message,
+//         errCode: "500",
+//       });
+//     }
+//   }
+// }
+
+async function request<T>(args: AxiosRequestConfig, semanticData = true) {
   try {
     const response = await http.request(args);
     const { data, err_msg, err_code } = response.data;
+    // if (!semanticData) {
+    //   return response as unknown as AxiosResponse<T>;
+    // }
     return RestResponse.from<T>({
       httpCode: response.status,
       httpStatus: response.statusText,
@@ -38,6 +74,9 @@ async function request<T>(args: AxiosRequestConfig) {
       errCode: err_code,
     });
   } catch (error) {
+    // if (!semanticData) {
+    //   throw error;
+    // }
     if (axios.isAxiosError(error)) {
       const response = error.response;
       return RestResponse.from<T>({
@@ -56,6 +95,32 @@ async function request<T>(args: AxiosRequestConfig) {
     }
   }
 }
+
+// async function raw_request<T>(args: AxiosRequestConfig) {
+//   try {
+//     const response = await http.request(args);
+//     const { data, err_msg, err_code } = response.data;
+//     return response as unknown as AxiosResponse<T>;
+//   } catch (error) {
+//     // throw error;
+//     if (axios.isAxiosError(error)) {
+//       const response = error.response;
+//       return RestResponse.from<T>({
+//         httpCode: response?.status || 500,
+//         httpStatus: response?.statusText || "Internal Server Error",
+//         errMsg: response?.data?.err_msg || error.message,
+//         errCode: response?.data?.err_code || "500",
+//       });
+//     } else {
+//       return RestResponse.from<T>({
+//         httpCode: 500,
+//         httpStatus: "Internal Server Error",
+//         errMsg: (error as Error).message,
+//         errCode: "500",
+//       });
+//     }
+//   }
+// }
 
 const useHttp = () => ({
   http,

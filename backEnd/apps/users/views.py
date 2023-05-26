@@ -13,25 +13,28 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status
 from .models import check_password, check_user, UserInDB, Users
 from .auth import create_access_token, auth_depend
+from fastapi.responses import JSONResponse
+
 route = APIRouter()
+
 
 # todo 抽取token依赖项
 @route.post(
     "/auth_token",
     summary="获取 token 接口",
-   description="""采用OAuth2.0认证协议，登录时获取用户的token，
+    description="""采用OAuth2.0认证协议，登录时获取用户的token，
                 使用 x-www-form-urlencoded 格式,
                 在 Request Body 提交 username 和 password 即可获得本次用户登录的token,
                 并会被缓存到 Redis 中保持一定的时间段""",
 )
-def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     # 第一步 拿到 用户名 和密码 ，校验
     username = form_data.username
     password = form_data.password
     # 第二步 通过用户名去数据库中查找到对应的 user
     if not check_user(username):
         err_temp = {
-            "err_code": "404",
+            "err_code": status.HTTP_401_UNAUTHORIZED,
             "err_msg": "登陆失败，用户名与密码不匹配",
             "data": {}
         }
@@ -45,7 +48,7 @@ def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     # 第三步 检查密码
     if not check_password(username, password):
         err_temp = {
-            "err_code": "404",
+            "err_code": status.HTTP_401_UNAUTHORIZED,
             "err_msg": "登陆失败，用户名与密码还是不匹配",
             "data": {}
         }
@@ -65,10 +68,11 @@ def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
 
     return temp
 
+
 @route.get("/me", summary="个人信息")
-def get_my_info(me: Users = Depends(auth_depend)):
+async def get_my_info(me: Users = Depends(auth_depend)):
     show_keys = ['name', 'lastlogin', 'nicename', 'role', 'face']
-    temp = {k:v for k,v in me.json().items() if k in show_keys} or {}
+    temp = {k: v for k, v in me.json().items() if k in show_keys} or {}
 
     return {
         "code": 0,
@@ -77,9 +81,9 @@ def get_my_info(me: Users = Depends(auth_depend)):
         "data": temp
     }
 
-@route.get("/demo_err", summary="错误返回演示")
-def error_demo():
 
+@route.get("/demo_err", summary="错误返回演示")
+async def error_demo():
     temp = {
         "err_code": "404",
         "err_msg": "一大坨错误信息！",

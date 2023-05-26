@@ -64,6 +64,13 @@ def register_exception(app: FastAPI):
         # )
         return RedirectResponse(url=exc.url)
 
+    @app.exception_handler(TokenAuthError)
+    async def unicorn_exception_handler(request: Request, exc: TokenAuthError):
+        return JSONResponse(
+            status_code=418,
+            content={"message": f"有点东西！{exc.err_desc}"},
+        )
+
 
 def register_cors(app: FastAPI):
     app.add_middleware(
