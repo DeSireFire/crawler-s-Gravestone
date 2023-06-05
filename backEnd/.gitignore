@@ -132,3 +132,5 @@ dmypy.json
 .idea
 /*.sqlite
 /conf.ini
+/test/logging.conf
+/test/阿里sls.py

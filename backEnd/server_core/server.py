@@ -31,6 +31,8 @@ def createapp():
     # app.include_router(menu.route, tags=["菜单"])
     # app.include_router(test.route, tags=["测试"])
     app.include_router(users.route, tags=["用户模块"])
+    app.include_router(workerLoger.route, tags=["日志收集模块"])
+    app.include_router(extras.route, tags=["拓展接口"])
 
     # @app.get("/")
     # def home():

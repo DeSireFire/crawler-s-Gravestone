@@ -120,7 +120,7 @@ const local_name = ref('未知');
 // 获取登录ip地区
 const getLocal = async () => {
   const result = await ipInfo();
-  console.log('result',result);
+  // console.log('result',result);
   local_name.value = result.data?.data?.city;
 };
 getLocal()
