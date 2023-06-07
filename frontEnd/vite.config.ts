@@ -8,6 +8,12 @@ import { defineConfig } from "vite";
 import VueSetupExtend from "vite-plugin-vue-setup-extend";
 export default defineConfig({
   base: "./",
+  server: {
+    host: '0.0.0.0',
+    port: 50831,
+    // 是否开启 https
+    https: false,
+  },
   plugins: [
     vue(),
     VueSetupExtend(),
