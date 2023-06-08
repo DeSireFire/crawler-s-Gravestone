@@ -1,7 +1,7 @@
 export const BASE_URL =
   process.env.NODE_ENV === "development"
-    ? "http://127.0.0.1:6701"     // 测试环境
-    : "http://api.cox.ink:6701";  // 生产环境
+    ? "http://0.0.0.0:50830"     // 测试环境
+    : "http://0.0.0.0:50830";  // 生产环境
 
 // 用户接口
 export enum ACCOUNT {

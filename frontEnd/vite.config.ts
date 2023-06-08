@@ -14,6 +14,12 @@ export default defineConfig({
     // 是否开启 https
     https: false,
   },
+  preview:{
+    host: '0.0.0.0',
+    port: 50821,
+    // 是否开启 https
+    https: false,
+  },
   plugins: [
     vue(),
     VueSetupExtend(),
