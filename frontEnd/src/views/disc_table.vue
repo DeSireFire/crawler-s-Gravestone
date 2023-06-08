@@ -6,7 +6,7 @@
     <el-row ref="chartsDatas" :gutter="20" v-for="(item,index) in chartsDatas" :key="index">
       <el-col :span="16">
         <el-card shadow="hover">
-          <div :id="`chart${index}`" class="echart" :options="chartOption"></div>
+          <div :id="`chart${index}`" class="echart" :options="schartOption"></div>
         </el-card>
       </el-col>
     </el-row>
@@ -17,8 +17,17 @@
 import { onBeforeMount, reactive, ref, onMounted, onUpdated } from 'vue'
 import * as echarts from 'echarts'
 import {fetchCharts,fetchChartss} from '../../src/api';
-
+import { defineComponent } from 'vue'
 const chartsDatas = ref(null)
+interface schartOption {
+  schartOption: any;
+}
+
+const schartOption: schartOption = {
+  schartOption: {}
+};
+
+
 
 // 获取数据
 const getDatas = async () => {
@@ -31,11 +40,11 @@ const initEcharts = async () => {
   const temps = (await fetchChartss()).data
   console.log("temps.value",temps)
   temps.forEach((item: any, index: string | number) => {
-    let chartOption  = temps[index]
+    let schartOption  = temps[index]
     let element = document.getElementById(`chart${index}`)
     if (element){
       let mainEchart = echarts.init(element)
-      mainEchart.setOption(chartOption,{notMerge:true})
+      mainEchart.setOption(schartOption,{notMerge:true})
     }
   });
 }
