@@ -7,4 +7,5 @@ declare module '*.vue' {
 }
 
 declare module 'vue-schart';
+declare module 'vue-echart';
 declare module 'vue-cropperjs';

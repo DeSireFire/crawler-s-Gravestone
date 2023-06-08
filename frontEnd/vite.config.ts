@@ -16,7 +16,7 @@ export default defineConfig({
   },
   preview:{
     host: '0.0.0.0',
-    port: 50821,
+    port: 50831,
     // 是否开启 https
     https: false,
   },

@@ -1,10 +1,7 @@
 export const BASE_URL =
-    process.env.NODE_ENV === "development"
-        ? import.meta.env.VITE_DEV_API ?? "http://192.168.16.15:50830"     // 测试环境
-        : import.meta.env.VITE_PRO_API ?? "http://192.168.16.15:50830";  // 生产环境
-
-console.log(import.meta.env)
-console.log("demo",import.meta.env.VITE_DEV_API)
+  process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:6701"     // 测试环境
+    : "http://api.cox.ink:6701";  // 生产环境
 
 // 用户接口
 export enum ACCOUNT {
