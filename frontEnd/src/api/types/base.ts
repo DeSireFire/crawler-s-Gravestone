@@ -24,3 +24,7 @@ export class RestResponse<T extends any> {
     return !!this.data;
   }
 }
+
+export type typeBackEnd = Partial<{
+  api_url: string | undefined;
+}>;

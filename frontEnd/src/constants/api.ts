@@ -1,7 +1,9 @@
+import { backEnd_url } from "backEndConfig";
+
 export const BASE_URL =
   process.env.NODE_ENV === "development"
-    ? "http://0.0.0.0:50830"     // 测试环境
-    : "http://0.0.0.0:50830";  // 生产环境
+    ? backEnd_url.dev_url | "http://0.0.0.0:50830"     // 测试环境
+    : backEnd_url.pro_url | "http://0.0.0.0:50830";  // 生产环境
 
 // 用户接口
 export enum ACCOUNT {
