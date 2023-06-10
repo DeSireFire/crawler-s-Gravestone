@@ -43,12 +43,12 @@
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="编辑" v-model="editVisible" width="30%">
+    <el-dialog title="查看" v-model="editVisible" width="30%" align-center>
       <el-form label-width="70px">
-        <el-form-item label="用户名">
+        <el-form-item label="日志名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item label="地址">
+        <el-form-item label="来源ip">
           <el-input v-model="form.address"></el-input>
         </el-form-item>
       </el-form>
@@ -100,7 +100,7 @@ getData();
 
 //更新表格数据
 const updateView = (page_num: number) =>{
-  const data = JSON.parse(localStorage.getItem('workerLogs'));
+  const data = JSON.parse(localStorage.getItem('workerLogs') as string);
   // 传递页码
   query.pageIndex = page_num;
   // 获取每个分页得大小

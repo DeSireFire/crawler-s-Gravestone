@@ -28,6 +28,7 @@ if not cache_datas:
         }
         datas["list"].append(lines)
     datas["pageTotal"] = len(datas["list"])
+    print(datas["pageTotal"])
     cache_datas = datas
 
 class constructResponse(object):
