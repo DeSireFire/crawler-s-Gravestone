@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
                     title: '任务日志',
                     permiss: '14',
                 },
-                component: () => import(/* webpackChunkName: "donate" */ '../views/workerLogs.vue'),
+                component: () => import(/* webpackChunkName: "workerLogs" */ '../views/workerLogs.vue'),
             },
 
 

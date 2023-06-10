@@ -82,21 +82,43 @@ const query = reactive({
   address: '',
   name: '',
   pageIndex: 1,
-  pageSize: 10
+  pageSize: 10,
 });
+// const tableData = ref<TableItem[]>([]);
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 // 获取表格数据
 const getData = () => {
   getLogs().then(res => {
     // console.log("res.data", res.data)
-    tableData.value = res.data.list;
+    tableData.value = res.data.list.slice(0, query.pageSize);
     pageTotal.value = res.data.pageTotal || 1;
     localStorage.setItem('workerLogs', JSON.stringify(res.data));
   });
 };
 getData();
 
+//更新表格数据
+const updateView = (page_num: number) =>{
+  const data = JSON.parse(localStorage.getItem('workerLogs'));
+  // 传递页码
+  query.pageIndex = page_num;
+  // 获取每个分页得大小
+  let page_size = query.pageSize
+  // 计算本页需要展示得片段
+  let index_start = 0
+  let index_end = query.pageSize
+  if (page_num == 1 /* 第1页和第0页，内容一致 */){
+    index_start = 0
+    index_end = query.pageSize
+  } else {
+    index_start = (page_num-1) * page_size
+    index_end = (page_num-1) * page_size + page_size
+  }
+  // console.log("totalPage",index_start, index_end)
+  // console.log("workerLogs", data.list)
+  tableData.value = data.list.slice(index_start, index_end);
+}
 
 // 查询操作
 const handleSearch = () => {
@@ -105,12 +127,7 @@ const handleSearch = () => {
 };
 // 分页导航
 const handlePageChange = (val: number) => {
-  query.pageIndex = val;
-  let list_index = (val-1)*10-1
-  const data = JSON.parse(localStorage.getItem('workerLogs'));
-  console.log("workerLogs", data.list.slice(list_index))
-  tableData.value = data.list.slice(list_index);
-  this.$refs.tableData.doLayout();
+  updateView(val)
 };
 
 // 删除操作
