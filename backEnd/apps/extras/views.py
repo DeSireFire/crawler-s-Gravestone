@@ -6,12 +6,18 @@
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
-from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status
+
+import math
+import random
+
 import requests
+# 统一响应的数据结构
+from server_core.control import constructResponse,cache_datas
+from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status
 
 route = APIRouter()
 @route.get("/ipInfo")
-async def test():
+async def ipInfo():
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
     }
@@ -20,3 +26,14 @@ async def test():
                             headers=headers)
     temp = response.json()
     return temp
+
+
+
+@route.get("/get_logs")
+async def get_logs():
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+
+    # todo 翻页逻辑如何传递
+
+    return callbackJson.callBacker(cache_datas)

@@ -9,4 +9,4 @@ __author__ = 'RaXianch'
 
 from apps import users
 from apps import extras
-from apps import workerLoger
+from apps import workerLogs

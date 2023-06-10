@@ -65,7 +65,6 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
         "message": "OK",
         "data": data,
     }
-
     return temp
 
 

@@ -1,14 +1,21 @@
 export const BASE_URL =
     process.env.NODE_ENV === "development"
-        ? import.meta.env.VITE_DEV_API ?? "http://192.168.16.15:50830"     // 测试环境
-        : import.meta.env.VITE_PRO_API ?? "http://192.168.16.15:50830";  // 生产环境
+        // ? import.meta.env.VITE_DEV_API ?? "http://192.168.16.15:50830"     // 测试环境
+        // : import.meta.env.VITE_PRO_API ?? "http://192.168.16.15:50830";  // 生产环境
+        ? import.meta.env.VITE_DEV_API ?? "http://localhost:50830"     // 测试环境
+        : import.meta.env.VITE_PRO_API ?? "http://localhost:50830";  // 生产环境
 
-console.log(import.meta.env)
-console.log("demo",import.meta.env.VITE_DEV_API)
+// console.log(import.meta.env)
+// console.log("demo",import.meta.env.VITE_DEV_API)
 
 // 用户接口
 export enum ACCOUNT {
   LOGIN = "/auth_token",
+}
+
+// 任务日志
+export enum WORKERLOGS {
+  GETLOGS = "/get_logs",
 }
 
 // 附加功能接口
@@ -22,5 +29,6 @@ export enum EXTRALS {
 // api 输出
 export const API = {
   ACCOUNT,
+  WORKERLOGS,
   EXTRALS,
 };

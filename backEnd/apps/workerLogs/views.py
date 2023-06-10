@@ -108,7 +108,6 @@ def logrecord(request_body: bytes):
     temp = record_factory(**log_dict)
     return temp
 
-
 def record_factory(*args, **kwargs):
     factory = logging.getLogRecordFactory()
     t_record = factory(*args, **kwargs)

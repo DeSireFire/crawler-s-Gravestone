@@ -50,7 +50,7 @@ const initEcharts = async () => {
 }
 
 onBeforeMount(() => {
-  getDatas()
+  // getDatas()
 })
 
 onMounted(() => {

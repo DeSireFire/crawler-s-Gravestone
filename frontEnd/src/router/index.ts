@@ -22,6 +22,18 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard.vue'),
             },
             {
+                path: '/worker_logs',
+                name: 'worker_logs',
+                meta: {
+                    title: '任务日志',
+                    permiss: '14',
+                },
+                component: () => import(/* webpackChunkName: "donate" */ '../views/workerLogs.vue'),
+            },
+
+
+            // 原始模板
+            {
                 path: '/table',
                 name: 'basetable',
                 meta: {
@@ -74,15 +86,6 @@ const routes: RouteRecordRaw[] = [
                     permiss: '3',
                 },
                 component: () => import(/* webpackChunkName: "tabs" */ '../views/tabs.vue'),
-            },
-            {
-                path: '/donate',
-                name: 'donate',
-                meta: {
-                    title: '鼓励作者',
-                    permiss: '14',
-                },
-                component: () => import(/* webpackChunkName: "donate" */ '../views/donate.vue'),
             },
             {
                 path: '/permission',

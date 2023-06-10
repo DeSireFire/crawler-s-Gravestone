@@ -12,7 +12,7 @@ export const get_ip_info = () => {
 
 export const fetchData = () => {
   return http({
-    url: "http://127.0.0.1:8000/table.test",
+    url: "http://127.0.0.1:50830/table.test",
     method: "get",
   });
 };
