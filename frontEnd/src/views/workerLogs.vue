@@ -7,22 +7,25 @@
           <el-option key="2" label="美团药店" value="美团药店"></el-option>
           <el-option key="2" label="企查查" value="企查查"></el-option>
         </el-select>
-        <el-input v-model="query.name" placeholder="搜索词" class="handle-input mr10"></el-input>
-        <el-button type="primary" :icon="Search" @click="handleSearch">搜索/刷新</el-button>
-        <el-button type="primary" :icon="Plus">新增</el-button>
+        <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
+        <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>
+        <el-button type="primary" :icon="Plus" @click="getData">刷新列表</el-button>
       </div>
       <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-        <el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
-        <el-table-column prop="log_project" label="所属项目"></el-table-column>
+        <el-table-column prop="id" label="ID" width="100" align="center"></el-table-column>
+        <el-table-column prop="log_project" label="所属项目" width="100"></el-table-column>
         <el-table-column prop="name" label="日志名称"></el-table-column>
         <el-table-column label="日志备注">
           <template #default="scope">{{ scope.row.remarks }}</template>
         </el-table-column>
-        <el-table-column prop="address" label="来源ip"></el-table-column>
-        <el-table-column label="操作" width="220" align="center">
+        <el-table-column prop="address" label="来源ip" width="150"></el-table-column>
+        <el-table-column label="操作" width="300" align="center">
           <template #default="scope">
             <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
               查看
+            </el-button>
+            <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
+              编辑
             </el-button>
             <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-permiss="16">
               删除
@@ -43,7 +46,7 @@
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="查看" v-model="editVisible" width="30%" align-center>
+    <el-dialog title="查看" v-model="editVisible" width="30%">
       <el-form label-width="70px">
         <el-form-item label="日志名称">
           <el-input v-model="form.name"></el-input>
@@ -80,7 +83,7 @@ interface TableItem {
 
 const query = reactive({
   address: '',
-  name: '',
+  keyword: '',
   pageIndex: 1,
   pageSize: 10,
 });
@@ -98,7 +101,7 @@ const getData = () => {
 };
 getData();
 
-//更新表格数据
+//翻页表格数据
 const updateView = (page_num: number) =>{
   const data = JSON.parse(localStorage.getItem('workerLogs') as string);
   // 传递页码
@@ -120,11 +123,25 @@ const updateView = (page_num: number) =>{
   tableData.value = data.list.slice(index_start, index_end);
 }
 
-// 查询操作
-const handleSearch = () => {
-  query.pageIndex = 1;
-  getData();
+// 数据关键词搜索
+const keywordSearch = (kw: string) => {
+  console.log("kw2",kw)
+  const data:TableItem[] = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  const filteredItems = data.filter((item) => {
+    return item.name.includes(kw) || item.remarks.includes(kw) || item.address.includes(kw);
+  });
+  console.log("ffff", filteredItems)
+  return filteredItems
 };
+
+// 查询操作
+const handleSearch = (kw: string) => {
+  console.log("kw1",kw)
+  query.pageIndex = 1;
+  let temp = keywordSearch(kw);
+  console.log("temp", temp)
+};
+
 // 分页导航
 const handlePageChange = (val: number) => {
   updateView(val)
@@ -149,6 +166,7 @@ let form = reactive({
   name: '',
   address: ''
 });
+
 let idx: number = -1;
 const handleEdit = (index: number, row: any) => {
   idx = index;
@@ -156,6 +174,7 @@ const handleEdit = (index: number, row: any) => {
   form.address = row.address;
   editVisible.value = true;
 };
+
 const saveEdit = () => {
   editVisible.value = false;
   ElMessage.success(`修改第 ${idx + 1} 行成功`);

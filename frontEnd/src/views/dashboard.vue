@@ -12,27 +12,29 @@
 					</div>
 					<div class="user-info-list">
 						上次登录时间：
-						<span>2023-05-26</span>
+						<span>{{ formattedDate }}</span>
 					</div>
 					<div class="user-info-list">
 						上次登录地点：
 						<span>{{ local_name }}</span>
 					</div>
 				</el-card>
-				<el-card shadow="hover" style="height: 252px">
+				<el-card shadow="hover" style="height: auto">
 					<template #header>
 						<div class="clearfix">
-							<span>语言详情</span>
+							<span>日志比例Top5</span>
 						</div>
 					</template>
-					Vue
-					<el-progress :percentage="79.4" color="#42b983"></el-progress>
-					TypeScript
+					高德地图
+					<el-progress :percentage="69.4" color="#42b983"></el-progress>
+					企查查
 					<el-progress :percentage="14" color="#f1e05a"></el-progress>
-					CSS
+					美团
 					<el-progress :percentage="5.6"></el-progress>
-					HTML
-					<el-progress :percentage="1" color="#f56c6c"></el-progress>
+					药监局
+					<el-progress :percentage="9" color="#f56c6c"></el-progress>
+          饿了么
+          <el-progress :percentage="1" color="#f56c6c"></el-progress>
 				</el-card>
 			</el-col>
 			<el-col :span="16">
@@ -42,8 +44,8 @@
 							<div class="grid-content grid-con-1">
 								<el-icon class="grid-con-icon"><User /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">1234</div>
-									<div>用户访问量</div>
+									<div class="grid-num">2</div>
+									<div>用户数量</div>
 								</div>
 							</div>
 						</el-card>
@@ -53,7 +55,7 @@
 							<div class="grid-content grid-con-2">
 								<el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">321</div>
+									<div class="grid-num">--</div>
 									<div>系统消息</div>
 								</div>
 							</div>
@@ -64,8 +66,8 @@
 							<div class="grid-content grid-con-3">
 								<el-icon class="grid-con-icon"><Goods /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">5000</div>
-									<div>商品数量</div>
+									<div class="grid-num">--</div>
+									<div>日志数量</div>
 								</div>
 							</div>
 						</el-card>
@@ -116,6 +118,17 @@ const imgurl = 'https://avatars.githubusercontent.com/u/64947085?v=4'
 const name = localStorage.getItem('ms_username');
 const role: string = name === 'admin' ? '超级管理员' : '普通用户';
 const local_name = ref('未知');
+const formattedDate = ref('未知');
+
+// 当前日期格式化
+const getDate = async () => {
+const today = new Date();
+const year = today.getFullYear();
+const month = (today.getMonth() + 1).toString().padStart(2, '0');
+const day = today.getDate().toString().padStart(2, '0');
+formattedDate.value = `${year}-${month}-${day}` as string;
+};
+getDate()
 
 // 获取登录ip地区
 const getLocal = async () => {
@@ -125,29 +138,19 @@ const getLocal = async () => {
 };
 getLocal()
 
+
+
 const todoList = reactive([
 	{
-		title: '今天要修复100个bug',
+		title: '模拟数据3...',
 		status: false
 	},
 	{
-		title: '今天要修复100个bug',
-		status: false
-	},
-	{
-		title: '今天要写100行代码加几个bug吧',
-		status: false
-	},
-	{
-		title: '今天要修复100个bug',
-		status: false
-	},
-	{
-		title: '今天要修复100个bug',
+		title: '模拟数据2...',
 		status: true
 	},
 	{
-		title: '今天要写100行代码加几个bug吧',
+		title: '模拟数据1...',
 		status: true
 	}
 ]);
