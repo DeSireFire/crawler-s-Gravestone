@@ -125,9 +125,7 @@ class LogSettings(BaseSettings):
         env_prefix = "LOG_"
         env_file_encoding = "utf-8"
 
-
 log_settings = LogSettings()
-
 
 def get_logger(name):
     logger = logging.getLogger(name)

@@ -28,8 +28,16 @@ async def ipInfo():
     return temp
 
 
-
 @route.get("/get_logs")
+async def get_logs():
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+
+    # todo 翻页逻辑如何传递
+
+    return callbackJson.callBacker(cache_datas)
+
+@route.get("/del_logs")
 async def get_logs():
     callbackJson = constructResponse()
     callbackJson.statusCode = 200

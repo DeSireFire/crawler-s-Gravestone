@@ -2,14 +2,15 @@
   <div>
     <div class="container">
       <div class="handle-box">
-        <el-select v-model="query.log_project" placeholder="项目名称" class="handle-select mr10">
+        <el-select v-model="query.filterWord" placeholder="项目名称" class="handle-select mr10">
           <el-option key="1" label="高德地图" value="高德地图"></el-option>
-          <el-option key="2" label="美团药店" value="美团药店"></el-option>
+          <el-option key="2" label="美团" value="美团"></el-option>
           <el-option key="2" label="企查查" value="企查查"></el-option>
+          <el-option key="2" label="无" value=""></el-option>
         </el-select>
         <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
         <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>
-        <el-button type="primary" :icon="Plus" @click="getData">刷新列表</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleFlush">刷新列表</el-button>
       </div>
       <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
         <el-table-column prop="id" label="ID" width="100" align="center"></el-table-column>
@@ -21,7 +22,7 @@
         <el-table-column prop="address" label="来源ip" width="150"></el-table-column>
         <el-table-column label="操作" width="300" align="center">
           <template #default="scope">
-            <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
+            <el-button text :icon="Edit" @click="handleMonit(scope.$index, scope.row)" v-permiss="15">
               查看
             </el-button>
             <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
@@ -36,7 +37,7 @@
       <div class="pagination">
         <el-pagination
             background
-            layout="total, prev, pager, next"
+            layout="total, prev, pager, next, jumper"
             :current-page="query.pageIndex"
             :page-size="query.pageSize"
             :total="pageTotal"
@@ -46,7 +47,7 @@
     </div>
 
     <!-- 编辑弹出框 -->
-    <el-dialog title="查看" v-model="editVisible" width="30%">
+    <el-dialog title="编辑" v-model="editVisible" width="30%">
       <el-form label-width="70px">
         <el-form-item label="日志名称">
           <el-input v-model="form.name"></el-input>
@@ -65,87 +66,80 @@
   </div>
 </template>
 
-<script setup lang="ts" name="basetable">
-import { ref, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
-import { getLogs } from '../api/workerLogs';
+<script setup lang="ts" name="worker_logs">
+import {onBeforeMount, reactive, ref} from 'vue';
+import {ElMessage, ElMessageBox} from 'element-plus';
+import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
+import {TableItem, query, pageTotal, tableData} from "~/constants/worker_logs";
+import {wl_api} from "~/store/worker_logs";
+import {getLogs, delLogs} from "~/api/workerLogs";
 
-interface TableItem {
-  id: number;
-  log_project: string;
-  name: string;
-  remarks: string;
-  address: string;
-}
-// localStorage.setItem('key', JSON.stringify(data));
-// const data = JSON.parse(localStorage.getItem('key'));
-
-const query = reactive({
-  address: '',
-  keyword: '',
-  pageIndex: 1,
-  pageSize: 10,
-});
-// const tableData = ref<TableItem[]>([]);
-const tableData = ref<TableItem[]>([]);
-const pageTotal = ref(0);
-// 获取表格数据
-const getData = () => {
-  getLogs().then(res => {
-    // console.log("res.data", res.data)
-    tableData.value = res.data.list.slice(0, query.pageSize);
-    pageTotal.value = res.data.pageTotal || 1;
-    localStorage.setItem('workerLogs', JSON.stringify(res.data));
-  });
+// 刷新数据
+const handleFlush = async () => {
+  // 获取数据
+  const res = (await getLogs())
+  // 载入数据
+  tableData.value = res.data.list.slice(0, query.pageSize);
+  pageTotal.value = res.data.pageTotal || 1;
+  // 缓存数据
+  localStorage.setItem('workerLogs', JSON.stringify(res.data));
+  // 将查询条件初始化
+  query.keyword = ""
+  query.filterWord = ""
 };
-getData();
-
-//翻页表格数据
-const updateView = (page_num: number) =>{
-  const data = JSON.parse(localStorage.getItem('workerLogs') as string);
-  // 传递页码
-  query.pageIndex = page_num;
-  // 获取每个分页得大小
-  let page_size = query.pageSize
-  // 计算本页需要展示得片段
-  let index_start = 0
-  let index_end = query.pageSize
-  if (page_num == 1 /* 第1页和第0页，内容一致 */){
-    index_start = 0
-    index_end = query.pageSize
-  } else {
-    index_start = (page_num-1) * page_size
-    index_end = (page_num-1) * page_size + page_size
-  }
-  // console.log("totalPage",index_start, index_end)
-  // console.log("workerLogs", data.list)
-  tableData.value = data.list.slice(index_start, index_end);
-}
-
-// 数据关键词搜索
-const keywordSearch = (kw: string) => {
-  console.log("kw2",kw)
-  const data:TableItem[] = JSON.parse(localStorage.getItem('workerLogs') as string).list;
-  const filteredItems = data.filter((item) => {
-    return item.name.includes(kw) || item.remarks.includes(kw) || item.address.includes(kw);
-  });
-  console.log("ffff", filteredItems)
-  return filteredItems
-};
-
-// 查询操作
-const handleSearch = (kw: string) => {
-  console.log("kw1",kw)
-  query.pageIndex = 1;
-  let temp = keywordSearch(kw);
-  console.log("temp", temp)
-};
+// 打开页面就刷新
+handleFlush();
 
 // 分页导航
 const handlePageChange = (val: number) => {
-  updateView(val)
+  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+
+  // 先筛选后搜索
+  if (query.filterWord) {
+    temp = wl_api.logProjectFilter(query.filterWord, temp);
+    console.log("检测为翻页query.filterWord",query.filterWord)
+  } else if (query.keyword) {
+    temp = wl_api.keywordSearch(query.keyword, temp);
+    console.log("检测为翻页query.keyword",query.keyword)
+  } else {
+    temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  }
+
+  // 对新的搜索结果做分页处理
+  query.pageIndex = val;
+  pageTotal.value = temp.length || 1;
+  console.log("翻页搜索结果datas",temp)
+  // 缓存数据
+  tableData.value = wl_api.updateView(val,temp);
 };
+
+// 查询操作
+const handleSearch = () => {
+  // 搜索关键词，刷新表格为搜索结果
+  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  // let temp:TableItem[] = []
+
+  // 先筛选后搜索
+  if (query.filterWord) {
+    temp = wl_api.logProjectFilter(query.filterWord, temp);
+    console.log("检测为翻页query.filterWord",query.filterWord, temp)
+  }
+
+  if (query.keyword) {
+    temp = wl_api.keywordSearch(query.keyword, temp);
+    console.log("检测为翻页query.keyword", query.keyword, temp)
+  }
+
+  if (!temp) {
+    temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  }
+
+  // 对新的搜索结果做分页处理
+  query.pageIndex = 1;
+  pageTotal.value = temp.length || 1;
+  tableData.value = temp.slice(0, query.pageSize);
+};
+
 
 // 删除操作
 const handleDelete = (index: number) => {
@@ -153,11 +147,17 @@ const handleDelete = (index: number) => {
   ElMessageBox.confirm('确定要删除吗？', '提示', {
     type: 'warning'
   })
-      .then(() => {
+      .then(() => { /* 处理正常时 */
+        let watiDelData = tableData.value.splice(index, 1).pop();
+        // let data = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+        // let full_index = data.indexOf(watiDelData);
+        console.log("待删除数据", watiDelData, typeof watiDelData)
+        let del_status = wl_api.deleteLogfile(watiDelData);
         ElMessage.success('删除成功');
-        tableData.value.splice(index, 1);
       })
-      .catch(() => {});
+      .catch(() => { /* 处理失败时 */
+        ElMessage.error('删除失败');
+      });
 };
 
 // 表格编辑时弹窗和保存
@@ -166,6 +166,10 @@ let form = reactive({
   name: '',
   address: ''
 });
+
+const handleMonit = () => {
+  console.log("handleMonit~")
+};
 
 let idx: number = -1;
 const handleEdit = (index: number, row: any) => {
@@ -181,6 +185,7 @@ const saveEdit = () => {
   tableData.value[idx].name = form.name;
   tableData.value[idx].address = form.address;
 };
+
 </script>
 
 <style scoped>
@@ -195,16 +200,20 @@ const saveEdit = () => {
 .handle-input {
   width: 300px;
 }
+
 .table {
   width: 100%;
   font-size: 14px;
 }
+
 .red {
   color: #F56C6C;
 }
+
 .mr10 {
   margin-right: 10px;
 }
+
 .table-td-thumb {
   display: block;
   margin: auto;

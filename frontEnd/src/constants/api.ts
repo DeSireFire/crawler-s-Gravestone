@@ -16,6 +16,7 @@ export enum ACCOUNT {
 // 任务日志
 export enum WORKERLOGS {
   GETLOGS = "/get_logs",
+  DELLOGS = "/del_logs",
 }
 
 // 附加功能接口
