@@ -10,17 +10,18 @@ __author__ = 'RaXianch'
 import random
 import time
 from server_core.log import logger
+from fastapi.responses import JSONResponse
 cache_datas = {}
 if not cache_datas:
     pronames = [
         "高德地图",
-        "美团药店",
+        "美团",
         "企查查",
     ]
     datas = {"list": [], "pageTotal": 0}
     for i in range(0, random.randint(10, 100)):
         lines = {
-            "id": random.randint(1, 100),
+            "id": f"{random.randint(1, 100)}",
             "name": f"ip_{random.randint(1, 100)}_demo_local.log",
             "log_project": random.choice(pronames),
             "remarks": f"{random.randint(1, 12)}月-月度采集日志",
@@ -28,8 +29,8 @@ if not cache_datas:
         }
         datas["list"].append(lines)
     datas["pageTotal"] = len(datas["list"])
-    print(datas["pageTotal"])
     cache_datas = datas
+
 
 class constructResponse(object):
     """
@@ -56,14 +57,19 @@ class constructResponse(object):
             self.message = "OK!"
 
         else:
-            self.message = "数据拉取时发生错误！"
-            logger.error(f"[数据拉取时发生错误] url:{self.url}")
+            self.message = "响应处理时发生错误！" if not self.message else self.message
+            self.resData["errCode"] = self.statusCode
+            self.resData["errMsg"] = self.message
+            self.resData["err_msg"] = self.message
+            self.resData["statusBool"] = False
+            logger.error(f"[{self.message}] url:{self.url}")
 
         if data:
-            self.endTime = time.time()
             self.resData["data"] = data
 
         self.resData["message"] = self.message
-        self.resData["ts"] = self.endTime
+        self.resData["ts"] = time.time()
         self.resData["date"] = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        return self.resData
+        # return self.resData
+
+        return JSONResponse(status_code=self.statusCode, content=self.resData)

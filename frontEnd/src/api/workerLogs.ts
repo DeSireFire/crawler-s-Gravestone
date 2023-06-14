@@ -17,7 +17,7 @@ export const delLogs = (DelData:DelLogData) => {
     return handleDelete({
         // url: `${API.WORKERLOGS.DELLOGS}/${DelData}`,
         url: API.WORKERLOGS.DELLOGS,
-        method: REQUEST_METHOD.GET,
+        method: REQUEST_METHOD.DELETE,
         headers: {},
         params: DelData,
     });

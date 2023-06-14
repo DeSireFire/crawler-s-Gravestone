@@ -17,5 +17,5 @@ export const query = reactive({
 });
 
 export const tableData = ref<TableItem[]>([]);
-export const pageTotal = ref(0);
+export let pageTotal = ref(0);
 

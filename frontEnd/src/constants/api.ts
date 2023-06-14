@@ -1,10 +1,14 @@
 export const BASE_URL =
-    process.env.NODE_ENV === "development"
-         ? import.meta.env.VITE_DEV_API ?? "http://192.168.16.15:50830"     // 测试环境
-         : import.meta.env.VITE_PRO_API ?? "http://192.168.16.15:50830";  // 生产环境
-        // ? import.meta.env.VITE_DEV_API ?? "http://localhost:50830"     // 测试环境
-        // : import.meta.env.VITE_PRO_API ?? "http://localhost:50830";  // 生产环境
-
+    process.platform.includes('win')
+        ? import.meta.env.VITE_DEV_API ?? "http://127.0.0.1:50830"     // 测试环境
+        : import.meta.env.VITE_PRO_API ?? "http://192.168.16.15:50830" // 生产环境
+if (process.platform.includes('win')) {
+  console.log(process.platform, "检测为windows系统，切换与后端的交互为localhost！")
+}
+if (process.platform.includes('linux')) {
+  console.log(process.platform, "检测为linux系统，切换与后端的交互为localhost！")
+}
+// console.log(process.platform.includes('win'))
 // console.log(import.meta.env)
 // console.log("demo",import.meta.env.VITE_DEV_API)
 

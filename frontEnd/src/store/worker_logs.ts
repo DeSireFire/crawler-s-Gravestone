@@ -57,8 +57,10 @@ const logProjectFilter = (filterWord: string, datas: TableItem[] = []) => {
 // 删除日志文件
 const deleteLogfile = async (delLogData: any) => {
     // 获取数据
-    const res = (await delLogs(delLogData));
-    console.log("delLogData",delLogData)
+    const response = (await delLogs(delLogData));
+    let msg = response.errMsg ?? "无"
+    console.log("delLogData-res",msg)
+    return response.data
 };
 
 // api 输出

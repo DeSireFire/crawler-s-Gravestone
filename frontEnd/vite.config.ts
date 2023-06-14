@@ -45,5 +45,9 @@ export default defineConfig({
       "@@/*": path.resolve(__dirname, "./src/*"),
     },
   },
+  // 设置全局变量
+  define: {
+    'process.platform': JSON.stringify(process.platform)
+  }
 });
 

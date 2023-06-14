@@ -73,34 +73,39 @@ import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
 import {TableItem, query, pageTotal, tableData} from "~/constants/worker_logs";
 import {wl_api} from "~/store/worker_logs";
 import {getLogs, delLogs} from "~/api/workerLogs";
+import {json} from "stream/consumers";
 
 // 刷新数据
-const handleFlush = async () => {
+const handleFlush = async (init = true) => {
   // 获取数据
   const res = (await getLogs())
-  // 载入数据
-  tableData.value = res.data.list.slice(0, query.pageSize);
-  pageTotal.value = res.data.pageTotal || 1;
-  // 缓存数据
-  localStorage.setItem('workerLogs', JSON.stringify(res.data));
-  // 将查询条件初始化
-  query.keyword = ""
-  query.filterWord = ""
+  // 是否初始化
+  if (init){
+    // 载入数据
+    tableData.value = res.data.list.slice(0, query.pageSize);
+    pageTotal.value = res.data.pageTotal || 1;
+    // 缓存数据
+    localStorage.setItem('workerLogs', JSON.stringify(res.data));
+    // 将查询条件初始化
+    query.keyword = ""
+    query.filterWord = ""
+  }
 };
 // 打开页面就刷新
 handleFlush();
 
 // 分页导航
 const handlePageChange = (val: number) => {
+  // todo 封装一个函数，对从浏览器缓存中获取数据时，产生的错误进行处理
   let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
 
   // 先筛选后搜索
   if (query.filterWord) {
     temp = wl_api.logProjectFilter(query.filterWord, temp);
-    console.log("检测为翻页query.filterWord",query.filterWord)
+    console.log("检测为翻页query.filterWord", query.filterWord)
   } else if (query.keyword) {
     temp = wl_api.keywordSearch(query.keyword, temp);
-    console.log("检测为翻页query.keyword",query.keyword)
+    console.log("检测为翻页query.keyword", query.keyword)
   } else {
     temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
   }
@@ -108,21 +113,21 @@ const handlePageChange = (val: number) => {
   // 对新的搜索结果做分页处理
   query.pageIndex = val;
   pageTotal.value = temp.length || 1;
-  console.log("翻页搜索结果datas",temp)
+  console.log("翻页搜索结果datas", temp)
   // 缓存数据
-  tableData.value = wl_api.updateView(val,temp);
+  tableData.value = wl_api.updateView(val, temp);
 };
 
 // 查询操作
 const handleSearch = () => {
   // 搜索关键词，刷新表格为搜索结果
-  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list
   // let temp:TableItem[] = []
 
   // 先筛选后搜索
   if (query.filterWord) {
     temp = wl_api.logProjectFilter(query.filterWord, temp);
-    console.log("检测为翻页query.filterWord",query.filterWord, temp)
+    console.log("检测为翻页query.filterWord", query.filterWord, temp)
   }
 
   if (query.keyword) {
@@ -147,17 +152,28 @@ const handleDelete = (index: number) => {
   ElMessageBox.confirm('确定要删除吗？', '提示', {
     type: 'warning'
   })
-      .then(() => { /* 处理正常时 */
-        let watiDelData = tableData.value.splice(index, 1).pop();
-        // let data = JSON.parse(localStorage.getItem('workerLogs') as string).list;
-        // let full_index = data.indexOf(watiDelData);
-        console.log("待删除数据", watiDelData, typeof watiDelData)
-        let del_status = wl_api.deleteLogfile(watiDelData);
-        ElMessage.success('删除成功');
+      .then(async () => { /* 处理正常时 */
+        // 获取当前表行数据
+        let watiDelData:TableItem = tableData.value.splice(index, 1)[0];
+        // 向后端发起删除操作
+        const response = (await delLogs(watiDelData));
+        if (response.isSuccess) {
+          // 响应删除成功则弹出提示
+          ElMessage.success('删除成功！');
+          // 刷新缓存数据
+          const sub_flush = (await getLogs())
+          localStorage.setItem('workerLogs', JSON.stringify(sub_flush.data));
+          pageTotal.value -= 1
+
+        } else {
+          // 响应删除失败则弹出错误
+          throw new Error(response.errMsg);
+        }
       })
-      .catch(() => { /* 处理失败时 */
-        ElMessage.error('删除失败');
+      .catch((error) => { /* 处理失败时 */
+        ElMessage.error(`删除失败! ${error}`);
       });
+
 };
 
 // 表格编辑时弹窗和保存
