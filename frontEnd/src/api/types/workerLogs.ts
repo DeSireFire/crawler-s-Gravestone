@@ -1,4 +1,4 @@
-export type DelLogData = Partial<{
+export type LogInfo = Partial<{
   id:          number| undefined;
   name:        string| undefined;
   log_project: string| undefined;

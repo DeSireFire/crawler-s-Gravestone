@@ -20,6 +20,7 @@ export enum ACCOUNT {
 // 任务日志
 export enum WORKERLOGS {
   GETLOGS = "/get_logs",
+  GETLOGCONTENT = "/get_log_content",
   DELLOGS = "/del_logs",
 }
 

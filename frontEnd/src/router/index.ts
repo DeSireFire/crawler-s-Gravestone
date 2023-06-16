@@ -28,9 +28,17 @@ const routes: RouteRecordRaw[] = [
                     title: '任务日志',
                     permiss: '14',
                 },
-                component: () => import(/* webpackChunkName: "workerLogs" */ '../views/worker_logs.vue'),
+                component: () => import(/* webpackChunkName: "worker_logs" */ '../views/worker_logs.vue'),
             },
-
+            {
+                path: '/demo',
+                name: 'demo',
+                meta: {
+                    title: '临时测试页面',
+                    permiss: '1',
+                },
+                component: () => import(/* webpackChunkName: "demo" */ '../views/demo.vue'),
+            },
 
             // 原始模板
             {

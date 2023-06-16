@@ -11,25 +11,7 @@ import random
 import time
 from server_core.log import logger
 from fastapi.responses import JSONResponse
-cache_datas = {}
-if not cache_datas:
-    pronames = [
-        "高德地图",
-        "美团",
-        "企查查",
-    ]
-    datas = {"list": [], "pageTotal": 0}
-    for i in range(0, random.randint(10, 100)):
-        lines = {
-            "id": f"{random.randint(1, 100)}",
-            "name": f"ip_{random.randint(1, 100)}_demo_local.log",
-            "log_project": random.choice(pronames),
-            "remarks": f"{random.randint(1, 12)}月-月度采集日志",
-            "address": "localhost",
-        }
-        datas["list"].append(lines)
-    datas["pageTotal"] = len(datas["list"])
-    cache_datas = datas
+
 
 
 class constructResponse(object):

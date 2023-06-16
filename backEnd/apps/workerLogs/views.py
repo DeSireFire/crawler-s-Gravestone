@@ -12,14 +12,15 @@ import os
 # from .models import *
 # from .auth import *
 import time
-from datetime import datetime
-from urllib.parse import unquote_plus, unquote, parse_qs
-from logging.handlers import TimedRotatingFileHandler
-from aliyun.log import QueuedLogHandler
+from pprint import pprint
+
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status
+from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
 from fastapi.responses import JSONResponse
-from pydantic import BaseSettings
+from .components import logrecord, file_log_save, traverse_folder, _handle_logfiles
+# 统一响应的数据结构
+from server_core.control import constructResponse
+from server_core.conf import BASE_DIR
 
 from loguru import logger as sub_logger
 route = APIRouter()
@@ -58,131 +59,42 @@ async def update_logging(request: Request):
     except Exception as err:
         return {"status": "err", "error": err, "data": None}
 
-def logrecord(request_body: bytes):
-    """
-        接受以字节为单位的请求正文
-        并将其转换为LogRecord
-        它以url编码的形式出现
-        只有安装了标准的logging.handlers.HTTPHandler才能正常工作
+@route.get("/get_logs")
+async def get_logs(request: Request, name: str = Query(None)):
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    log_path = os.path.join(BASE_DIR, "logs", "worker_logs")
+    # print(log_path)
+    logs_files_dict = traverse_folder(log_path)
+    pprint(logs_files_dict)
 
-        示例传入消息:
-            {
-                'name': 'main',
-                'msg': 'Answer code: 401 request url: GET "http://127.0.0.1:8000/api/v1/user" duration: 74 ms Request body: b\'\' Response body: b\'{"message":"Token expired"}\' ',
-                'args': '()',
-                'levelname': 'INFO',
-                'levelno': '20',
-                'pathname': '/app/./app/core/middlewares/logging_middleware.py',
-                'filename': 'logging_middleware.py',
-                'module': 'logging_middleware',
-                'exc_info': 'None',
-                'exc_text': 'None',
-                'stack_info': 'None',
-                'lineno': '155',
-                'funcName': '__call__',
-                'created': '1647248729.8843582',
-                'msecs': '884.3581676483154',
-                'relativeCreated': '3603232.8238487244',
-                'thread': '140245387786048',
-                'threadName': 'MainThread',
-                'processName': 'SpawnProcess-2',
-                'process': '28'
-            }
-    """
-    assert isinstance(request_body, bytes), 'Request body should be in bytes'
-    logrec = unquote(request_body.decode())
+    # 转换为业务响应数据
+    content.update(_handle_logfiles(logs_files_dict))
 
-    # name=main&process=28...
-    log_dict = dict(
-        (x.split('=')[0], (x.split('=')[1]))
-        for x in logrec.split('&')
-    )
-    # Заменить + на пробел
-    log_dict['msg'] = unquote_plus(log_dict['msg'])
-    log_dict['level'] = log_dict['levelno']
+    return callbackJson.callBacker(content)
 
-    # Если приходят '()' в параметре args, падает в ошибку
-    if log_dict.get('args') == '()':
-        log_dict['args'] = ''
 
-    temp = record_factory(**log_dict)
-    return temp
+@route.get("/get_log_content")
+async def get_log_content(request: Request, name: str = Query(None)):
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {
+        "content": "",
+    }
+    log_info = dict(request.query_params)
+    log_path = os.path.join(BASE_DIR, "logs", "worker_logs")
+    print(f"log_path: {log_path}")
+    print(f"log_info: {log_info}")
 
-def record_factory(*args, **kwargs):
-    factory = logging.getLogRecordFactory()
-    t_record = factory(*args, **kwargs)
-    return t_record
+    filename = '1686885357069.log'
 
-class LogSettings(BaseSettings):
-    WHEN: str = "D"
-    INTERVAL: int = 1
-    BACKUP_COUNT: int = 7
-    AT_TIME: str = "midnight"
-    FORMAT: str = "%(asctime)s : %(levelname)s : %(message)s"
-    ROOT: str = "logs"
+    # with open(os.path.join(log_path, filename), 'r') as f:
+    #     content["content"] = f.read()
 
-    class Config:
-        env_prefix = "LOG_"
-        env_file_encoding = "utf-8"
+    for file in os.listdir(log_path):
+        if os.path.isfile(os.path.join(log_path, file)) and file == filename:
+            with open(os.path.join(log_path, file), 'r', encoding="utf-8") as f:
+                content["content"] = f.read()
 
-log_settings = LogSettings()
-
-def get_logger(name):
-    logger = logging.getLogger(name)
-    # 创建一个handler，用于写入日志文件
-    # filename = rf'F:\workSpace\myGithub\crawler-s-Gravestone\backEnd\logs/{datetime.now().date()}_{name}.log'
-    filename = f'logs/{datetime.now().date()}_{name}.log'
-    fh = logging.FileHandler(filename, mode='a+', encoding='utf-8')
-    # 再创建一个handler用于输出到控制台
-    ch = logging.StreamHandler()
-
-    # 再再创建一个阿里云sls handler用于输出控制台
-    slsh = QueuedLogHandler()
-
-    # 定义输出格式(可以定义多个输出格式例formatter1，formatter2)
-    # formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
-    formatter = logging.Formatter(
-        "%(asctime)s | %(name)s | %(levelname)s | %(lineno)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    logger.setLevel(1)
-
-    # 定义日志输出层级
-    fh.setLevel(logging.DEBUG)
-    # 定义控制台输出层级
-    ch.setLevel(logging.WARNING)
-    # 定义控制台输出层级
-    slsh.setLevel(logging.DEBUG)
-
-    # 为文件操作符绑定格式（可以绑定多种格式例fh.setFormatter(formatter2)）
-    fh.setFormatter(formatter)
-    # 为控制台操作符绑定格式（可以绑定多种格式例ch.setFormatter(formatter2)）
-    ch.setFormatter(formatter)
-    # 为控制台操作符绑定格式（可以绑定多种格式例ch.setFormatter(formatter2)）
-    # slsh.setFormatter(formatter)
-
-    # 给logger对象绑定文件操作符
-    logger.addHandler(fh)
-    # 给logger对象绑定文件操作符
-    logger.addHandler(ch)
-    # 给logger对象绑定sls操作符
-    # logger.addHandler(slsh)
-
-    return logger
-
-def file_log_save(record=None):
-    """
-    将日志流保存到日志文件当中
-    :param record:
-    :return:
-    """
-    # temp = {'name': '__main__', 'msg': '这是一条日志，发出来测试一下！！！ cpu占用：50%', 'args': '', 'levelname': 'Level 20', 'levelno': '20', 'pathname': 'F:\\workSpace\\myGithub\\crawler-s-Gravestone\\backEnd\\test\\logerTest.py', 'filename': 'logerTest.py', 'module': 'logerTest', 'exc_info': 'None', 'exc_text': None, 'stack_info': None, 'lineno': '37', 'funcName': None, 'created': 1685603063.502001, 'msecs': 502.0010471343994, 'relativeCreated': 222726.76038742065, 'thread': 26704, 'threadName': 'MainThread', 'processName': 'SpawnProcess-4', 'process': 21112}
-    # record = logging.makeLogRecord(temp)
-    temp_record = dict(record.__dict__)
-    ler = get_logger(temp_record.get("name"))
-    # # 写入成功，但是部分参数没有传递
-    # ler.log(int(record.levelno), record.getMessage())
-    ler.log(int(record.levelno), record.getMessage())
-
-# if __name__ == '__main__':
-#     file_log_save()
-
+    return callbackJson.callBacker(content)

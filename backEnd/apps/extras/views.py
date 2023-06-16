@@ -12,7 +12,7 @@ import random
 from fastapi import requests
 import requests
 # 统一响应的数据结构
-from server_core.control import constructResponse,cache_datas
+from server_core.control import constructResponse
 
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
 
@@ -29,11 +29,11 @@ async def ipInfo():
     return temp
 
 
-@route.get("/get_logs")
-async def get_logs():
-    callbackJson = constructResponse()
-    callbackJson.statusCode = 200
-    return callbackJson.callBacker(cache_datas)
+# @route.get("/get_logs")
+# async def get_logs():
+#     callbackJson = constructResponse()
+#     callbackJson.statusCode = 200
+#     return callbackJson.callBacker(cache_datas)
 
 
 @route.delete("/del_logs")  # todo 属于危险操作需要鉴权
