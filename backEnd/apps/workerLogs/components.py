@@ -110,7 +110,7 @@ def get_logger(name, project_name: str = "未知"):
     # 判断路径是否存在，不存在则创建
     if not os.path.exists(file_path):
         pprint(f"未发现目录，创建目录: {file_path}")
-        os.makedirs(os.path.dirname(file_path))
+        os.makedirs(file_path)
     fh = logging.FileHandler(filename, mode='a+', encoding='utf-8')
     # 再创建一个handler用于输出到控制台
     ch = logging.StreamHandler()
