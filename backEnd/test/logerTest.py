@@ -22,6 +22,7 @@ def get_machine_memory_usage_percent():
     return int(psutil.virtual_memory()._asdict().get('percent'))
 
 def save():
+    # ip_address = "192.168.16.15"
     ip_address = "127.0.0.1"
     port = "50830"
     # 生成一个log实例，如果括号为空则返回root logger
@@ -50,13 +51,13 @@ def save():
         )
         # 输出日志，内容为‘存入600元'
         print(f"运行完毕！{i}次！")
-        time.sleep(3)
+        time.sleep(10)
 
 
 def test():
     import logging
-
-    ip_address = "0.0.0.0"
+    ip_address = "192.168.16.15"
+    # ip_address = "0.0.0.0"
     port = "50830"
     # path = "/dev/application"
     path = "/dev/app1/"

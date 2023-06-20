@@ -10,11 +10,19 @@ __author__ = 'RaXianch'
 import logging
 import math
 import os
+from pprint import pprint
 from pydantic import BaseSettings
 from urllib.parse import unquote_plus, unquote, parse_qs
 from logging.handlers import TimedRotatingFileHandler
 from aliyun.log import QueuedLogHandler
 from datetime import datetime
+
+# 检查并创建业务日志文件夹
+from server_core.conf import BASE_DIR
+
+worker_logs_path = os.path.join(BASE_DIR, "logs", "worker_logs")
+if not os.path.exists(worker_logs_path):
+    os.makedirs(worker_logs_path)
 
 
 def logrecord(request_body: bytes):
@@ -95,6 +103,9 @@ def get_logger(name, project_name: str = "未知"):
     # 创建一个handler，用于写入日志文件
     # filename = rf'F:\workSpace\myGithub\crawler-s-Gravestone\backEnd\logs/{datetime.now().date()}_{name}.log'
     filename = f'logs/worker_logs/{project_name}/{datetime.now().date()}_{name}.log'
+    # 判断路径是否存在，不存在则创建
+    if not os.path.exists(os.path.dirname(filename)):
+        os.makedirs(os.path.dirname(filename))
     fh = logging.FileHandler(filename, mode='a+', encoding='utf-8')
     # 再创建一个handler用于输出到控制台
     ch = logging.StreamHandler()
@@ -144,6 +155,7 @@ def file_log_save(record=None, project_name: str = "未知"):
     temp_record = dict(record.__dict__)
     ler = get_logger(temp_record.get("name"), project_name)
     # # 写入成功，但是部分参数没有传递
+    # ler.log(int(record.levelno), record.getMessage())
     ler.log(int(record.levelno), record.getMessage())
 
 

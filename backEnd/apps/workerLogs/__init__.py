@@ -15,8 +15,5 @@ import os
 # 导入视图
 from .views import *
 
-# 检查并创建业务日志文件夹
-path = os.path.join(BASE_DIR, "logs", "worker_logs")
-if not os.path.exists(path):
-    os.makedirs(path)
+
 

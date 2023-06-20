@@ -51,10 +51,10 @@ async def update_loguru(request: Request):
 async def update_logging(request: Request):
     data = await request.body()
     fdata = await request.form()
-    print(f"{fdata}")
+    pprint(f"接收到日志数据fdata===>{fdata}")
     try:
         record = logrecord(data)
-        file_log_save(record)
+        file_log_save(record, project_name="客户端上传测试")
         return {"status": "ok", "error": None, "data": data}
     except Exception as err:
         return {"status": "err", "error": err, "data": None}
