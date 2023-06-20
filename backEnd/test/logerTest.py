@@ -22,11 +22,13 @@ def get_machine_memory_usage_percent():
     return int(psutil.virtual_memory()._asdict().get('percent'))
 
 def save():
+    ip_address = "127.0.0.1"
+    port = "50830"
     # 生成一个log实例，如果括号为空则返回root logger
     logger = logging.getLogger(__name__)
     print(f"__name__：{__name__}")
     # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
-    hh = HTTPHandler(host='127.0.0.1:6701', url='/log', method='POST')
+    hh = HTTPHandler(host=f'{ip_address}:{port}', url='/log', method='POST')
     # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
     logger.setLevel(logging.NOTSET+1)
     # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
@@ -54,8 +56,8 @@ def save():
 def test():
     import logging
 
-    ip_address = "127.0.0.1"
-    port = "5000"
+    ip_address = "0.0.0.0"
+    port = "50830"
     # path = "/dev/application"
     path = "/dev/app1/"
     # 生成一个log实例，如果括号为空则返回root logger

@@ -1,12 +1,11 @@
 <template>
   <div>
     <div class="container">
+      <div class="plugins-tips">日志管理</div>
       <div class="handle-box">
-        <el-select v-model="query.filterWord" placeholder="项目名称" class="handle-select mr10">
-          <el-option key="1" label="高德地图" value="高德地图"></el-option>
-          <el-option key="2" label="美团" value="美团"></el-option>
-          <el-option key="2" label="企查查" value="企查查"></el-option>
-          <el-option key="2" label="无" value=""></el-option>
+        <el-select v-model="query.filterWord" placeholder="所属项目" class="handle-select mr10">
+          <el-option  v-for="(item, index) in query.log_projects" :key="index+1" :label="item" :value="item"></el-option>
+          <el-option key="0" label="无" value=""></el-option>
         </el-select>
         <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
         <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>
@@ -32,7 +31,7 @@
             <el-button text :icon="Edit" @click="handleMonit(scope.$index, scope.row)" v-permiss="15">
               查看
             </el-button>
-            <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
+            <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="100">
               编辑
             </el-button>
             <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-permiss="16">
@@ -62,6 +61,7 @@
         :before-close="handleClose"
         :show-close="false"
         :close-on-click-modal="false"
+        destroy-on-close
     >
       <!-- 弹窗头部 -->
       <template #header="{ close, titleId, titleClass, scope }">
@@ -86,7 +86,7 @@
 
       <template #footer>
       <span class="dialog-footer">
-        <el-button type="primary" @click="logVisible = false">
+        <el-button type="primary" @click="fullscreen = false; logVisible = false;">
           关闭
         </el-button>
       </span>
@@ -135,6 +135,9 @@ const handleFlush = async (init = true) => {
     // 将查询条件初始化
     query.keyword = ""
     query.filterWord = ""
+    query.log_projects = res.data.log_projects
+    console.log("res.data.log_projects",res.data.log_projects)
+    console.log("query.log_projects",query.log_projects)
   }
 };
 // 打开页面就刷新
@@ -199,7 +202,9 @@ const handleDelete = (index: number) => {
   })
       .then(async () => { /* 处理正常时 */
         // 获取当前表行数据
-        let watiDelData: TableItem = tableData.value.splice(index, 1)[0];
+        // let watiDelData: TableItem = tableData.value.splice(index, 1)[0];
+        let watiDelData: TableItem = tableData.value[index];
+        console.log("watiDelData", watiDelData)
         // 向后端发起删除操作
         const response = (await delLogs(watiDelData));
         if (response.isSuccess) {
@@ -208,6 +213,7 @@ const handleDelete = (index: number) => {
           // 刷新缓存数据
           const sub_flush = (await getLogs())
           localStorage.setItem('workerLogs', JSON.stringify(sub_flush.data));
+          let temp = tableData.value.splice(index, 1)[0];
           pageTotal.value -= 1
 
         } else {
@@ -233,6 +239,8 @@ let logMointForm = reactive({
   name: '',
   remarks: '',
   address: '',
+  create_time: 0,
+  modify_time: 0,
 })
 
 // 日志窗口处理器（void类型表示函数没有返回值）
@@ -278,6 +286,7 @@ const handleClose = (done: () => void) => {
   ElMessageBox.confirm('确定要退出日志查看吗?')
       .then(() => {
         done()
+        changeScreen()
       })
       .catch(() => {
         // catch error
@@ -289,8 +298,8 @@ const handleClose = (done: () => void) => {
 const logTextarea = ref('')
 const handleLogContent = async (index: number, row: any) => {
   let watiGetInfo: TableItem = row ?? logMointForm;
-  console.log("row", row)
-  console.log("watiGetInfo", watiGetInfo)
+  // console.log("row", row)
+  // console.log("watiGetInfo", watiGetInfo)
   const response = (await getLogContent(watiGetInfo))
   logTextarea.value = response.data.content
 }

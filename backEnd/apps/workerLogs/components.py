@@ -10,7 +10,6 @@ __author__ = 'RaXianch'
 import logging
 import math
 import os
-
 from pydantic import BaseSettings
 from urllib.parse import unquote_plus, unquote, parse_qs
 from logging.handlers import TimedRotatingFileHandler
@@ -91,17 +90,17 @@ class LogSettings(BaseSettings):
 log_settings = LogSettings()
 
 
-def get_logger(name):
+def get_logger(name, project_name: str = "未知"):
     logger = logging.getLogger(name)
     # 创建一个handler，用于写入日志文件
     # filename = rf'F:\workSpace\myGithub\crawler-s-Gravestone\backEnd\logs/{datetime.now().date()}_{name}.log'
-    filename = f'logs/{datetime.now().date()}_{name}.log'
+    filename = f'logs/worker_logs/{project_name}/{datetime.now().date()}_{name}.log'
     fh = logging.FileHandler(filename, mode='a+', encoding='utf-8')
     # 再创建一个handler用于输出到控制台
     ch = logging.StreamHandler()
 
     # 再再创建一个阿里云sls handler用于输出控制台
-    slsh = QueuedLogHandler()
+    # slsh = QueuedLogHandler()
 
     # 定义输出格式(可以定义多个输出格式例formatter1，formatter2)
     # formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
@@ -115,7 +114,7 @@ def get_logger(name):
     # 定义控制台输出层级
     ch.setLevel(logging.WARNING)
     # 定义控制台输出层级
-    slsh.setLevel(logging.DEBUG)
+    # slsh.setLevel(logging.DEBUG)
 
     # 为文件操作符绑定格式（可以绑定多种格式例fh.setFormatter(formatter2)）
     fh.setFormatter(formatter)
@@ -134,7 +133,7 @@ def get_logger(name):
     return logger
 
 
-def file_log_save(record=None):
+def file_log_save(record=None, project_name: str = "未知"):
     """
     将日志流保存到日志文件当中
     :param record:
@@ -143,25 +142,9 @@ def file_log_save(record=None):
     # temp = {'name': '__main__', 'msg': '这是一条日志，发出来测试一下！！！ cpu占用：50%', 'args': '', 'levelname': 'Level 20', 'levelno': '20', 'pathname': 'F:\\workSpace\\myGithub\\crawler-s-Gravestone\\backEnd\\test\\logerTest.py', 'filename': 'logerTest.py', 'module': 'logerTest', 'exc_info': 'None', 'exc_text': None, 'stack_info': None, 'lineno': '37', 'funcName': None, 'created': 1685603063.502001, 'msecs': 502.0010471343994, 'relativeCreated': 222726.76038742065, 'thread': 26704, 'threadName': 'MainThread', 'processName': 'SpawnProcess-4', 'process': 21112}
     # record = logging.makeLogRecord(temp)
     temp_record = dict(record.__dict__)
-    ler = get_logger(temp_record.get("name"))
+    ler = get_logger(temp_record.get("name"), project_name)
     # # 写入成功，但是部分参数没有传递
-    # ler.log(int(record.levelno), record.getMessage())
     ler.log(int(record.levelno), record.getMessage())
-
-
-# def traverse_folder(path):
-#
-#     result = {}
-#     print(path)
-#     for root, dirs, files in os.walk(path):
-#         for file in files:
-#             if file.endswith('.log'):
-#                 file_path = os.path.join(root, file)
-#                 result[file] = {'file_path': file_path,
-#                                  'folder': root,
-#                                  'create_time': os.path.getctime(file_path),
-#                                  'modify_time': os.path.getmtime(file_path)}
-#     return result
 
 
 def traverse_folder(path):
@@ -218,9 +201,6 @@ def get_md5(s):
     return res
 
 
-
-
-
 def _handle_logfiles(temp_dict: dict = {}):
     """
     将文件字典处理成业务响应数据
@@ -247,6 +227,7 @@ def _handle_logfiles(temp_dict: dict = {}):
     :return:
     """
     cache_datas = {}
+    log_projects = []
     if not cache_datas:
         pronames = [
             "高德地图",
@@ -257,14 +238,33 @@ def _handle_logfiles(temp_dict: dict = {}):
         for k, v in temp_dict.items():
             lines = {
                 "id": k,
-                # "name": f"ip_{random.randint(1, 100)}_demo_local.log",
                 "name": v.get("file_name"),
                 "log_project": v.get("folder"),
-                "remarks": f"无",
-                # "address": "localhost",
                 "address": "http://192.168.16.15:50831/",
+                "remarks": f"无",
+                "create_time": v.get("create_time"),
+                "modify_time": v.get("modify_time"),
             }
             datas["list"].append(lines)
+            if lines["log_project"] and lines["log_project"] not in log_projects:
+                log_projects.append(lines["log_project"])
         datas["pageTotal"] = len(datas["list"])
+        datas["log_projects"] = log_projects
         cache_datas = datas
     return cache_datas
+
+
+def is_file_locked(filepath):
+    """
+    检测文件是否被占用
+    :param filepath: 待检测的文件路径
+    :return:
+    """
+    if os.path.exists(filepath):
+        try:
+            os.rename(filepath, filepath)
+            return False
+        except OSError as e:
+            return True
+    else:
+        print("File does not exist")

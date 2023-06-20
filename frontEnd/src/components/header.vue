@@ -9,16 +9,16 @@
 		<div class="header-right">
 			<div class="header-user-con">
 				<!-- 消息中心 -->
-				<div class="btn-bell" @click="router.push('/tabs')">
-					<el-tooltip
-						effect="dark"
-						:content="message ? `有${message}条未读消息` : `消息中心`"
-						placement="bottom"
-					>
-						<i class="el-icon-lx-notice"></i>
-					</el-tooltip>
-					<span class="btn-bell-badge" v-if="message"></span>
-				</div>
+<!--				<div class="btn-bell" @click="router.push('/tabs')">-->
+<!--					<el-tooltip-->
+<!--						effect="dark"-->
+<!--						:content="message ? `有${message}条未读消息` : `消息中心`"-->
+<!--						placement="bottom"-->
+<!--					>-->
+<!--						<i class="el-icon-lx-notice"></i>-->
+<!--					</el-tooltip>-->
+<!--					<span class="btn-bell-badge" v-if="message"></span>-->
+<!--				</div>-->
 				<!-- 用户头像 -->
 				<el-avatar class="user-avator" :size="30" :src="imgurl" />
 				<!-- 用户名下拉菜单 -->
@@ -31,8 +31,8 @@
 					</span>
 					<template #dropdown>
 						<el-dropdown-menu>
-							<a href="http://" target="_blank">
-								<el-dropdown-item>demo</el-dropdown-item>
+							<a :href="api_url" target="_blank">
+								<el-dropdown-item>resfulAPI</el-dropdown-item>
 							</a>
 							<el-dropdown-item command="user">个人中心</el-dropdown-item>
 							<el-dropdown-item divided command="loginout">退出登录</el-dropdown-item>
@@ -47,12 +47,13 @@
 import { onMounted } from 'vue';
 import { useSidebarStore } from '../store/sidebar';
 import { useRouter } from 'vue-router';
+import { BASE_URL } from '../constants/api'
 // import imgurl from '../assets/img/img.jpg';
 const imgurl = 'https://avatars.githubusercontent.com/u/64947085?v=4'
 
 const username: string | null = localStorage.getItem('ms_username');
 const message: number = 2;
-
+const api_url : string = BASE_URL+"/docs"
 const sidebar = useSidebarStore();
 // 侧边栏折叠
 const collapseChage = () => {

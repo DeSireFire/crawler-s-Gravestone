@@ -64,17 +64,43 @@ const items = [
         permiss: '1',
     },
     {
-      icon: 'List',
-      index: '/worker_logs',
-      title: '任务日志',
+      icon: 'User',
+      index: '1',
+      title: '用户管理',
       permiss: '2',
+      subs: [
+        {
+          index: '/permission',
+          title: '权限管理',
+          permiss: '2',
+        },
+        {
+          index: '/user',
+          title: '用户中心',
+          permiss: '2',
+        },
+      ],
     },
     {
-      icon: 'Loading',
-      index: '/demo',
-      title: '开发测试页面',
-      permiss: '1',
+      icon: 'List',
+      index: '1',
+      title: '日志管理',
+      permiss: '2',
+      subs: [
+        {
+          index: '/worker_logs',
+          title: '任务日志',
+          permiss: '2',
+        },
+      ],
     },
+
+  // {
+  //   icon: 'Switch',
+  //   index: '/api_docs',
+  //   title: 'ResfulAPI响应文档',
+  //   permiss: '2',
+  // },
 
     // {
     //     icon: 'Calendar',
@@ -105,41 +131,41 @@ const items = [
     //     title: 'tab选项卡',
     //     permiss: '3',
     // },
-    {
-        icon: 'Edit',
-        index: '3',
-        title: '表单相关',
-        permiss: '4',
-        subs: [
-            {
-                index: '/form',
-                title: '基本表单',
-                permiss: '5',
-            },
-            {
-                index: '/upload',
-                title: '文件上传',
-                permiss: '6',
-            },
-            {
-                index: '4',
-                title: '三级菜单',
-                permiss: '7',
-                subs: [
-                    {
-                        index: '/editor',
-                        title: '富文本编辑器',
-                        permiss: '8',
-                    },
-                    {
-                        index: '/markdown',
-                        title: 'markdown编辑器',
-                        permiss: '9',
-                    },
-                ],
-            },
-        ],
-    },
+    // {
+    //     icon: 'Edit',
+    //     index: '3',
+    //     title: '表单相关',
+    //     permiss: '4',
+    //     subs: [
+    //         {
+    //             index: '/form',
+    //             title: '基本表单',
+    //             permiss: '5',
+    //         },
+    //         {
+    //             index: '/upload',
+    //             title: '文件上传',
+    //             permiss: '6',
+    //         },
+    //         {
+    //             index: '4',
+    //             title: '三级菜单',
+    //             permiss: '7',
+    //             subs: [
+    //                 {
+    //                     index: '/editor',
+    //                     title: '富文本编辑器',
+    //                     permiss: '8',
+    //                 },
+    //                 {
+    //                     index: '/markdown',
+    //                     title: 'markdown编辑器',
+    //                     permiss: '9',
+    //                 },
+    //             ],
+    //         },
+    //     ],
+    // },
     // {
     //     icon: 'Setting',
     //     index: '/icon',
@@ -152,12 +178,7 @@ const items = [
     //     title: 'schart图表',
     //     permiss: '11',
     // },
-    // {
-    //     icon: 'Warning',
-    //     index: '/permission',
-    //     title: '权限管理',
-    //     permiss: '13',
-    // },
+
 ];
 
 const route = useRoute();

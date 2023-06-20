@@ -134,3 +134,4 @@ dmypy.json
 /conf.ini
 /test/logging.conf
 /test/阿里sls.py
+/logs_back/

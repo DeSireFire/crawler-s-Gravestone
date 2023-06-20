@@ -14,3 +14,13 @@ export const login = (payload: LoginParam) => {
     data: payload,
   });
 };
+
+export const get_users = (payload: LoginParam) => {
+  return handlePost<LoginResponse>({
+    url: API.ACCOUNT.LOGIN,
+    headers: {
+      [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+    },
+    data: payload,
+  });
+};

@@ -1,5 +1,5 @@
 export type LogInfo = Partial<{
-  id:          number| undefined;
+  id:          string| undefined;
   name:        string| undefined;
   log_project: string| undefined;
   remarks:     string| undefined;

@@ -3,9 +3,12 @@ import {reactive, ref} from "vue";
 export interface TableItem {
   id: string;
   log_project: string;
+  log_projects: Array<string>;
   name: string;
   remarks: string;
   address: string;
+  create_time: number;
+  modify_time: number;
 }
 
 export interface textAreaItem {
@@ -19,6 +22,7 @@ export const query = reactive({
   keyword: '',
   pageIndex: 1,
   pageSize: 10,
+  log_projects: [],
 });
 
 export const tableData = ref<TableItem[]>([]);

@@ -1,6 +1,6 @@
 <template>
 	<div class="container">
-		<div class="plugins-tips">通过 v-permiss 自定义指令实现权限管理，使用非 admin 账号登录，可查看效果。</div>
+		<div class="plugins-tips">用户权限管理(开发中..)</div>
 		<div class="mgb20">
 			<span class="label">角色：</span>
 			<el-select v-model="role" @change="handleChange">
@@ -41,12 +41,8 @@ const data: Tree[] = [
 		label: '系统首页'
 	},
   {
-    id: '3',
-    label: 'tab选项卡'
-  },
-  {
-    id: '10',
-    label: '自定义图标'
+    id: '2',
+    label: '日志管理'
   },
 ];
 

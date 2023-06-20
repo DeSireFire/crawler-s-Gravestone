@@ -31,13 +31,13 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "worker_logs" */ '../views/worker_logs.vue'),
             },
             {
-                path: '/demo',
-                name: 'demo',
+                path: '/api_docs',
+                name: 'api_docs',
                 meta: {
-                    title: '临时测试页面',
-                    permiss: '1',
+                    title: 'ResfulAPI响应文档',
+                    permiss: '2',
                 },
-                component: () => import(/* webpackChunkName: "demo" */ '../views/demo.vue'),
+                component: () => import(/* webpackChunkName: "table" */ '../views/api_docs.vue'),
             },
 
             // 原始模板
