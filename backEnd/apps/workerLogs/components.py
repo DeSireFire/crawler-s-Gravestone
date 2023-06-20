@@ -104,6 +104,7 @@ def get_logger(name, project_name: str = "未知"):
     # filename = rf'F:\workSpace\myGithub\crawler-s-Gravestone\backEnd\logs/{datetime.now().date()}_{name}.log'
     # filename = f'logs/worker_logs/{project_name}/{datetime.now().date()}_{name}.log'
     filename = os.path.join(BASE_DIR, "logs", "worker_logs", f"{project_name}", f"{datetime.now().date()}_{name}.log")
+    pprint(f"日志保存路径: {filename}")
     # 判断路径是否存在，不存在则创建
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))

@@ -51,7 +51,7 @@ async def update_loguru(request: Request):
 async def update_logging(request: Request):
     data = await request.body()
     fdata = await request.form()
-    pprint(f"接收到日志数据fdata===>{fdata}")
+    # pprint(f"接收到日志数据fdata===>{fdata}")
     try:
         record = logrecord(data)
         file_log_save(record, project_name="test_client_uper")
