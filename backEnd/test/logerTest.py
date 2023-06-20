@@ -22,8 +22,8 @@ def get_machine_memory_usage_percent():
     return int(psutil.virtual_memory()._asdict().get('percent'))
 
 def save():
-    # ip_address = "192.168.16.15"
-    ip_address = "127.0.0.1"
+    ip_address = "192.168.16.15"
+    # ip_address = "127.0.0.1"
     port = "50830"
     # 生成一个log实例，如果括号为空则返回root logger
     logger = logging.getLogger(__name__)
@@ -56,8 +56,8 @@ def save():
 
 def test():
     import logging
-    ip_address = "192.168.16.15"
-    # ip_address = "0.0.0.0"
+    # ip_address = "192.168.16.15"
+    ip_address = "0.0.0.0"
     port = "50830"
     # path = "/dev/application"
     path = "/dev/app1/"

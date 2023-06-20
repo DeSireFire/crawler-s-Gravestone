@@ -54,7 +54,7 @@ async def update_logging(request: Request):
     pprint(f"接收到日志数据fdata===>{fdata}")
     try:
         record = logrecord(data)
-        file_log_save(record, project_name="客户端上传测试")
+        file_log_save(record, project_name="test_client_uper")
         return {"status": "ok", "error": None, "data": data}
     except Exception as err:
         return {"status": "err", "error": err, "data": None}
