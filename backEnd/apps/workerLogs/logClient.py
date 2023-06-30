@@ -6,6 +6,10 @@
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
+
+import inspect
+import os
+
 """
 日志推流客户端
 """
@@ -18,6 +22,40 @@ import requests
 import logging.config
 from logging.handlers import HTTPHandler
 
+class crawlLogUper():
+    def __init__(self, ip_address="", port="", log_name=""):
+        self.ip_address = ip_address
+        if not self.ip_address:
+            self.ip_address = "127.0.0.1"
+        self.port = port
+        if not self.port:
+            self.port = "50830"
+        self.log_name = log_name
+        if not self.port:
+            self.log_name = f"{__name__} || {inspect.stack()[1][1]}"
+        self.handlers = None
+        self.logger = self.creat_logger(self.log_name)
+        # print(inspect.stack()[1][1])
+        # print(os.path.basename(inspect.stack()[1][1]))
+
+    def creat_logger(self, log_name: str = "未知"):
+        logger = logging.getLogger(log_name)
+        print(f"__name__：{__name__}")
+        # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
+        self.handlers = HTTPHandler(host=f'{self.ip_address}:{self.port}', url='/log', method='POST')
+        # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
+        logger.setLevel(logging.NOTSET + 1)
+        # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
+        logger.addHandler(self.handlers)
+        return logger
+
+    def __del__(self):
+        try:
+            # 关闭推流
+            self.logger.removeHandler(self.handlers)
+        except Exception as E:
+            print(f"结构销毁是发生了错误：{E}")
+
 
 def get_machine_memory_usage_percent():
     """
@@ -27,72 +65,11 @@ def get_machine_memory_usage_percent():
     return int(psutil.virtual_memory()._asdict().get('percent'))
 
 
-def save():
-    # ip_address = "192.168.16.15"
-    ip_address = "127.0.0.1"
-    port = "50830"
-    # 生成一个log实例，如果括号为空则返回root logger
-    logger = logging.getLogger(__name__)
-    print(f"__name__：{__name__}")
-    # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
-    hh = HTTPHandler(host=f'{ip_address}:{port}', url='/log', method='POST')
-    # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
-    logger.setLevel(logging.NOTSET+1)
-    # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
-    logger.addHandler(hh)
-    # 获取当前机器cpu占用率
-    cpu = get_machine_memory_usage_percent()
-    for i in range(1, 101):
-        logger.info(
-            f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        logger.error(
-            f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        logger.warning(
-            f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        logger.debug(
-            f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        # 输出日志，内容为‘存入600元'
-        print(f"运行完毕！{i}次！")
-        time.sleep(3)
-    # 关闭推流
-    logger.removeHandler(hh)
-
 
 if __name__ == '__main__':
-    save()
-
-# if __name__ == '__main__':
-#     logger = logging.getLogger()
-#     ip_address = "127.0.0.1"
-#     port = "50830"
-#     # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
-#     handler = MyHTTPHandler(f'{ip_address}:{port}', '/log', method='POST')
-#     # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
-#     logger.setLevel(logging.NOTSET + 1)
-#     # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
-#     logger.addHandler(handler)
-#     # 获取当前机器cpu占用率
-#     cpu = get_machine_memory_usage_percent()
-#     for i in range(1, 101):
-#         logger.info(
-#             f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-#         )
-#         logger.error(
-#             f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-#         )
-#         logger.warning(
-#             f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-#         )
-#         logger.debug(
-#             f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-#         )
-#         # 输出日志，内容为‘存入600元'
-#         print(f"运行完毕！{i}次！")
-#         time.sleep(3)
-#
-#     # 关闭推流
-#     logger.removeHandler(handler)
+    obj = crawlLogUper()
+    logger = obj.logger
+    cpu = get_machine_memory_usage_percent()
+    logger.info(
+        f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%'
+    )

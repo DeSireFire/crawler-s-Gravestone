@@ -100,13 +100,14 @@ log_settings = LogSettings()
 
 def get_logger(name, project_name: str = "未知"):
     logger = logging.getLogger(name)
+    logger.propagate = False
     # 创建一个handler，用于写入日志文件
     # filename = rf'F:\workSpace\myGithub\crawler-s-Gravestone\backEnd\logs/{datetime.now().date()}_{name}.log'
     # filename = f'logs/worker_logs/{project_name}/{datetime.now().date()}_{name}.log'
     file_path = os.path.join(BASE_DIR, "logs", "worker_logs", f"{project_name}")
     filename = os.path.join(file_path, f"{datetime.now().date()}_{name}.log")
-    pprint(f"日志保存路径: {filename}")
-    pprint(f"日志文件路径: {filename}")
+    # pprint(f"日志保存路径: {filename}")
+    # pprint(f"日志文件路径: {filename}")
     # 判断路径是否存在，不存在则创建
     if not os.path.exists(file_path):
         pprint(f"未发现目录，创建目录: {file_path}")
@@ -126,23 +127,23 @@ def get_logger(name, project_name: str = "未知"):
     logger.setLevel(1)
 
     # 定义日志输出层级
-    fh.setLevel(logging.DEBUG)
+    fh.setLevel(logging.INFO)
     # 定义控制台输出层级
-    ch.setLevel(logging.WARNING)
+    # ch.setLevel(logging.WARNING)
     # 定义控制台输出层级
     # slsh.setLevel(logging.DEBUG)
 
     # 为文件操作符绑定格式（可以绑定多种格式例fh.setFormatter(formatter2)）
     fh.setFormatter(formatter)
     # 为控制台操作符绑定格式（可以绑定多种格式例ch.setFormatter(formatter2)）
-    ch.setFormatter(formatter)
+    # ch.setFormatter(formatter)
     # 为控制台操作符绑定格式（可以绑定多种格式例ch.setFormatter(formatter2)）
     # slsh.setFormatter(formatter)
 
     # 给logger对象绑定文件操作符
     logger.addHandler(fh)
     # 给logger对象绑定文件操作符
-    logger.addHandler(ch)
+    # logger.addHandler(ch)
     # 给logger对象绑定sls操作符
     # logger.addHandler(slsh)
 
@@ -161,7 +162,9 @@ def file_log_save(record=None, project_name: str = "未知"):
     ler = get_logger(temp_record.get("name"), project_name)
     # # 写入成功，但是部分参数没有传递
     # ler.log(int(record.levelno), record.getMessage())
-    ler.log(int(record.levelno), record.getMessage())
+    print(f"record.getMessage() ====> {record.getMessage()}")
+    if record.getMessage():
+        ler.log(int(record.levelno), record.getMessage())
 
 
 def traverse_folder(path):

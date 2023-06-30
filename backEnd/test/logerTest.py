@@ -13,7 +13,7 @@ import psutil
 import time
 from logging.handlers import HTTPHandler
 import logging.config
-
+import random
 def get_machine_memory_usage_percent():
     """
     获取当前机器cpu占用率
@@ -26,7 +26,9 @@ def save():
     # ip_address = "127.0.0.1"
     port = "50830"
     # 生成一个log实例，如果括号为空则返回root logger
-    logger = logging.getLogger(__name__)
+    num = random.randint(1,10)
+    log_name = f"客户端{num}"
+    logger = logging.getLogger(log_name)
     print(f"__name__：{__name__}")
     # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
     hh = HTTPHandler(host=f'{ip_address}:{port}', url='/log', method='POST')
@@ -36,22 +38,18 @@ def save():
     logger.addHandler(hh)
     # 获取当前机器cpu占用率
     cpu = get_machine_memory_usage_percent()
-    for i in range(1, 101):
-        logger.info(
-            f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        logger.error(
-            f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        logger.warning(
-            f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
-        logger.debug(
-            f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%'
-        )
+    # log_lines = [
+    #     logger.info(f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%'),
+    #     logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%'),
+    #     logger.warning(f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%'),
+    #     logger.debug(f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+
+    # ]
+    for i in range(1, 233666888):
+        logger.info(f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%'),
         # 输出日志，内容为‘存入600元'
         print(f"运行完毕！{i}次！")
-        time.sleep(10)
+        time.sleep(60)
 
 
 def test():

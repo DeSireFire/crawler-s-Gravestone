@@ -51,9 +51,12 @@ async def update_loguru(request: Request):
 async def update_logging(request: Request):
     data = await request.body()
     fdata = await request.form()
-    # pprint(f"接收到日志数据fdata===>{fdata}")
+    print(f"接收到日志数据fdata===>{fdata}")
+    # tf = fdata.__dict__
+    # if tf.get("name") != 'root' and tf.get("levelname") != 'DEBUG':
     try:
         record = logrecord(data)
+        print(f"record =====> {record}")
         file_log_save(record, project_name="test_client_uper")
         return {"status": "ok", "error": None, "data": data}
     except Exception as err:
