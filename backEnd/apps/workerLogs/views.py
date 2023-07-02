@@ -51,13 +51,18 @@ async def update_loguru(request: Request):
 async def update_logging(request: Request):
     data = await request.body()
     fdata = await request.form()
-    print(f"接收到日志数据fdata===>{fdata}")
-    # tf = fdata.__dict__
+    # print(f"接收到日志数据fdata===>{fdata}")
+    tf = fdata.__dict__.get('_dict')
+    log_extra = json.loads(tf.get("extra"))
     # if tf.get("name") != 'root' and tf.get("levelname") != 'DEBUG':
     try:
         record = logrecord(data)
-        print(f"record =====> {record}")
-        file_log_save(record, project_name="test_client_uper")
+        # print(f"record =====> {record}")
+        file_log_save(
+            record=record,
+            project_name=log_extra.get("project_name", 'test_client_uper'),
+            log_name=log_extra.get("log_name", '未填写名称'),
+        )
         return {"status": "ok", "error": None, "data": data}
     except Exception as err:
         return {"status": "err", "error": err, "data": None}
@@ -104,7 +109,7 @@ async def get_log_content(request: Request, name: str = Query(None)):
 
     with open(os.path.join(logs_path, filename), 'r', encoding="utf-8") as f:
         content["content"] = f.read()
-
+    print(content)
     return callbackJson.callBacker(content)
 
 

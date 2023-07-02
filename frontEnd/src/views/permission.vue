@@ -5,7 +5,7 @@
 			<span class="label">角色：</span>
 			<el-select v-model="role" @change="handleChange">
 				<el-option label="超级管理员" value="admin"></el-option>
-				<el-option label="普通用户" value="user"></el-option>
+				<el-option label="普通用户" value="normal"></el-option>
 			</el-select>
 		</div>
 		<div class="mgb20 tree-wrapper">
@@ -42,7 +42,31 @@ const data: Tree[] = [
 	},
   {
     id: '2',
-    label: '日志管理'
+    label: '用户管理',
+    children: [
+      {
+        id: '21',
+        label: '权限管理'
+      },
+      {
+        id: '22',
+        label: '账号管理'
+      },
+      {
+        id: '23',
+        label: '个人中心'
+      },
+    ]
+  },
+  {
+    id: '3',
+    label: '日志管理',
+    children: [
+      {
+        id: '31',
+        label: '任务日志'
+      },
+    ]
   },
 ];
 
@@ -53,6 +77,7 @@ const checkedKeys = ref<string[]>([]);
 const getPremission = () => {
 	// 请求接口返回权限
 	checkedKeys.value = permiss.defaultList[role.value];
+  console.log("checkedKeys.value", checkedKeys.value)
 };
 getPremission();
 
@@ -64,6 +89,7 @@ const onSubmit = () => {
 };
 
 const handleChange = (val: string[]) => {
+  console.log('handleChange', val)
 	tree.value!.setCheckedKeys(permiss.defaultList[role.value]);
 };
 </script>

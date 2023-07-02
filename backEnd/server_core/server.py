@@ -33,6 +33,7 @@ def createapp():
     app.include_router(users.route, tags=["用户模块"])
     app.include_router(workerLogs.route, tags=["日志收集模块"])
     app.include_router(extras.route, tags=["拓展接口"])
+    app.include_router(dashboard.route, tags=["系统首页"])
 
     # @app.get("/")
     # def home():
@@ -50,3 +51,4 @@ def createapp():
     return app
 
 
+__all__ = [createapp]

@@ -39,6 +39,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/api_docs.vue'),
             },
+            {
+                path: '/users',
+                name: 'users_manage',
+                meta: {
+                    title: '账号管理',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/users_manage.vue'),
+            },
 
             // 原始模板
             {

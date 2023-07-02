@@ -8,11 +8,14 @@
 __author__ = 'RaXianch'
 
 import math
+import os
 import random
 from fastapi import requests
 import requests
 # 统一响应的数据结构
+from .components import list_files, get_machine_memory_usage_percent
 from apps.users.models import get_user_count
+from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
 
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
@@ -29,6 +32,22 @@ async def ipInfo():
     temp = response.json()
     return temp
 
+
+@route.get("/dboard_info")
+async def dboard_info():
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    board_info = {}
+    # 用户数
+    board_info["user_total"] = get_user_count() or '--'
+    board_info["error_total"] = '--'
+    board_info["system_info"] = '--'
+    logs_path = os.path.join(BASE_DIR, "logs", "worker_logs") or '--'
+    board_info["logger_total"] = list_files(logs_path)
+    board_info["project_total"] = '--'
+    board_info["master_cpu"] = get_machine_memory_usage_percent() or '--'
+
+    return callbackJson.callBacker(board_info)
 
 
 # @route.delete("/del_logs")  # todo 属于危险操作需要鉴权

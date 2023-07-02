@@ -86,8 +86,9 @@ const handleLogin = async () => {
     // 保存 token => accountStore => useAccountStore(account.ts) =>
     accountStore.setAuthToken(access_token!);
     // 获取权限编号(todo 目前写死)
-    const keys = permiss.defaultList["admin"];
-    // 操作不明？
+    // const keys = permiss.defaultList["normal"];
+    const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'normal'];
+    // 将权限编号设置到浏览器缓存
     permiss.handleSet(keys);
     router.push("/");
   } else {

@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Author    : RaXianch
-# CreatDATE : 2023/5/10
-# CreatTIME : 13:40
+# CreatDATE : 2023/5/25
+# CreatTIME : 17:29
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
-
-from apps import users
-from apps import extras
-from apps import workerLogs
-from apps import dashboard
+# 导入视图
+from .views import *

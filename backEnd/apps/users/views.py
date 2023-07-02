@@ -9,9 +9,15 @@ __author__ = 'RaXianch'
 
 # from .models import *
 # from .auth import *
+import datetime
+import json
+
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status
-from .models import check_password, check_user, UserInDB, Users
+
+from server_core.control import constructResponse
+from .models import check_password, check_user, UserInDB, Users, get_users_info, add_user_info, update_user_info, \
+    check_uid, del_user_info
 from .auth import create_access_token, auth_depend
 from fastapi.responses import JSONResponse
 
@@ -90,6 +96,67 @@ async def error_demo():
     }
 
     return temp
+
+@route.get("/get_users")
+async def get_users():
+    result = get_users_info()
+    users = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
+
+    for u in users:
+        u["create"] = json.dumps(u["create"], default=str)
+        del u['password']
+
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    content["list"] = users
+    content["pageTotal"] = len(users)
+    return callbackJson.callBacker(content)
+
+@route.post("/add_user")
+async def add_user(request: Request):
+    data = await request.body()
+    fdata = await request.form()
+    user_info = dict(fdata)
+    user_info['status'] = 1
+
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    if not check_user(user_info.get("name")):
+        result = add_user_info(user_info)
+        if result:
+            callbackJson.statusCode = 200
+    return callbackJson.callBacker(content)
+
+@route.post("/edit_user")
+async def edit_user(request: Request):
+    data = await request.body()
+    fdata = await request.form()
+    user_info = dict(fdata)
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    if check_uid(user_info.get("id")):
+        result = update_user_info(user_info)
+        if result:
+            callbackJson.statusCode = 200
+    return callbackJson.callBacker(content)
+
+@route.post("/del_user")
+async def edit_user(request: Request):
+    data = await request.body()
+    fdata = await request.form()
+    user_info = dict(fdata)
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    if check_uid(user_info.get("id")):
+        result = del_user_info(user_info)
+        if result:
+            callbackJson.statusCode = 200
+    return callbackJson.callBacker(content)
+
 
 # @route.post("/auth_token",
 #                    summary='登录接口，获取 token',

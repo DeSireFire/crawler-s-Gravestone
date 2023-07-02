@@ -29,7 +29,7 @@ class constructResponse(object):
         self.message = None
         self.url = None
 
-    def callBacker(self, data=None):
+    def callBacker(self, data=None) -> object:
         if data is None:
             data = {}
 

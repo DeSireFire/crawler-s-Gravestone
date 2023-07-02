@@ -44,7 +44,7 @@
 							<div class="grid-content grid-con-1">
 								<el-icon class="grid-con-icon"><User /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">2</div>
+									<div class="grid-num">{{ board_info.user_total }}</div>
 									<div>用户数量</div>
 								</div>
 							</div>
@@ -64,10 +64,45 @@
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
 							<div class="grid-content grid-con-3">
-								<el-icon class="grid-con-icon"><Goods /></el-icon>
+								<el-icon class="grid-con-icon"><Document /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">--</div>
+									<div class="grid-num">{{ board_info.logger_total }}</div>
 									<div>日志数量</div>
+								</div>
+							</div>
+						</el-card>
+					</el-col>
+				</el-row>
+				<el-row :gutter="20" class="mgb20">
+					<el-col :span="8">
+						<el-card shadow="hover" :body-style="{ padding: '0px' }">
+							<div class="grid-content grid-con-3">
+								<el-icon class="grid-con-icon"><DocumentDelete /></el-icon>
+								<div class="grid-cont-right">
+									<div class="grid-num">{{ board_info.user_total }}</div>
+									<div>失败合计</div>
+								</div>
+							</div>
+						</el-card>
+					</el-col>
+					<el-col :span="8">
+						<el-card shadow="hover" :body-style="{ padding: '0px' }">
+							<div class="grid-content grid-con-2">
+								<el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
+								<div class="grid-cont-right">
+									<div class="grid-num">{{ board_info.project_total }}</div>
+									<div>项目数量</div>
+								</div>
+							</div>
+						</el-card>
+					</el-col>
+					<el-col :span="8">
+						<el-card shadow="hover" :body-style="{ padding: '0px' }">
+							<div class="grid-content grid-con-3">
+								<el-icon class="grid-con-icon"><Odometer /></el-icon>
+								<div class="grid-cont-right">
+									<div class="grid-num">{{ board_info.master_cpu }} %</div>
+									<div>平台负载</div>
 								</div>
 							</div>
 						</el-card>
@@ -113,12 +148,20 @@ import {onBeforeMount, reactive, ref} from 'vue';
 // import {get_ip_info} from '../../src/api';
 import { ipInfo } from '~/api/extras';
 import {fetchChartss} from "~/api";
+import {getDashInfo} from "~/api/dashboard";
 const imgurl = 'https://avatars.githubusercontent.com/u/64947085?v=4'
 
 const name = localStorage.getItem('ms_username');
 const role: string = name === 'admin' ? '超级管理员' : '普通用户';
 const local_name = ref('未知');
 const formattedDate = ref('未知');
+const board_info = reactive({
+  user_total: '--',
+  system_info: '--',
+  logger_total: '--',
+  project_total: '--',
+  master_cpu: '--',
+});
 
 // 当前日期格式化
 const getDate = async () => {
@@ -137,6 +180,17 @@ const getLocal = async () => {
   local_name.value = result.data?.data?.city;
 };
 getLocal()
+
+// 获取仪表盘基础信息
+const getBoard = async () => {
+  const result = (await getDashInfo())
+  board_info.user_total = result.data.user_total;
+  board_info.system_info = result.data.system_info;
+  board_info.logger_total = result.data.logger_total;
+  board_info.project_total = result.data.project_total;
+  board_info.master_cpu = result.data.master_cpu;
+};
+getBoard()
 
 
 

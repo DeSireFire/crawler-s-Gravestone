@@ -15,6 +15,15 @@ if (process.platform.includes('linux')) {
 // 用户接口
 export enum ACCOUNT {
   LOGIN = "/auth_token",
+  ADDUSER = "/add_user",
+  EDITUSER = "/edit_user",
+  DELUSER = "/del_user",
+  GETUSERS = "/get_users",
+}
+
+// 系统首页
+export enum DASHBOARD {
+  DBOARDINFO = "/dboard_info",
 }
 
 // 任务日志
@@ -35,6 +44,7 @@ export enum EXTRALS {
 // api 输出
 export const API = {
   ACCOUNT,
+  DASHBOARD,
   WORKERLOGS,
   EXTRALS,
 };

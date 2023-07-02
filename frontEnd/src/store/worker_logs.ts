@@ -2,7 +2,7 @@ import {reactive, ref} from "vue";
 import {getLogs,delLogs} from "~/api/workerLogs";
 import {pageTotal, tableData, query, TableItem} from "~/constants/worker_logs";
 import {ACCOUNT, EXTRALS, WORKERLOGS} from "~/constants/api";
-import { DelLogData } from "~/api/types/workerLogs";
+// import { DelLogData } from "~/api/types/workerLogs";
 
 // 获取表格数据
 const getData = () => {

@@ -1,9 +1,9 @@
-import { LoginParam, LoginResponse } from "~/api/types/account";
+import { LoginParam, LoginResponse, UsersResponse } from "~/api/types/account";
 import { API } from "~/constants/api";
-import { CONTENT_TYPE, REQUEST_HEADER } from "~/constants/request";
+import {CONTENT_TYPE, REQUEST_HEADER, REQUEST_METHOD} from "~/constants/request";
 import useHttp from "~/utils/request";
 
-const { handlePost } = useHttp();
+const { handlePost,handleGet } = useHttp();
 
 export const login = (payload: LoginParam) => {
   return handlePost<LoginResponse>({
@@ -15,9 +15,41 @@ export const login = (payload: LoginParam) => {
   });
 };
 
-export const get_users = (payload: LoginParam) => {
-  return handlePost<LoginResponse>({
-    url: API.ACCOUNT.LOGIN,
+// 新增用户
+export const add_user = (payload: UsersResponse) => {
+  return handlePost({
+    url: API.ACCOUNT.ADDUSER,
+    headers: {
+      [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+    },
+    data: payload,
+  });
+};
+
+// 编辑用户
+export const edit_user = (payload: UsersResponse) => {
+  return handlePost({
+    url: API.ACCOUNT.EDITUSER,
+    headers: {
+      [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+    },
+    data: payload,
+  });
+};
+
+// 获取用户列表
+export const get_users = () => {
+  return handleGet({
+    url: API.ACCOUNT.GETUSERS,
+    method: REQUEST_METHOD.GET,
+    headers: {},
+  });
+};
+
+// 删除用户
+export const del_user = (payload: UsersResponse) => {
+  return handlePost({
+    url: API.ACCOUNT.DELUSER,
     headers: {
       [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
     },

@@ -1,6 +1,10 @@
 import useHttp from "~/utils/request";
+import {API} from "~/constants/api";
+import {CONTENT_TYPE, REQUEST_HEADER} from "~/constants/request";
 
 const { http } = useHttp();
+
+
 
 // 测试用的demo请求们
 export const get_ip_info = () => {
@@ -12,7 +16,7 @@ export const get_ip_info = () => {
 
 export const fetchData = () => {
   return http({
-    url: "http://127.0.0.1:50830/table.test",
+    url: "http://127.0.0.1:50830/get_users",
     method: "get",
   });
 };

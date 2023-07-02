@@ -72,27 +72,33 @@ const items = [
         {
           index: '/permission',
           title: '权限管理',
-          permiss: '2',
+          permiss: '21',
         },
         {
-          index: '/user',
-          title: '用户中心',
-          permiss: '2',
+          index: '/users',
+          title: '账号管理',
+          permiss: '22',
         },
       ],
     },
     {
       icon: 'List',
-      index: '1',
+      index: '2',
       title: '日志管理',
-      permiss: '2',
+      permiss: '3',
       subs: [
         {
           index: '/worker_logs',
           title: '任务日志',
-          permiss: '2',
+          permiss: '31',
         },
       ],
+    },
+    {
+      icon: 'User',
+      index: '/user',
+      title: '个人中心',
+      permiss: '9',
     },
 
   // {
