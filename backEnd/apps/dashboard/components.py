@@ -30,6 +30,25 @@ def get_machine_memory_usage_percent():
     """
     return int(psutil.virtual_memory()._asdict().get('percent'))
 
+
+def get_memory_usage():
+    """
+    获取当前机器内存占用情况
+    :return:
+    """
+    process = psutil.Process()
+    memory_info = process.memory_info()
+
+    virtual_memory = psutil.virtual_memory()
+    memory_total = {
+        "内存总量": f"{virtual_memory.total / 1024 / 1024 / 1024:.2f} GB",
+        "内存空闲": f"{virtual_memory.available / 1024 / 1024 / 1024:.2f} GB",
+        "内存占用": f"{virtual_memory.used / 1024 / 1024 / 1024:.2f} GB",
+        "平台占用内存": f"{memory_info.rss / 1024 / 1024 / 1024:.2f} GB",
+    }
+    return memory_total
+
+
 if __name__ == '__main__':
     logs_path = os.path.join(BASE_DIR, "logs", "worker_logs")
     list_files(logs_path)

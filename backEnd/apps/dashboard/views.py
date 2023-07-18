@@ -13,7 +13,7 @@ import random
 from fastapi import requests
 import requests
 # 统一响应的数据结构
-from .components import list_files, get_machine_memory_usage_percent
+from .components import list_files, get_machine_memory_usage_percent, get_memory_usage
 from apps.users.models import get_user_count
 from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
@@ -32,6 +32,8 @@ async def ipInfo():
     temp = response.json()
     return temp
 
+import psutil
+
 
 @route.get("/dboard_info")
 async def dboard_info():
@@ -39,12 +41,13 @@ async def dboard_info():
     callbackJson.statusCode = 200
     board_info = {}
     # 用户数
+    board_info["project_total"] = '--'
     board_info["user_total"] = get_user_count() or '--'
-    board_info["error_total"] = '--'
     board_info["system_info"] = '--'
     logs_path = os.path.join(BASE_DIR, "logs", "worker_logs") or '--'
     board_info["logger_total"] = list_files(logs_path)
-    board_info["project_total"] = '--'
+    memory_total = get_memory_usage() or {}
+    board_info["memory_total"] = memory_total.get("内存占用") or '--'
     board_info["master_cpu"] = get_machine_memory_usage_percent() or '--'
 
     return callbackJson.callBacker(board_info)
