@@ -39,24 +39,24 @@
 			</el-col>
 			<el-col :span="16">
 				<el-row :gutter="20" class="mgb20">
-					<el-col :span="8">
-						<el-card shadow="hover" :body-style="{ padding: '0px' }">
-							<div class="grid-content grid-con-1">
-								<el-icon class="grid-con-icon"><User /></el-icon>
-								<div class="grid-cont-right">
-									<div class="grid-num">{{ board_info.user_total }}</div>
-									<div>用户数量</div>
-								</div>
-							</div>
-						</el-card>
-					</el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" :body-style="{ padding: '0px' }">
+              <div class="grid-content grid-con-2">
+                <el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
+                <div class="grid-cont-right">
+                  <div class="grid-num">{{ board_info.project_total }}</div>
+                  <div>项目数量</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
 							<div class="grid-content grid-con-2">
 								<el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">--</div>
-									<div>系统消息</div>
+									<div>程序数量(待开发)</div>
 								</div>
 							</div>
 						</el-card>
@@ -67,31 +67,31 @@
 								<el-icon class="grid-con-icon"><Document /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">{{ board_info.logger_total }}</div>
-									<div>日志数量</div>
+									<div>任务数量</div>
 								</div>
 							</div>
 						</el-card>
 					</el-col>
 				</el-row>
 				<el-row :gutter="20" class="mgb20">
+          <el-col :span="8">
+            <el-card shadow="hover" :body-style="{ padding: '0px' }">
+              <div class="grid-content grid-con-1">
+                <el-icon class="grid-con-icon"><User /></el-icon>
+                <div class="grid-cont-right">
+                  <div class="grid-num">{{ board_info.user_total }}</div>
+                  <div>用户数量</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
 							<div class="grid-content grid-con-3">
-								<el-icon class="grid-con-icon"><DocumentDelete /></el-icon>
+								<el-icon class="grid-con-icon"><Odometer /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">{{ board_info.user_total }}</div>
-									<div>失败合计</div>
-								</div>
-							</div>
-						</el-card>
-					</el-col>
-					<el-col :span="8">
-						<el-card shadow="hover" :body-style="{ padding: '0px' }">
-							<div class="grid-content grid-con-2">
-								<el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
-								<div class="grid-cont-right">
-									<div class="grid-num">{{ board_info.project_total }}</div>
-									<div>项目数量</div>
+									<div class="grid-num">{{ board_info.master_cpu }} %</div>
+									<div>CPU负载</div>
 								</div>
 							</div>
 						</el-card>
@@ -101,12 +101,23 @@
 							<div class="grid-content grid-con-3">
 								<el-icon class="grid-con-icon"><Odometer /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">{{ board_info.master_cpu }} %</div>
-									<div>平台负载</div>
+									<div class="grid-num">{{ board_info.memory_total }}</div>
+									<div>Memory载荷</div>
 								</div>
 							</div>
 						</el-card>
 					</el-col>
+<!--          <el-col :span="8">-->
+<!--            <el-card shadow="hover" :body-style="{ padding: '0px' }">-->
+<!--              <div class="grid-content grid-con-3">-->
+<!--                <el-icon class="grid-con-icon"><DocumentDelete /></el-icon>-->
+<!--                <div class="grid-cont-right">-->
+<!--                  <div class="grid-num">{{ board_info.user_total }}</div>-->
+<!--                  <div>失败合计</div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </el-card>-->
+<!--          </el-col>-->
 				</el-row>
 				<el-card shadow="hover" style="height: 403px">
 					<template #header>
@@ -160,6 +171,7 @@ const board_info = reactive({
   system_info: '--',
   logger_total: '--',
   project_total: '--',
+  memory_total: '--',
   master_cpu: '--',
 });
 
@@ -189,6 +201,7 @@ const getBoard = async () => {
   board_info.logger_total = result.data.logger_total;
   board_info.project_total = result.data.project_total;
   board_info.master_cpu = result.data.master_cpu;
+  board_info.memory_total = result.data.memory_total;
 };
 getBoard()
 
