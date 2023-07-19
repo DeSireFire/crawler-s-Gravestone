@@ -16,7 +16,6 @@ from server_core.db import engine, Newsession
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
 
-
 class Basejson():
     def json(self):
         dict = self.__dict__
@@ -50,11 +49,24 @@ def inituser():
         session.commit()
         session.flush()
 
+    from apps.projects.models import ProjectInfos
+    # 创建一个测试项目
+    project_demo = session.query(ProjectInfos).filter_by(name='项目测试demo').first()
+    if not project_demo:
+        project_demo = ProjectInfos(
+            name='项目测试demo', author="admin",
+            description="用于做开发测试和创建流程实践的项目。"
+        )
+        session.add(project_demo)
+        session.commit()
+        session.flush()
+
 
 def initdb():
     from . import db_Base
     # 导入各模块的模组，用于初始化
     from apps.users.models import Users
     from apps.workerLogs.models import worker_logs
+    from apps.projects.models import ProjectInfos
     db_Base.metadata.create_all(engine)
     inituser()

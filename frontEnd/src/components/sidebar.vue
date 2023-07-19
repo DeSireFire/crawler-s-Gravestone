@@ -119,51 +119,7 @@ const items = [
 
       },
       {
-        index: '/403',
-        title: '项目列表',
-        permiss: '42',
-        subs: [
-          {
-            index: '/403',
-            title: '项目1',
-            permiss: '421',
-          },
-          {
-            index: '/403',
-            title: '项目2',
-            permiss: '422',
-          },
-        ],
-
-      },
-    ],
-  },
-  {
-    icon: 'List',
-    index: '4',
-    title: '项目管理',
-    permiss: '4',
-    subs: [
-      {
-        index: '/403',
-        title: '任务管理',
-        permiss: '41',
-        subs: [
-          {
-            index: '/403',
-            title: '项目1',
-            permiss: '411',
-          },
-          {
-            index: '/403',
-            title: '项目2',
-            permiss: '412',
-          },
-        ],
-
-      },
-      {
-        index: '/403',
+        index: '/projects_list',
         title: '项目列表',
         permiss: '42',
       },

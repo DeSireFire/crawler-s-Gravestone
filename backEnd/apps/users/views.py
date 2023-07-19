@@ -103,7 +103,8 @@ async def get_users():
     users = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
 
     for u in users:
-        u["create"] = json.dumps(u["create"], default=str)
+        # u["create"] = json.dumps(u["create"], default=str)
+        u["create"] = u["create"].strftime('%Y-%m-%d %H:%M:%S')
         del u['password']
 
     callbackJson = constructResponse()
@@ -113,7 +114,7 @@ async def get_users():
     content["pageTotal"] = len(users)
     return callbackJson.callBacker(content)
 
-@route.post("/add_user")
+@route.post("/add_user", summary="新增用户")
 async def add_user(request: Request):
     data = await request.body()
     fdata = await request.form()

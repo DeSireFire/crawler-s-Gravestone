@@ -134,7 +134,7 @@ async def get_log_content(request: Request, name: str = Query(None)):
     return callbackJson.callBacker(content)
 
 
-@route.delete("/del_logs")  # todo 属于危险操作需要鉴权
+@route.delete("/del_logs", summary="日志文件删除")  # todo 属于危险操作需要鉴权
 async def del_logs(request: Request, name: str = Query(None)):
     """
     接收要删除的日志文件数据
