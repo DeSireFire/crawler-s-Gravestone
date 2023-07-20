@@ -57,6 +57,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/projects_list.vue'),
             },
+            {
+                path: '/projects_tabs',
+                name: 'projects_tabs',
+                meta: {
+                    title: '项目详细',
+                    permiss: '42',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/projects_tabs.vue'),
+            },
 
             // 原始模板
             {

@@ -81,19 +81,19 @@ const items = [
       },
     ],
   },
-  {
-    icon: 'List',
-    index: '3',
-    title: '日志管理',
-    permiss: '3',
-    subs: [
-      {
-        index: '/worker_logs',
-        title: '任务日志',
-        permiss: '31',
-      },
-    ],
-  },
+  // {
+  //   icon: 'List',
+  //   index: '3',
+  //   title: '日志管理',
+  //   permiss: '3',
+  //   subs: [
+  //     {
+  //       index: '/worker_logs',
+  //       title: '任务日志',
+  //       permiss: '31',
+  //     },
+  //   ],
+  // },
   {
     icon: 'List',
     index: '4',
@@ -107,16 +107,15 @@ const items = [
         subs: [
           {
             index: '/403',
-            title: '项目1',
-            permiss: '411',
+            title: '历史任务',
+            permiss: '42',
           },
           {
-            index: '/403',
-            title: '项目2',
-            permiss: '412',
+            index: '/worker_logs',
+            title: '日志管理',
+            permiss: '43',
           },
         ],
-
       },
       {
         index: '/projects_list',
@@ -134,13 +133,13 @@ const items = [
       {
         index: '/403',
         title: '告警器设置',
-        permiss: '41',
+        permiss: '51',
 
       },
       {
         index: '/403',
         title: '任务监控',
-        permiss: '41',
+        permiss: '52',
 
       },
     ],

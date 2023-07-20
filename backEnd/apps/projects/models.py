@@ -12,8 +12,8 @@ from datetime import datetime
 from utils.other import get_md5
 from server_core.log import logger
 from server_core.db import engine, Newsession
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, TEXT, JSON
+from sqlalchemy.sql import func
 
 class BaseJson:
     def json(self):
@@ -31,13 +31,14 @@ class ProjectInfos(db_Base, BaseJson):
     nickname = Column(String(255))  # 用于展示的名称，由于存在项目名称重命名的情况
     author = Column(String(64))
     description = Column(String, nullable=False)
-    create_time = Column(DateTime(), default=datetime.now())
-    update_time = Column(DateTime(), default=datetime.now())
+    extra = Column(JSON, nullable=True)
+    create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
+    update_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-    def __init__(self, name, author, description):
-        self.pid = get_md5(name)
+    def __init__(self, pid=None, name=None, nickname=None, author=None, description=None):
+        self.pid = pid or get_md5(name)
         self.name = name
-        self.nickname = name
+        self.nickname = nickname or name
         self.author = author
         self.description = description
 
@@ -86,16 +87,24 @@ def del_project_info(data):
 # 更新项目数据
 def update_project_infos(data):
     session = Newsession()
-    try:
+    old_data = session.query(ProjectInfos).filter_by(pid=data.get("pid")).first()
+    if old_data:
+        # 灵活赋值
+        for key, value in data.items():
+            setattr(old_data, key, value)
+        old_data.update_time = datetime.now()
+    else:
         project_info = ProjectInfos(**data)
         project_info.update_time = datetime.now()
-        session.merge(project_info)
+        session.add(project_info)
+    try:
         session.commit()
         return True
     except Exception as e:
         session.rollback()
         logger.error(e)
         return False
+
 
 
 # 获取所有数据
@@ -114,10 +123,10 @@ def get_projects_info():
 
 
 __all__ = [
-    "add_project_info",
+    "check_pid",
     "ProjectInfos",
     "del_project_info",
+    "add_project_info",
     "update_project_infos",
-    "check_pid",
     "get_projects_info",
 ]

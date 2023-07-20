@@ -4,11 +4,12 @@
       <div class="plugins-tips">项目管理(待开发)</div>
 			<div class="handle-box">
 				<el-button type="primary" :icon="Plus" @click="handleAdd()">创建项目</el-button>
+				<el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
 			</div>
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
 				<el-table-column label="项目名称">
-          <template #default="scope"><a href="#/user">{{ scope.row.nickname }}</a></template>
+          <template #default="scope"><a href="#/projects_tabs">{{ scope.row.nickname }}</a></template>
         </el-table-column>
         <el-table-column width="100" label="工作流数量">
           <template #default="scope">--</template>
@@ -16,7 +17,7 @@
         <el-table-column width="100" label="所属用户">
           <template #default="scope">{{ scope.row.author }}</template>
         </el-table-column>
-        <el-table-column prop="description" width="300" label="背景描述">
+        <el-table-column prop="description" width="300" label="背景描述" :show-overflow-tooltip="true">
         </el-table-column>
 				<el-table-column width="200" label="创建时间">
           <template #default="scope">{{ scope.row.create_time }}</template>
@@ -51,7 +52,7 @@
 					<el-input v-model="addForm.name"></el-input>
 				</el-form-item>
         <el-form-item label="背景描述">
-          <el-input v-model="addForm.description"></el-input>
+          <el-input type="textarea" v-model="addForm.description"></el-input>
         </el-form-item>
 			</el-form>
 			<template #footer>
@@ -68,7 +69,11 @@
           <el-input v-model="editForm.nickname"></el-input>
         </el-form-item>
         <el-form-item label="背景描述">
-          <el-input type="textarea" v-model="editForm.description"></el-input>
+          <el-input
+              type="textarea"
+              v-model="editForm.description"
+              placeholder="日志加载中..."
+          ></el-input>
         </el-form-item>
 <!--        <el-form-item label="权限">-->
 <!--          <el-select v-model="editForm.role" placeholder="设置用户权限: admin, test" class="handle-select mr10">-->
@@ -93,8 +98,7 @@ import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getProjects, addProjects, delProjects, updateProjects} from '~/api/projects';
 import { um_api } from "~/store/user_mange";
-import { Delete, Edit, Plus } from '@element-plus/icons-vue';
-
+import { Delete, Edit, Plus,Refresh } from '@element-plus/icons-vue';
 interface TableItem {
 	id: number;
   pid: string;
@@ -210,31 +214,38 @@ const handleDelete = (index: number, row: any) => {
 
 // 修改操作,表格编辑时弹窗和保存
 const editVisible = ref(false);
+let idx: number = -1;
 let editForm = reactive({
   pid: '',
   name: '',
   nickname: '',
   description: '',
 });
-let idx: number = -1;
 const handleEdit = (index: number, row: any) => {
 	idx = index;
   editForm.pid = row.pid;
   editForm.name = row.name;
+  editForm.nickname = row.nickname;
+  editForm.description = row.description;
+  // editForm.nickname = editForm.nickname ? editForm.nickname : row.nickname;
+  // editForm.description = editForm.description ? editForm.description : row.description;
   editVisible.value = true;
-
 };
 const editSaveEdit = async () => {
-	// ElMessage.success(`修改第 ${idx + 1} 行成功`);
-	tableData.value[idx].nickname = editForm.nickname;
-	tableData.value[idx].description = editForm.description;
-  // 向后端发起操作
-  const response = (await updateProjects(editForm));
-  if (response.isSuccess) {
-    handleFlush();
-    ElMessage.success(`修改 ${editForm.name} 成功！`);
+  if (editForm.nickname) {
+    // ElMessage.success(`修改第 ${idx + 1} 行成功`);
+    tableData.value[idx].nickname = editForm.nickname;
+    tableData.value[idx].description = editForm.description;
+    // 向后端发起操作
+    const response = (await updateProjects(editForm));
+    if (response.isSuccess) {
+      handleFlush();
+      ElMessage.success(`修改 ${editForm.name} 成功！`);
+    } else {
+      ElMessage.error(`修改 ${editForm.name} 失败！`);
+    }
   } else {
-    ElMessage.error(`修改 ${editForm.name} 失败！`);
+    ElMessage.error(`修改 ${editForm.name} 失败！项目名称不能为空！`);
   }
   editVisible.value = false;
 };

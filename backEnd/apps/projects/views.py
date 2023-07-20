@@ -21,7 +21,7 @@ from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, st
 # 统一响应的数据结构
 from server_core.conf import BASE_DIR
 from loguru import logger as sub_logger
-from .models import get_projects_info, check_pid, add_project_info, del_project_info, update_user_info
+from .models import get_projects_info, check_pid, add_project_info, del_project_info,update_project_infos
 
 route = APIRouter()
 
@@ -50,7 +50,7 @@ async def add_project(request: Request):
     callbackJson.statusCode = 400
     content = {}
     if check_pid(pid=data.get("pid")):
-        result = update_user_info(data)
+        result = update_project_infos(data)
         if result:
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
