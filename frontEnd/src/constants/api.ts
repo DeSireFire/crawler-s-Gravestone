@@ -33,6 +33,14 @@ export enum WORKERLOGS {
   DELLOGS = "/del_logs",
 }
 
+// 任务日志
+export enum PROJECTS {
+  GETPROJECTS = "/get_projects",
+  ADDPROJECT = "/add_project",
+  DELPROJECT = "/del_project",
+  UPDATEPROJECT = "/update_project",
+}
+
 // 附加功能接口
 export enum EXTRALS {
   // IPINFO = "https://api.live.bilibili.com/xlive/web-room/v1/index/getIpInfo",
@@ -47,4 +55,5 @@ export const API = {
   DASHBOARD,
   WORKERLOGS,
   EXTRALS,
+  PROJECTS,
 };

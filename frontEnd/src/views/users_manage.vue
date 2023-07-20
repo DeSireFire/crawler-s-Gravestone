@@ -257,7 +257,7 @@ const addSaveEdit = async () => {
 };
 
 // 表格编辑时弹窗和保存
-const editVisible = ref(false);
+let editVisible = ref(false);
 let editForm = reactive({
   id: '',
   name: '',

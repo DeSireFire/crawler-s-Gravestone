@@ -84,11 +84,12 @@ def del_project_info(data):
 
 
 # 更新项目数据
-def update_user_info(data):
+def update_project_infos(data):
     session = Newsession()
     try:
-        print(data)
-        session.bulk_update_mappings(ProjectInfos, [data])
+        project_info = ProjectInfos(**data)
+        project_info.update_time = datetime.now()
+        session.merge(project_info)
         session.commit()
         return True
     except Exception as e:
@@ -116,7 +117,7 @@ __all__ = [
     "add_project_info",
     "ProjectInfos",
     "del_project_info",
-    "update_user_info",
+    "update_project_infos",
     "check_pid",
     "get_projects_info",
 ]

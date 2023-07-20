@@ -29,7 +29,7 @@ export const tableData = ref<TableItem[]>([]);
 export let pageTotal = ref(0);
 
 // 表格编辑时弹窗和保存
-export const editVisible = ref(false);
+export let editVisible = ref(false);
 export let form = reactive({
   name: '',
   address: ''

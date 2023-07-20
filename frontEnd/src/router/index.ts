@@ -48,6 +48,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/users_manage.vue'),
             },
+            {
+                path: '/projects_list',
+                name: 'projects_list',
+                meta: {
+                    title: '项目列表',
+                    permiss: '42',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/projects_list.vue'),
+            },
 
             // 原始模板
             {
