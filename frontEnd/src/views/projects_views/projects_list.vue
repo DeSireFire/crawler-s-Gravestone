@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="container">
-      <div class="plugins-tips">项目管理(待开发)</div>
+      <div class="plugins-tips">项目管理(开发中...)</div>
 			<div class="handle-box">
 				<el-button type="primary" :icon="Plus" @click="handleAdd()">创建项目</el-button>
 				<el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
@@ -9,7 +9,7 @@
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
 				<el-table-column label="项目名称">
-          <template #default="scope"><a href="#/projects_tabs">{{ scope.row.nickname }}</a></template>
+          <template #default="scope"><a :href="'#/projects_tabs?pid='+scope.row.pid">{{ scope.row.nickname }}</a></template>
         </el-table-column>
         <el-table-column width="100" label="工作流数量">
           <template #default="scope">--</template>
@@ -72,7 +72,7 @@
           <el-input
               type="textarea"
               v-model="editForm.description"
-              placeholder="日志加载中..."
+              placeholder="描述加载中..."
           ></el-input>
         </el-form-item>
 <!--        <el-form-item label="权限">-->
@@ -93,7 +93,7 @@
 	</div>
 </template>
 
-<script setup lang="ts" name="basetable">
+<script setup lang="ts" name="projects_list">
 import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getProjects, addProjects, delProjects, updateProjects} from '~/api/projects';

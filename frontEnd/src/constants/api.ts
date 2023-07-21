@@ -39,6 +39,8 @@ export enum PROJECTS {
   ADDPROJECT = "/add_project",
   DELPROJECT = "/del_project",
   UPDATEPROJECT = "/update_project",
+
+  GETWORKERS = "/get_workers",
 }
 
 // 附加功能接口

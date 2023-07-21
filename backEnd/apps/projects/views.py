@@ -21,7 +21,7 @@ from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, st
 # 统一响应的数据结构
 from server_core.conf import BASE_DIR
 from loguru import logger as sub_logger
-from .models import get_projects_info, check_pid, add_project_info, del_project_info,update_project_infos
+from .components import get_projects_info, check_pid, add_project_info, del_project_info,update_project_infos
 
 route = APIRouter()
 

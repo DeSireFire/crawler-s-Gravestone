@@ -46,3 +46,11 @@ export const delProjects = (DelData:project) => {
     });
 };
 
+// 获取工作流列表
+export const getWorkers = () => {
+    return handleGet({
+        url: API.PROJECTS.GETWORKERS,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};

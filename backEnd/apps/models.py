@@ -59,6 +59,18 @@ def inituser():
         )
         session.add(project_demo)
         session.commit()
+
+    from apps.projects.models import WorkerInfos
+    # 创建一个测试工作流
+    project_demo = session.query(WorkerInfos).filter_by(name='工作流定义测试demo').first()
+    if not project_demo:
+        project_demo = WorkerInfos(
+            pid="3fec345932e98b8e37bfc167312c3953",
+            name='工作流定义测试demo', modify_user="admin",
+            description="用于做开发测试和创建流程实践的项目。"
+        )
+        session.add(project_demo)
+        session.commit()
         session.flush()
 
 

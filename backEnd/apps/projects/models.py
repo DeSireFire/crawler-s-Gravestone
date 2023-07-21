@@ -10,10 +10,9 @@ __author__ = 'RaXianch'
 from apps import db_Base
 from datetime import datetime
 from utils.other import get_md5
-from server_core.log import logger
-from server_core.db import engine, Newsession
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, TEXT, JSON
 from sqlalchemy.sql import func
+
 
 class BaseJson:
     def json(self):
@@ -26,7 +25,7 @@ class BaseJson:
 class ProjectInfos(db_Base, BaseJson):
     __tablename__ = 'project_infos'
     id = Column(Integer, primary_key=True)
-    pid = Column(String(100), unique=True)
+    pid = Column(String(64), unique=True)
     name = Column(String(255))
     nickname = Column(String(255))  # 用于展示的名称，由于存在项目名称重命名的情况
     author = Column(String(64))
@@ -35,98 +34,38 @@ class ProjectInfos(db_Base, BaseJson):
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
     update_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-    def __init__(self, pid=None, name=None, nickname=None, author=None, description=None):
+    def __init__(self, pid=None, name=None, nickname=None, author=None, description=None, extra=None):
         self.pid = pid or get_md5(name)
         self.name = name
         self.nickname = nickname or name
         self.author = author
         self.description = description
+        self.extra = extra
 
 
-# 检查项目的PID是否存在
-def check_pid(name=None, pid=None):
-    session = Newsession()
-    if name or pid:
-        if not pid:
-            pid = get_md5(name)
-    else:
-        return False
-    data = session.query(ProjectInfos).filter_by(pid=pid).first()
-    if pid and data:
-        return True
-    else:
-        return False
+class WorkerInfos(db_Base, BaseJson):
+    __tablename__ = 'worker_infos'
+    id = Column(Integer, primary_key=True)
+    wid = Column(String(64), nullable=False)
+    pid = Column(String(100), unique=True, nullable=False)
+    p_nickname = Column(String(255))
+    name = Column(String(255))
+    description = Column(String, nullable=False)
+    status = Column(String(64))
+    modify_user = Column(String(255))
+    extra = Column(JSON, nullable=True)
+    create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
+    update_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-
-# 新增项目数据
-def add_project_info(data):
-    session = Newsession()
-    project = session.add(ProjectInfos(**data))
-    try:
-        session.commit()
-        return True
-    except Exception as e:
-        session.rollback()
-        return False
-
-
-# 删除项目数据
-def del_project_info(data):
-    session = Newsession()
-    try:
-        user = session.query(ProjectInfos).filter_by(pid=data['pid']).first()
-        session.delete(user)
-        session.commit()
-        return True
-    except Exception as e:
-        session.rollback()
-        logger.error(e)
-        return False
-
-
-# 更新项目数据
-def update_project_infos(data):
-    session = Newsession()
-    old_data = session.query(ProjectInfos).filter_by(pid=data.get("pid")).first()
-    if old_data:
-        # 灵活赋值
-        for key, value in data.items():
-            setattr(old_data, key, value)
-        old_data.update_time = datetime.now()
-    else:
-        project_info = ProjectInfos(**data)
-        project_info.update_time = datetime.now()
-        session.add(project_info)
-    try:
-        session.commit()
-        return True
-    except Exception as e:
-        session.rollback()
-        logger.error(e)
-        return False
-
-
-
-# 获取所有数据
-def get_projects_info():
-    session = Newsession()
-    result = session.query(ProjectInfos).all()
-    if result:
-        temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
-        for u in temps:
-            for k, v in u.items():
-                if isinstance(v, datetime):
-                    u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
-        return temps
-    else:
-        return None
-
+    def __init__(self, pid, wid=None, name=None, modify_user=None, description=None, extra=None):
+        self.wid = wid or get_md5(f"{name}_{datetime.now().strftime('%Y-%m-%dT%H:%M')}")
+        self.pid = pid
+        self.name = name
+        self.modify_user = modify_user
+        self.description = description
+        self.extra = extra
 
 __all__ = [
-    "check_pid",
     "ProjectInfos",
-    "del_project_info",
-    "add_project_info",
-    "update_project_infos",
-    "get_projects_info",
+    "WorkerInfos",
 ]
