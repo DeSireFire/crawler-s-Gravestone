@@ -9,7 +9,10 @@
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
 				<el-table-column label="项目名称">
-          <template #default="scope"><a :href="'#/projects_tabs?pid='+scope.row.pid">{{ scope.row.nickname }}</a></template>
+          <template #default="scope">
+<!--            <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid} }">{{ scope.row.nickname }}</router-link>-->
+            <a :href="'#/projects_tabs/?pid='+scope.row.pid">{{ scope.row.nickname }}</a>
+          </template>
         </el-table-column>
         <el-table-column width="100" label="工作流数量">
           <template #default="scope">--</template>
@@ -94,7 +97,7 @@
 </template>
 
 <script setup lang="ts" name="projects_list">
-import { ref, reactive } from 'vue';
+import {ref, reactive, onBeforeMount} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getProjects, addProjects, delProjects, updateProjects} from '~/api/projects';
 import { um_api } from "~/store/user_mange";
@@ -249,6 +252,7 @@ const editSaveEdit = async () => {
   }
   editVisible.value = false;
 };
+
 </script>
 
 <style scoped>

@@ -45,8 +45,8 @@ import { ElMessage } from "element-plus";
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useAccountStore } from "~/store/account";
-import { usePermissStore } from "../store/permiss";
-import { useTagsStore } from "../store/tags";
+import { usePermissStore } from "~/store/permiss";
+import { useTagsStore } from "~/store/tags";
 
 interface LoginInfo {
   username: string;
@@ -118,7 +118,7 @@ tags.clearTags();
   position: relative;
   width: 100%;
   height: 100%;
-  background-image: url(../assets/img/login-bg.jpg);
+  background-image: url(../../assets/img/login-bg.jpg);
   background-size: 100%;
 }
 .ms-title {

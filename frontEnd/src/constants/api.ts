@@ -36,11 +36,18 @@ export enum WORKERLOGS {
 // 任务日志
 export enum PROJECTS {
   GETPROJECTS = "/get_projects",
+  GETPROJECT = "/get_project",
   ADDPROJECT = "/add_project",
   DELPROJECT = "/del_project",
   UPDATEPROJECT = "/update_project",
 
   GETWORKERS = "/get_workers",
+  ADDWORKERS = "/add_workers",
+  DELWORKERS = "/del_workers",
+  UPDATEWORKERS = "/update_workers",
+
+  GETJOBS = "/get_jobs",
+  DELJOBS = "/del_jobs",
 }
 
 // 附加功能接口

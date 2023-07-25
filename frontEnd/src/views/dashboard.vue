@@ -19,23 +19,23 @@
 						<span>{{ local_name }}</span>
 					</div>
 				</el-card>
-				<el-card shadow="hover" style="height: auto">
-					<template #header>
-						<div class="clearfix">
-							<span>日志比例Top5</span>
-						</div>
-					</template>
-					高德地图
-					<el-progress :percentage="69.4" color="#42b983"></el-progress>
-					企查查
-					<el-progress :percentage="14" color="#f1e05a"></el-progress>
-					美团
-					<el-progress :percentage="5.6"></el-progress>
-					药监局
-					<el-progress :percentage="9" color="#f56c6c"></el-progress>
-          饿了么
-          <el-progress :percentage="1" color="#f56c6c"></el-progress>
-				</el-card>
+<!--				<el-card shadow="hover" style="height: auto">-->
+<!--					<template #header>-->
+<!--						<div class="clearfix">-->
+<!--							<span>日志比例Top5</span>-->
+<!--						</div>-->
+<!--					</template>-->
+<!--					高德地图-->
+<!--					<el-progress :percentage="69.4" color="#42b983"></el-progress>-->
+<!--					企查查-->
+<!--					<el-progress :percentage="14" color="#f1e05a"></el-progress>-->
+<!--					美团-->
+<!--					<el-progress :percentage="5.6"></el-progress>-->
+<!--					药监局-->
+<!--					<el-progress :percentage="9" color="#f56c6c"></el-progress>-->
+<!--          饿了么-->
+<!--          <el-progress :percentage="1" color="#f56c6c"></el-progress>-->
+<!--				</el-card>-->
 			</el-col>
 			<el-col :span="16">
 				<el-row :gutter="20" class="mgb20">

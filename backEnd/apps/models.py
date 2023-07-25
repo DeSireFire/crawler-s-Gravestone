@@ -13,7 +13,6 @@ from sqlalchemy.sql import func
 from server_core.log import logger
 
 from server_core.db import engine, Newsession
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
 
 class Basejson():
@@ -62,14 +61,29 @@ def inituser():
 
     from apps.projects.models import WorkerInfos
     # 创建一个测试工作流
-    project_demo = session.query(WorkerInfos).filter_by(name='工作流定义测试demo').first()
-    if not project_demo:
-        project_demo = WorkerInfos(
-            pid="3fec345932e98b8e37bfc167312c3953",
-            name='工作流定义测试demo', modify_user="admin",
-            description="用于做开发测试和创建流程实践的项目。"
+    workers_demo = session.query(WorkerInfos).filter_by(name='工作流定义测试demo').first()
+    if not workers_demo:
+        workers_demo = WorkerInfos(
+            pid="3fec345932e98b8e37bfc167312c3953", crawl_frequency="临时",
+            name='工作流定义测试demo',
+            modify_user="admin",
+            description="用于做开发测试和创建流程实践的工作流。"
         )
-        session.add(project_demo)
+        session.add(workers_demo)
+        session.commit()
+        session.flush()
+
+    from apps.projects.models import JobInfos
+    # 创建一个测试任务实例
+    jobs_demo = session.query(JobInfos).filter_by(name='任务实例测试demo').first()
+    if not jobs_demo:
+        jobs_demo = JobInfos(
+            pid="3fec345932e98b8e37bfc167312c3953",
+            wid="a158dc3a9d0f71283132f2c1127bc8c0",
+            run_user="admin",
+            log_file_path=r"F:\workSpace\myGithub\crawler-s-Gravestone\backEnd\logs\worker_logs\test_client_uper\2023-06-26_cxy_pubmed_2263_redis_luoben_rq.log",
+        )
+        session.add(jobs_demo)
         session.commit()
         session.flush()
 

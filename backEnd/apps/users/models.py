@@ -130,12 +130,13 @@ def add_user_info(data):
         return False
 
 
-# 新增用户数据
+# 更新用户数据
 def update_user_info(data):
     session = Newsession()
     # user = session.query(Users(**data)).filter_by(id=data['id']).first()
     # user.name = data['name']=
     try:
+        # 根据表的 primary_key 字段进行更新，否者只能通过过滤去更新数据
         session.bulk_update_mappings(Users, [data])
         session.commit()
         return True

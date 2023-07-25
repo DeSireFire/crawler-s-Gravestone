@@ -9,8 +9,9 @@ __author__ = 'RaXianch'
 
 from apps import db_Base
 from datetime import datetime
+
 from utils.other import get_md5
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, TEXT, JSON
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.sql import func
 
 
@@ -46,10 +47,12 @@ class ProjectInfos(db_Base, BaseJson):
 class WorkerInfos(db_Base, BaseJson):
     __tablename__ = 'worker_infos'
     id = Column(Integer, primary_key=True)
-    wid = Column(String(64), nullable=False)
-    pid = Column(String(100), unique=True, nullable=False)
+    wid = Column(String(64), unique=True, nullable=False)
+    pid = Column(String(100), nullable=False)
     p_nickname = Column(String(255))
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
+    nickname = Column(String(255))
+    crawl_frequency = Column(String, nullable=True)
     description = Column(String, nullable=False)
     status = Column(String(64))
     modify_user = Column(String(255))
@@ -57,15 +60,65 @@ class WorkerInfos(db_Base, BaseJson):
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
     update_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-    def __init__(self, pid, wid=None, name=None, modify_user=None, description=None, extra=None):
-        self.wid = wid or get_md5(f"{name}_{datetime.now().strftime('%Y-%m-%dT%H:%M')}")
+    def __init__(self, pid, p_nickname=None, wid=None, name=None, modify_user=None, description=None, extra=None,
+                 crawl_frequency=None):
+        from apps.projects.components import get_fetch_one
         self.pid = pid
+        # self.wid = wid or get_md5(f"{name}_{datetime.now().strftime('%Y-%m-%dT%H:%M')}")
+        self.wid = wid or get_md5(f"{name}_{pid}")
         self.name = name
+        self.nickname = name
         self.modify_user = modify_user
+        self.crawl_frequency = crawl_frequency
         self.description = description
         self.extra = extra
+        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=pid).get("nickname")
+
+
+class JobInfos(db_Base, BaseJson):
+    __tablename__ = 'job_infos'
+    id = Column(Integer, primary_key=True)
+    wid = Column(String(64), nullable=False)
+    pid = Column(String(64), nullable=False)
+    jid = Column(String(64), nullable=False, unique=True)
+    p_nickname = Column(String(255))
+    w_nickname = Column(String(255))
+    name = Column(String(255), nullable=False, unique=True)
+    status = Column(Integer, default=0)   # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
+    run_user = Column(String(255))
+    log_file_path = Column(Text)
+    log_lv_warning = Column(Integer, default=int(0))
+    log_lv_error = Column(Integer, default=int(0))
+    log_lv_info = Column(Integer, default=int(0))
+    extra = Column(JSON, nullable=True)
+    create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
+    end_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
+
+    def __init__(self, pid, wid, p_nickname=None, w_nickname=None, jid=None, run_user=None,  extra=None,
+                 log_file_path=None, log_lv_warning=None, log_lv_error=None, log_lv_info=None):
+        from apps.projects.components import get_fetch_one
+        dn = datetime.now()
+        now_time = dn.strftime('%Y-%m-%dT%H:%M:%S')
+        now_ts = int(dn.timestamp() * 1000)
+        wname = get_fetch_one(model=WorkerInfos, wid=wid).get("name")
+        temp_wnname = get_fetch_one(model=WorkerInfos, wid=wid).get("nickname")
+        self.pid = pid
+        self.wid = wid
+        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=pid).get("nickname")
+        self.w_nickname = w_nickname if w_nickname else temp_wnname
+        self.jid = jid or get_md5(f"{wname}_{wid}_{now_time}")
+        self.name = f"{temp_wnname}-{now_ts}"
+        self.run_user = run_user
+        self.log_file_path = log_file_path
+        self.log_lv_warning = log_lv_warning
+        self.log_lv_error = log_lv_error
+        self.log_lv_info = log_lv_info
+        self.extra = extra
+        self.create_time = dn
+
 
 __all__ = [
     "ProjectInfos",
     "WorkerInfos",
+    "JobInfos",
 ]
