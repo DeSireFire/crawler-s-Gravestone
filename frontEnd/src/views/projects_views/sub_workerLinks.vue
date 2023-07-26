@@ -5,41 +5,45 @@
     <el-button type="primary" :icon="Plus" @click="handleAdd()">创建工作流</el-button>
     <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
   </div>
-  <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-    <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
-    <el-table-column label="工作流名称">
-      <template #default="scope">
-        <a href="javascript:void(0);" @click="handleUpToken(scope.$index, scope.row)">{{ scope.row.nickname }}</a>
-    </template>
-    </el-table-column>
-    <el-table-column width="100" label="修改用户">
-      <template #default="scope">{{ scope.row.modify_user }}</template>
-    </el-table-column>
-    <el-table-column width="100" label="所属项目" :show-overflow-tooltip="true">
-      <template #default="scope">{{ scope.row.p_nickname }}</template>
-    </el-table-column>
-    <el-table-column width="100" label="采集频率">
-      <template #default="scope">{{ scope.row.crawl_frequency }}</template>
-    </el-table-column>
-    <el-table-column prop="description" width="300" label="背景描述" :show-overflow-tooltip="true">
-    </el-table-column>
-    <el-table-column width="160" label="创建时间">
-      <template #default="scope">{{ scope.row.create_time }}</template>
-    </el-table-column>
-    <el-table-column label="操作" width="300" align="center">
-      <template #default="scope">
-        <el-button text :icon="Edit" @click="handleUpToken(scope.$index, scope.row)" v-permiss="15">
-          密钥
-        </el-button>
-        <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
-          编辑
-        </el-button>
-        <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
-          删除
-        </el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+
+  <el-scrollbar>
+    <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+      <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
+      <el-table-column label="工作流名称">
+        <template #default="scope">
+          <a href="javascript:void(0);" @click="handleUpToken(scope.$index, scope.row)">{{ scope.row.nickname }}</a>
+        </template>
+      </el-table-column>
+      <el-table-column width="100" label="修改用户">
+        <template #default="scope">{{ scope.row.modify_user }}</template>
+      </el-table-column>
+      <el-table-column width="100" label="所属项目" :show-overflow-tooltip="true">
+        <template #default="scope">{{ scope.row.p_nickname }}</template>
+      </el-table-column>
+      <el-table-column width="100" label="采集频率">
+        <template #default="scope">{{ scope.row.crawl_frequency }}</template>
+      </el-table-column>
+      <el-table-column prop="description" width="300" label="背景描述" :show-overflow-tooltip="true">
+      </el-table-column>
+      <el-table-column width="160" label="创建时间">
+        <template #default="scope">{{ scope.row.create_time }}</template>
+      </el-table-column>
+      <el-table-column label="操作" width="300" align="center" fixed="right">
+        <template #default="scope">
+          <el-button text :icon="Edit" @click="handleUpToken(scope.$index, scope.row)" v-permiss="15">
+            密钥
+          </el-button>
+          <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
+            编辑
+          </el-button>
+          <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </el-scrollbar>
+
   <!-- 弹出框 -->
   <el-dialog title="创建项目" v-model="addVisible" width="40%">
     <el-form label-width="100px">

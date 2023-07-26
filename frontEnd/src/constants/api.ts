@@ -33,7 +33,7 @@ export enum WORKERLOGS {
   DELLOGS = "/del_logs",
 }
 
-// 任务日志
+// 项目管理
 export enum PROJECTS {
   GETPROJECTS = "/get_projects",
   GETPROJECT = "/get_project",
@@ -48,6 +48,10 @@ export enum PROJECTS {
 
   GETJOBS = "/get_jobs",
   DELJOBS = "/del_jobs",
+
+  GETLOG = "/get_log",
+
+  GETPTASKS = "/get_ptasks",
 }
 
 // 附加功能接口

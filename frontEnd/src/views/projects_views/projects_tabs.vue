@@ -35,7 +35,7 @@ const handleProjectInfo = () => {
   params_info = Object.fromEntries(urlParams.entries());
 };
 handleProjectInfo();
-console.log(pid)
+// console.log(pid)
 const handleClick = (tab:any, event:any) => {
   //这样才能获取每个el-tab-pane的name属性
   console.log(tab.props.name);

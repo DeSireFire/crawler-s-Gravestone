@@ -6,36 +6,38 @@
 				<el-button type="primary" :icon="Plus" @click="handleAdd()">创建项目</el-button>
 				<el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
 			</div>
-			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
-				<el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
-				<el-table-column label="项目名称">
-          <template #default="scope">
-<!--            <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid} }">{{ scope.row.nickname }}</router-link>-->
-            <a :href="'#/projects_tabs/?pid='+scope.row.pid">{{ scope.row.nickname }}</a>
-          </template>
-        </el-table-column>
-        <el-table-column width="100" label="工作流数量">
-          <template #default="scope">--</template>
-        </el-table-column>
-        <el-table-column width="100" label="所属用户">
-          <template #default="scope">{{ scope.row.author }}</template>
-        </el-table-column>
-        <el-table-column prop="description" width="300" label="背景描述" :show-overflow-tooltip="true">
-        </el-table-column>
-				<el-table-column width="200" label="创建时间">
-          <template #default="scope">{{ scope.row.create_time }}</template>
-        </el-table-column>
-				<el-table-column label="操作" width="200" align="center">
-					<template #default="scope">
-						<el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
-							编辑
-						</el-button>
-						<el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
-							删除
-						</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
+      <el-scrollbar>
+        <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+          <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
+          <el-table-column label="项目名称">
+            <template #default="scope">
+              <!--            <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid} }">{{ scope.row.nickname }}</router-link>-->
+              <a :href="'#/projects_tabs/?pid='+scope.row.pid">{{ scope.row.nickname }}</a>
+            </template>
+          </el-table-column>
+          <el-table-column width="100" label="工作流数量">
+            <template #default="scope">--</template>
+          </el-table-column>
+          <el-table-column width="100" label="所属用户">
+            <template #default="scope">{{ scope.row.author }}</template>
+          </el-table-column>
+          <el-table-column prop="description" width="300" label="背景描述" :show-overflow-tooltip="true">
+          </el-table-column>
+          <el-table-column width="200" label="创建时间">
+            <template #default="scope">{{ scope.row.create_time }}</template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" align="center" fixed="right">
+            <template #default="scope">
+              <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
+                编辑
+              </el-button>
+              <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-scrollbar>
 			<div class="pagination">
 				<el-pagination
 					background

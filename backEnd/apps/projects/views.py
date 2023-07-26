@@ -32,6 +32,7 @@ from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
 
+
 # 项目视图
 @route.post("/add_project", summary="创建项目")
 async def add_project(request: Request):
@@ -47,6 +48,7 @@ async def add_project(request: Request):
         if result:
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
+
 
 @route.post("/update_project", summary="修改项目")
 async def update_project(request: Request):
@@ -94,6 +96,7 @@ async def del_project(request: Request, pid: str = Query(None)):
                 callbackJson.message = k
     return callbackJson.callBacker(content)
 
+
 @route.get("/get_project", summary="获取项目信息")
 async def get_project(request: Request, pid: str = Query(None)):
     """
@@ -110,6 +113,7 @@ async def get_project(request: Request, pid: str = Query(None)):
     # 转换为业务响应数据
     content.update(one)
     return callbackJson.callBacker(content)
+
 
 @route.get("/get_projects", summary="获取项目列表")
 async def get_projects(request: Request):
@@ -129,6 +133,7 @@ async def get_projects(request: Request):
     content["pageTotal"] = len(pro_list)
     return callbackJson.callBacker(content)
 
+
 # 工作流视图
 @route.get("/get_workers", summary="获取工作流列表")
 async def get_workers(request: Request, pid: str = Query(None)):
@@ -141,7 +146,7 @@ async def get_workers(request: Request, pid: str = Query(None)):
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     content = {}
-    workers_list = get_query_all(model=WorkerInfos,pid=pid) or []
+    workers_list = get_query_all(model=WorkerInfos, pid=pid) or []
     pprint(workers_list)
     # 转换为业务响应数据
     content["list"] = workers_list or None
@@ -262,6 +267,7 @@ async def get_jobs(request: Request, pid: str = Query(None), wid: str = Query(No
     content["pageTotal"] = len(jobs_list)
     return callbackJson.callBacker(content)
 
+
 @route.delete("/del_jobs", summary="删除任务实例")
 async def del_project(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """
@@ -293,3 +299,125 @@ async def del_project(request: Request, pid: str = Query(None), wid: str = Query
             if not v:
                 callbackJson.message = k
     return callbackJson.callBacker(content)
+
+
+# 任务实例视图
+@route.get("/get_log", summary="获取任务日志")
+async def get_log(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
+    """
+    获取任务日志
+    :param request:
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    print(f"pid:{pid}")
+    job_info = get_query_all(model=JobInfos, pid=pid, wid=wid, jid=jid) or []
+    log_file_path = job_info[0].get("log_file_path", None)
+    pprint(job_info)
+    pprint(f"log_file_path --- > {log_file_path}")
+    log_content = ""
+    with open(log_file_path, encoding="utf-8") as f:
+        log_content = f.read()
+
+    # 转换为业务响应数据
+    content["content"] = log_content or None
+    return callbackJson.callBacker(content)
+
+# todo 项目首页视图
+@route.get("/get_ptasks", summary="获取任务状态饼图")
+async def get_ptasks(request: Request, pid: str = Query(None)):
+    """
+    获取任务日志
+    :param request:
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    rjson = {
+        "title": {
+            "text": "数据统计 有点厉害",
+        },
+        "tooltip": {
+            "trigger": "axis",
+        },
+        "legend": {
+            "x": 'center',
+            "y": 'bottom',
+            "data": ["Email", "Union Ads", "Video Ads", "Direct", "Search Engine"],
+        },
+        "grid": {
+            # "left": "3%",
+            # "right": "4%",
+            # "bottom": "3%",
+            "containLabel": True,
+        },
+        "toolbox": {
+            "feature": {
+                "saveAsImage": {},
+            },
+        },
+        "xAxis": {
+            "type": "category",
+            "boundaryGap": False,
+            "data": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        },
+        "yAxis": {
+            "type": "value",
+        },
+        "series": [
+            {
+                "name": "Email",
+                "type": "line",
+                "stack": "Total",
+                "data": [120, 132, 101, 134, 90, 230, 210],
+            },
+            {
+                "name": "Union Ads",
+                "type": "line",
+                "stack": "Total",
+                "data": [220, 182, 191, 234, 290, 330, 310],
+            },
+            {
+                "name": "Video Ads",
+                "type": "line",
+                "stack": "Total",
+                "data": [150, 232, 201, 154, 190, 330, 410],
+            },
+            {
+                "name": "Direct",
+                "type": "line",
+                "stack": "Total",
+                "data": [320, 332, 301, 334, 390, 330, 320],
+            },
+            {
+                "name": "Search Engine",
+                "type": "line",
+                "stack": "Total",
+                "data": [820, 932, 901, 934, 1290, 1330, 1320],
+            },
+        ],
+    }
+    rjsons = []
+    import random, copy
+    # for i in range(1, random.randint(2, 5)):
+    for i in range(1, 4):
+        t = copy.deepcopy(rjson)
+        t["title"]["text"] = f"数据统计({i})"
+        for s in t["series"]:
+            s["data"] = random_int_list(100, 999, 7)
+        rjsons.append(t)
+    content["list"] = rjsons
+    # 转换为业务响应数据
+    return callbackJson.callBacker(content)
+
+def random_int_list(start, stop, length):
+    import random
+    start, stop = (int(start), int(stop)) if start <= stop else (int(stop), int(start))
+    length = int(abs(length)) if length else 0
+    random_list = []
+    for i in range(length):
+        random_list.append(random.randint(start, stop))
+    return random_list

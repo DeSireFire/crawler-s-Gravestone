@@ -30,6 +30,8 @@ class ProjectInfos(db_Base, BaseJson):
     name = Column(String(255))
     nickname = Column(String(255))  # 用于展示的名称，由于存在项目名称重命名的情况
     author = Column(String(64))
+    workers_count = Column(Integer, default=int(0))
+    runing_count = Column(Integer, default=int(0))
     description = Column(String, nullable=False)
     extra = Column(JSON, nullable=True)
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())

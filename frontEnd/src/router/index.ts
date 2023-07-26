@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import { usePermissStore } from '../store/permiss';
-import Home from '../views/home.vue';
+import Home from '../views/base/home.vue';
 
 const routes: RouteRecordRaw[] = [
     {
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
                     title: '任务日志',
                     permiss: '14',
                 },
-                component: () => import(/* webpackChunkName: "worker_logs" */ '../views/worker_logs.vue'),
+                component: () => import(/* webpackChunkName: "worker_logs" */ '../views/projects_views/worker_logs.vue'),
             },
             {
                 path: '/api_docs',
@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
                     title: '账号管理',
                     permiss: '2',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/users_manage.vue'),
+                component: () => import(/* webpackChunkName: "table" */ '../views/users/users_manage.vue'),
             },
             {
                 path: '/projects_list',
@@ -129,7 +129,7 @@ const routes: RouteRecordRaw[] = [
                     title: '权限管理',
                     permiss: '13',
                 },
-                component: () => import(/* webpackChunkName: "permission" */ '../views/permission.vue'),
+                component: () => import(/* webpackChunkName: "permission" */ '../views/users/permission.vue'),
             },
             {
                 path: '/upload',
@@ -155,7 +155,7 @@ const routes: RouteRecordRaw[] = [
                 meta: {
                     title: '个人中心',
                 },
-                component: () => import(/* webpackChunkName: "user" */ '../views/user.vue'),
+                component: () => import(/* webpackChunkName: "user" */ '../views/users/user.vue'),
             },
             {
                 path: '/editor',

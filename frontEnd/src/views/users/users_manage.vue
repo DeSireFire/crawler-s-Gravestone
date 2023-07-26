@@ -105,8 +105,7 @@
 import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
-import { fetchData } from '../api/index';
-import {add_user, edit_user, get_users, del_user} from '../api/account';
+import {add_user, edit_user, get_users, del_user} from '~/api/account';
 import {um_api} from "~/store/user_mange";
 
 interface TableItem {
@@ -124,6 +123,7 @@ const query = um_api.query
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 // 获取表格数据
+// import { fetchData } from '~/api/index';
 // const getData = () => {
 // 	fetchData().then(res => {
 // 		tableData.value = res.data.list;

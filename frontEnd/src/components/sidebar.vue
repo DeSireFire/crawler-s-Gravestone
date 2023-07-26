@@ -144,12 +144,12 @@ const items = [
       },
     ],
   },
-  {
-    icon: 'User',
-    index: '/user',
-    title: '个人中心',
-    permiss: '9',
-  },
+  // {
+  //   icon: 'User',
+  //   index: '/user',
+  //   title: '个人中心',
+  //   permiss: '9',
+  // },
 
   // {
   //   icon: 'Switch',

@@ -2,7 +2,6 @@ import { API } from "~/constants/api";
 import {CONTENT_TYPE, REQUEST_HEADER, REQUEST_METHOD} from "~/constants/request";
 import useHttp from "~/utils/request";
 import { project,worker,job } from "~/api/types/projects";
-import {LogInfo} from "~/api/types/workerLogs";
 const { handleGet,handleDelete, http, handlePost } = useHttp();
 
 // 获取项目列表
@@ -115,5 +114,29 @@ export const delJobs = (DelData:job) => {
         method: REQUEST_METHOD.DELETE,
         headers: {},
         params: DelData,
+    });
+};
+
+
+// 获取任务日志
+// {jid:xxx}
+export const getLogContent = (logInfo:any) => {
+    return handleGet({
+        url: API.PROJECTS.GETLOG,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+        params: logInfo,
+    });
+};
+
+
+// 获取项目首页折线图
+// {pid:xxx}
+export const getPTask = (pid:any) => {
+    return handleGet({
+        url: API.PROJECTS.GETPTASKS,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+        params: pid,
     });
 };
