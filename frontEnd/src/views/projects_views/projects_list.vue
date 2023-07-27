@@ -12,7 +12,7 @@
           <el-table-column label="项目名称">
             <template #default="scope">
               <!--            <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid} }">{{ scope.row.nickname }}</router-link>-->
-              <a :href="'#/projects_tabs/?pid='+scope.row.pid">{{ scope.row.nickname }}</a>
+              <a :href="'#/projects_tabs/?pid='+scope.row.pid">{{ scope.row.name }}</a>
             </template>
           </el-table-column>
           <el-table-column width="100" label="工作流数量">
@@ -25,6 +25,11 @@
           </el-table-column>
           <el-table-column width="200" label="创建时间">
             <template #default="scope">{{ scope.row.create_time }}</template>
+          </el-table-column>
+          <el-table-column width="150" label="备注" :show-overflow-tooltip="true">
+            <template #default="scope">
+              {{ scope.row.nickname }}
+            </template>
           </el-table-column>
           <el-table-column label="操作" width="200" align="center" fixed="right">
             <template #default="scope">
@@ -70,7 +75,7 @@
 
 		<el-dialog title="编辑项目" v-model="editVisible" width="30%">
       <el-form label-width="70px">
-        <el-form-item label="项目名称">
+        <el-form-item label="备注">
           <el-input v-model="editForm.nickname"></el-input>
         </el-form-item>
         <el-form-item label="背景描述">

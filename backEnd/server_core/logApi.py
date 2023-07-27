@@ -7,6 +7,8 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 import json
+import os
+
 import uvicorn
 from pprint import pprint
 from fastapi import FastAPI
@@ -17,6 +19,8 @@ from utils.RedisDBHelper import RedisDBHelper
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request, APIRouter, Body, Depends, status, Query
 from log_server.components import create_log_message, count_logs_by_level
+from server_core.conf import BASE_DIR
+
 app = FastAPI()
 rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
 origins = [
@@ -72,19 +76,24 @@ async def update_logging(request: Request):
     """
     data = await request.body()
     fdata = await request.form()
-    # print(f"接收到日志数据fdata===>{fdata}")
+    # 获取日志流传送的信息
     log_data = fdata.__dict__.get('_dict')
-    log_level = log_data['levelname']
+
+    # 日志附加信息
     extra_data = json.loads(log_data.get("extra"))
+    # 日志等级
+    log_level = log_data['levelname']
+    # 工作流密钥
     token = extra_data.get('token', 'unknown')
+    #
     wid = extra_data.get("token")
+    jid = extra_data.get("jid")
     try:
         # 同步到数据库
         # 获取工作流信息=>
         # 生成任务实例的jid=>
         # 通过jid获取任务实例信息，如果没有就生成新的任务实例=>
         worker_info = get_fetch_one(WorkerInfos, wid=wid)
-
 
         # 调用函数并打印结果
         log_details = create_log_message(log_data)
@@ -112,20 +121,6 @@ async def update_logging(request: Request):
 async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """
     通过传入工作流实例wid等信息创建实际的任务实例记录
-
-    wid: string;
-    pid: string;
-    p_nickname: string;
-    name: string;
-    nickname: string;
-    crawl_frequency: string;
-    description: string;
-    status: string;
-    modify_user: string;
-    extra: string;
-    create_time: string;
-    update_time: string;
-
     :param request:
     :return:
     """
@@ -136,6 +131,28 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     callbackJson = constructResponse()
     callbackJson.statusCode = 400
     content = {}
+
+    wid = data.get("wid", None)
+    init_mark = data.get("init_mark", None)
+
+
+    # 没有wid传入，直接返回失败
+    if not wid:
+        return callbackJson.callBacker(content)
+
+    # wid 获取工作流信息
+    winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+    # 没获取到直接返回失败
+    # todo 返回时说明错误原因
+    if not winfo:
+        return callbackJson.callBacker(content)
+
+    project_name = winfo.get('name')
+
+    log_file_name = f"{winfo.get('name')}-{init_mark}"
+    log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
+    data["log_file_path"] = log_file_path
+    del data['init_mark']
     result = add_job_one(JobInfos, data)
     if result:
         jid = result.get_jid()

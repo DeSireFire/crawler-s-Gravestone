@@ -7,9 +7,6 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
-import inspect
-import json
-import os
 
 """
 日志推流客户端
@@ -21,33 +18,67 @@ import psutil
 import logging
 import requests
 import logging.config
+from datetime import datetime
 from logging.handlers import HTTPHandler
 import socket
+import inspect
+import json
+import os
+
 
 
 class CrawlLogUper:
-    def __init__(self, token, ip_address="", port="", log_name="", project_name=""):
+    """
+
+    简单使用实例:
+
+    # 实例化推送器
+    obj = CrawlLogUper(
+        token="a158dc3a9d0f71283132f2c1127bc8c0",
+        log_name="单例爬虫测试日志",
+        project_name="高德地图",
+        )
+
+    # 定义logger方法
+    logger = obj.logger
+    # 推送日志信息
+    logger.info(f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    logger.warning(f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    logger.debug(f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+
+    # 即可
+    """
+    def __init__(self, token, ip_address="", port="",
+                 uper_name="未填写上传者", up_switch=True):
+        # 开启是否推送监控信息
+        self.up_switch = up_switch if up_switch else False
+        # 监控平台的工作流密钥
         self.token = token
+        # 推送信息的服务端地址
         self.ip_address = ip_address
         if not self.ip_address:
             self.ip_address = "127.0.0.1"
+        # # 推送信息的服务端端口
         self.port = port
         if not self.port:
             self.port = "50829"
-        self.log_name = log_name
-        if not self.port:
-            self.log_name = f"{__name__} || {inspect.stack()[1][1]}"
+        # if not self.port:
+        #     self.log_name = f"{__name__} || {inspect.stack()[1][1]}"
         self.handlers = None
-        self.project_name = project_name or "test_client_uper"
-        self.logger = self.creat_logger(self.log_name)
-        self.up_name = "未填写上传者"
+        self.uper_name = uper_name
+        dn = datetime.now()
+        now_ts = int(dn.timestamp() * 1000)
+        self.init_mark = str(now_ts)
         self.jid = self.get_job_token()
-        # self.init_mark = dat
+        self.logger = self.creat_logger(self.jid)
+
         # print(inspect.stack()[1][1])
         # print(os.path.basename(inspect.stack()[1][1]))
 
-    def creat_logger(self, log_name: str = "未知"):
-        _logger = logging.getLogger(log_name)
+    def creat_logger(self, jid: str = ""):
+        assert jid, "任务实例密钥不能为空！"
+        _logger = logging.getLogger(jid)
         # print(f"__name__：{__name__}")
         # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
         self.handlers = HTTPHandler(host=f'{self.ip_address}:{self.port}', url='/log', method='POST')
@@ -55,12 +86,12 @@ class CrawlLogUper:
         _logger.setLevel(logging.NOTSET + 1)
         # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
         _logger.addHandler(self.handlers)
-        return self.extra_logger(_logger, self.token)
+        return self.extra_logger(_logger, jid)
 
-    def extra_logger(self, _logger, token=None):
-        token = token if token else self.token
+    def extra_logger(self, _logger, jid=None):
+        token = jid if jid else self.jid
         # 添加统一附加信息
-        ef = ExtraFilter(self.log_name, self.project_name, token)
+        ef = ExtraFilter(self.init_mark, token, jid)
         _logger.addFilter(ef)
         return _logger
 
@@ -92,7 +123,9 @@ class CrawlLogUper:
         data = {
             # 'wid': 'a158dc3a9d0f71283132f2c1127bc8c0',
             'wid': token if token else self.token,
-            'run_user': self.up_name,
+            'run_user': self.uper_name,
+            # 初始化标记
+            'init_mark': self.init_mark,
         }
 
         response = requests.post(f'http://{self.ip_address}:{self.port}/add_job', headers=headers, data=data)
@@ -112,18 +145,18 @@ class CrawlLogUper:
 
 
 class ExtraFilter(logging.Filter):
-    def __init__(self, log_name, project_name, token):
+    def __init__(self, init_mark, token, jid):
         super().__init__()
-        self.log_name = log_name
-        self.project_name = project_name
+        self.init_mark = init_mark
         self.token = token
+        self.jid = jid
 
     def filter(self, record):
         extra = {
             'ip': self.get_ip(),
-            'log_name': self.log_name,
-            'project_name': self.project_name,
+            'init_mark': self.init_mark,
             'token': self.token,
+            'jid': self.token,
         }
         record.extra = json.dumps(extra, ensure_ascii=False)
         return True
@@ -144,10 +177,16 @@ def get_machine_memory_usage_percent():
 
 
 if __name__ == '__main__':
-    obj = CrawlLogUper(token="a158dc3a9d0f71283132f2c1127bc8c0", log_name="单例爬虫测试日志", project_name="高德地图")
-    # logger = obj.logger
-    # cpu = get_machine_memory_usage_percent()
-    # logger.info(f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%')
-    # logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%')
-    # logger.warning(f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%')
-    # logger.debug(f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    obj = CrawlLogUper(
+        token="a158dc3a9d0f71283132f2c1127bc8c0",
+        uper_name="tester",
+    )
+    print(obj.jid)
+    logger = obj.logger
+    cpu = get_machine_memory_usage_percent()
+    logger.info(f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    logger.warning(f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+    logger.debug(f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%')
+
+    # logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：10%')

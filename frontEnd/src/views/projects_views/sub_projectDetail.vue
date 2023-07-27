@@ -8,7 +8,7 @@
           <el-form-item label="项目编号" prop="pid">
             <el-input v-model="params_info.pid" :disabled="true"></el-input>
           </el-form-item>
-          <el-form-item label="项目原名" prop="name">
+          <el-form-item label="项目名称" prop="name">
             <el-input v-model="params_info.name" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="创建时间" prop="create_time">
@@ -21,7 +21,7 @@
     <el-col :span="11">
       <div>
         <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
-          <el-form-item label="项目名称" prop="nickname">
+          <el-form-item label="项目备注" prop="nickname">
             <el-input v-model="params_info.nickname" :disabled="true"></el-input>
           </el-form-item>
           <el-form-item label="所属用户" prop="author">

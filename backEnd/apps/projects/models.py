@@ -97,8 +97,8 @@ class JobInfos(db_Base, BaseJson):
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
     end_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-    def __init__(self, wid, pid=None, p_nickname=None, w_nickname=None, jid=None, run_user=None,  extra=None,
-                 log_file_path=None, log_lv_warning=0, log_lv_error=0, log_lv_debug=0, log_lv_info=0):
+    def __init__(self, wid, pid=None, p_nickname=None, w_nickname=None, jid=None, run_user=None,  name=None,
+                 log_file_path=None, log_lv_warning=0, log_lv_error=0, log_lv_debug=0, log_lv_info=0, extra=None):
         from apps.projects.components import get_fetch_one
         dn = datetime.now()
         now_time = dn.strftime('%Y-%m-%dT%H:%M:%S')
@@ -112,7 +112,7 @@ class JobInfos(db_Base, BaseJson):
         self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("nickname")
         self.w_nickname = w_nickname if w_nickname else temp_wnname
         self.jid = jid or get_md5(f"{wname}_{wid}_{now_time}")
-        self.name = f"{temp_wnname}-{now_ts}"
+        self.name = name if name else f"{temp_wnname}-{now_ts}"
         self.run_user = run_user
         self.log_file_path = log_file_path
         self.log_lv_warning = log_lv_warning

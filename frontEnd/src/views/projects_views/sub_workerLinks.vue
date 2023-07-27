@@ -11,7 +11,7 @@
       <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
       <el-table-column label="工作流名称">
         <template #default="scope">
-          <a href="javascript:void(0);" @click="handleUpToken(scope.$index, scope.row)">{{ scope.row.nickname }}</a>
+          <a href="javascript:void(0);" @click="handleUpToken(scope.$index, scope.row)">{{ scope.row.name }}</a>
         </template>
       </el-table-column>
       <el-table-column width="100" label="修改用户">
