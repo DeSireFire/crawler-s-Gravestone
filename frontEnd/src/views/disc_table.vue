@@ -28,7 +28,6 @@ const schartOption: schartOption = {
 };
 
 
-
 // 获取数据
 const getDatas = async () => {
   chartsDatas.value = (await fetchChartss()).data
@@ -50,7 +49,7 @@ const initEcharts = async () => {
 }
 
 onBeforeMount(() => {
-  // getDatas()
+  getDatas()
 })
 
 onMounted(() => {

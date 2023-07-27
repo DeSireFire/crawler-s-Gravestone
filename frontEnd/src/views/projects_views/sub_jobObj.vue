@@ -108,6 +108,7 @@ interface TableItem {
   log_lv_warning: string;
   log_lv_error: string;
   log_lv_info: string;
+  log_lv_debug: string;
   extra: string;
   create_time: string;
   end_time: string;

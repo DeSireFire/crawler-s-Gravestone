@@ -45,6 +45,7 @@ export const fetchCharts = () => {
 export const fetchChartss = () => {
   return http({
     url: "http://127.0.0.1:8000/recharts",
+    // url: "http://localhost:8000/recharts",
     method: "get",
   });
 };

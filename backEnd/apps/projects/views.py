@@ -27,7 +27,7 @@ from utils.other import get_md5
 from .components import \
     get_projects_info, check_pid, \
     add_project_info, del_project_info, \
-    update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data
+    update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, add_job_one
 from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
@@ -301,7 +301,6 @@ async def del_project(request: Request, pid: str = Query(None), wid: str = Query
     return callbackJson.callBacker(content)
 
 
-# 任务实例视图
 @route.get("/get_log", summary="获取任务日志")
 async def get_log(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """
@@ -324,6 +323,43 @@ async def get_log(request: Request, pid: str = Query(None), wid: str = Query(Non
     # 转换为业务响应数据
     content["content"] = log_content or None
     return callbackJson.callBacker(content)
+
+
+@route.post("/add_job", summary="新增任务")
+async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
+    """
+    通过传入工作流实例wid等信息创建实际的任务实例记录
+
+    wid: string;
+    pid: string;
+    p_nickname: string;
+    name: string;
+    nickname: string;
+    crawl_frequency: string;
+    description: string;
+    status: string;
+    modify_user: string;
+    extra: string;
+    create_time: string;
+    update_time: string;
+
+    :param request:
+    :return:
+    """
+    data = await request.body()
+    fdata = await request.form()
+    data = dict(fdata)
+
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    result = add_job_one(JobInfos, data)
+    if result:
+        jid = result.get_jid()
+        callbackJson.statusCode = 200
+        content["jid"] = jid
+    return callbackJson.callBacker(content)
+
 
 # todo 项目首页视图
 @route.get("/get_ptasks", summary="获取任务状态饼图")
@@ -412,6 +448,7 @@ async def get_ptasks(request: Request, pid: str = Query(None)):
     content["list"] = rjsons
     # 转换为业务响应数据
     return callbackJson.callBacker(content)
+
 
 def random_int_list(start, stop, length):
     import random

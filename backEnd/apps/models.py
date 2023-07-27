@@ -75,7 +75,8 @@ def inituser():
 
     from apps.projects.models import JobInfos
     # 创建一个测试任务实例
-    jobs_demo = session.query(JobInfos).filter_by(name='任务实例测试demo').first()
+    # jobs_demo = session.query(JobInfos).filter_by(name='任务实例测试demo').first()
+    jobs_demo = session.query(JobInfos).filter_by(wid='a158dc3a9d0f71283132f2c1127bc8c0').first()
     if not jobs_demo:
         jobs_demo = JobInfos(
             pid="3fec345932e98b8e37bfc167312c3953",

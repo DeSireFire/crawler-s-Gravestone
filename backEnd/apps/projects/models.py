@@ -74,7 +74,7 @@ class WorkerInfos(db_Base, BaseJson):
         self.crawl_frequency = crawl_frequency
         self.description = description
         self.extra = extra
-        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=pid).get("nickname")
+        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("nickname")
 
 
 class JobInfos(db_Base, BaseJson):
@@ -92,21 +92,24 @@ class JobInfos(db_Base, BaseJson):
     log_lv_warning = Column(Integer, default=int(0))
     log_lv_error = Column(Integer, default=int(0))
     log_lv_info = Column(Integer, default=int(0))
+    log_lv_debug = Column(Integer, default=int(0))
     extra = Column(JSON, nullable=True)
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
     end_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-    def __init__(self, pid, wid, p_nickname=None, w_nickname=None, jid=None, run_user=None,  extra=None,
-                 log_file_path=None, log_lv_warning=None, log_lv_error=None, log_lv_info=None):
+    def __init__(self, wid, pid=None, p_nickname=None, w_nickname=None, jid=None, run_user=None,  extra=None,
+                 log_file_path=None, log_lv_warning=0, log_lv_error=0, log_lv_debug=0, log_lv_info=0):
         from apps.projects.components import get_fetch_one
         dn = datetime.now()
         now_time = dn.strftime('%Y-%m-%dT%H:%M:%S')
         now_ts = int(dn.timestamp() * 1000)
-        wname = get_fetch_one(model=WorkerInfos, wid=wid).get("name")
-        temp_wnname = get_fetch_one(model=WorkerInfos, wid=wid).get("nickname")
-        self.pid = pid
+        w_info = get_fetch_one(model=WorkerInfos, wid=wid)
+        wname = w_info.get("name")
+        temp_wnname = w_info.get("nickname")
         self.wid = wid
-        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=pid).get("nickname")
+        self.pid = pid
+        self.pid = self.pid if self.pid else w_info.get("pid")
+        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("nickname")
         self.w_nickname = w_nickname if w_nickname else temp_wnname
         self.jid = jid or get_md5(f"{wname}_{wid}_{now_time}")
         self.name = f"{temp_wnname}-{now_ts}"
@@ -115,9 +118,12 @@ class JobInfos(db_Base, BaseJson):
         self.log_lv_warning = log_lv_warning
         self.log_lv_error = log_lv_error
         self.log_lv_info = log_lv_info
+        self.log_lv_debug = log_lv_debug
         self.extra = extra
         self.create_time = dn
 
+    def get_jid(self):
+        return self.jid
 
 __all__ = [
     "ProjectInfos",

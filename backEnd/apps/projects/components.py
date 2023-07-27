@@ -77,7 +77,7 @@ def update_project_infos(data):
         return False
 
 
-# 获取所有数据
+# 获取所有项目数据
 def get_projects_info():
     session = Newsession()
     result = session.query(ProjectInfos).all()
@@ -90,6 +90,24 @@ def get_projects_info():
         return temps
     else:
         return None
+
+
+# 创建任务实例
+def add_job_one(model, data):
+    """
+    新增某条数据到任务实例表
+    :param model: 需要新增的数据表模组
+    :param data: dict,单条需要新增的数据
+    :return:
+    """
+    session = Newsession()
+    model_data = session.add(model(**data))
+    try:
+        session.commit()
+        return model(**data)
+    except Exception as e:
+        session.rollback()
+        return False
 
 
 # 获取所有数据
@@ -171,6 +189,7 @@ def del_data_one(model, **kwargs):
         logger.error(e)
         return False
 
+
 # 更新数据
 def update_data(model, datas):
     """
@@ -207,6 +226,7 @@ __all__ = [
     "add_project_info",
     "update_project_infos",
     "get_projects_info",
+    "add_job_one",
     # 通用性函数
     "get_query_all",
     "get_fetch_one",
