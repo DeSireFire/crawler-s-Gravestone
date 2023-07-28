@@ -28,6 +28,7 @@
       <el-table-column width="160" label="创建时间">
         <template #default="scope">{{ scope.row.create_time }}</template>
       </el-table-column>
+      <el-table-column prop="nickname" label="备注" width="150" align="center" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column label="操作" width="300" align="center" fixed="right">
         <template #default="scope">
           <el-button text :icon="Edit" @click="handleUpToken(scope.$index, scope.row)" v-permiss="15">
@@ -76,7 +77,7 @@
 
   <el-dialog title="编辑项目" v-model="editVisible" width="30%">
     <el-form label-width="100px">
-      <el-form-item label="工作流名称">
+      <el-form-item label="备注">
         <el-input v-model="editForm.nickname" :placeholder="editForm.nickname"></el-input>
       </el-form-item>
       <el-form-item label="预计采集频率">
@@ -114,7 +115,7 @@
       <el-col :span="24">
         <el-form label-width="100px">
           <el-form-item label="工作流名称">
-            <el-input v-model="upTokenForm.nickname"></el-input>
+            <el-input v-model="upTokenForm.name"></el-input>
           </el-form-item>
         </el-form>
         <el-form label-width="100px">
@@ -123,8 +124,8 @@
           </el-form-item>
         </el-form>
         <el-form label-width="100px">
-          <el-form-item label="原始流名称">
-            <el-input v-model="upTokenForm.name"></el-input>
+          <el-form-item label="备注">
+            <el-input v-model="upTokenForm.nickname"></el-input>
           </el-form-item>
         </el-form>
       </el-col>

@@ -40,6 +40,7 @@ export type job = Partial<{
     log_lv_error: string | undefined;
     log_lv_info: string | undefined;
     log_lv_debug: string | undefined;
+    items_count: string | undefined;
     extra: string | undefined;
     create_time: string | undefined;
     end_time: string | undefined;

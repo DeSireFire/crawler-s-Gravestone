@@ -100,27 +100,32 @@ const items = [
     title: '项目管理',
     permiss: '4',
     subs: [
-      {
-        index: '/403',
-        title: '任务管理',
-        permiss: '41',
-        subs: [
-          {
-            index: '/403',
-            title: '历史任务',
-            permiss: '42',
-          },
-          {
-            index: '/worker_logs',
-            title: '日志管理',
-            permiss: '43',
-          },
-        ],
-      },
+      // {
+      //   index: '/404',
+      //   title: '任务管理',
+      //   permiss: '41',
+      //   subs: [
+      //     {
+      //       index: '/403',
+      //       title: '历史任务',
+      //       permiss: '42',
+      //     },
+      //     {
+      //       index: '/worker_logs',
+      //       title: '日志管理',
+      //       permiss: '43',
+      //     },
+      //   ],
+      // },
       {
         index: '/projects_list',
         title: '项目列表',
         permiss: '42',
+      },
+      {
+        index: '/worker_logs',
+        title: '日志管理',
+        permiss: '43',
       },
     ],
   },

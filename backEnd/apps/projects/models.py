@@ -93,6 +93,7 @@ class JobInfos(db_Base, BaseJson):
     log_lv_error = Column(Integer, default=int(0))
     log_lv_info = Column(Integer, default=int(0))
     log_lv_debug = Column(Integer, default=int(0))
+    items_count = Column(Integer, default=int(0))
     extra = Column(JSON, nullable=True)
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
     end_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())

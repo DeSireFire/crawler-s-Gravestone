@@ -6,6 +6,8 @@
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
+
+import asyncio
 import json
 import os
 
@@ -18,7 +20,7 @@ from server_core.conf import redisconf
 from utils.RedisDBHelper import RedisDBHelper
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request, APIRouter, Body, Depends, status, Query
-from log_server.components import create_log_message, count_logs_by_level
+from log_server.components import create_log_message, count_logs_by_level, log_to_save
 from server_core.conf import BASE_DIR
 
 app = FastAPI()
@@ -85,34 +87,58 @@ async def update_logging(request: Request):
     log_level = log_data['levelname']
     # 工作流密钥
     token = extra_data.get('token', 'unknown')
-    #
     wid = extra_data.get("token")
     jid = extra_data.get("jid")
+    status = extra_data.get("status") or 0
+    items_count = extra_data.get("items_count") or 0
     try:
         # 同步到数据库
         # 获取工作流信息=>
         # 生成任务实例的jid=>
         # 通过jid获取任务实例信息，如果没有就生成新的任务实例=>
-        worker_info = get_fetch_one(WorkerInfos, wid=wid)
+
 
         # 调用函数并打印结果
         log_details = create_log_message(log_data)
-        rdb.sadd(f"crawl_monitor:logging:{wid}", log_details.get("log_record"))
+        redis_log_key = f"crawl_monitor:logging:{jid}"
+        rdb.lpush(redis_log_key, log_details.get("log_record"))
 
         # 使用 Redis 的INCR命令对计数器进行原子递增
         lv_total = count_logs_by_level([log_data])
 
+        # 同步监控数据到数据库
+        job_info = get_fetch_one(JobInfos, jid=jid)
 
-        # job_info["log_lv_info"] = job_info.get(jid, {}).get('INFO')
-        # job_info["log_lv_warning"] = job_info.get(jid, {}).get('ERROR')
-        # job_info["log_lv_error"] = job_info.get(jid, {}).get('WARNING')
-        # job_info_new = update_data(JobInfos, [job_info])
+        # 状态
+        # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
+        if status:
+            job_info["status"] = status
+        else:
+            job_info["status"] = job_info["status"] if job_info["status"] else 3
 
-        print(f"lv_total")
-        pprint(lv_total)
-        print(f"job_info_new")
-        # pprint(job_info_new)
-        # rdb.incr(f"crawl_monitor:logging_lv:{jid}:{log_level}")
+        # 入库数据计数
+        if job_info["items_count"] == None:
+            job_info["items_count"] = 0
+        if items_count:
+            job_info["items_count"] += items_count or 0
+
+        job_info["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or job_info["log_lv_info"]
+        job_info["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or job_info["log_lv_error"]
+        job_info["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or job_info["log_lv_warning"]
+        del job_info["create_time"]
+        del job_info["end_time"]
+        job_info_new = update_data(JobInfos, [job_info])
+
+        # 获取日志文件路径
+        log_file_path = job_info.get("log_file_path")
+        log_to_save(redis_log_key, log_file_path)
+        # asyncio.run(log_to_save2(redis_log_key, log_file_path))
+
+        # 状态的控制，销毁前发送状态，推送时修改状态，atexit 模块的尝试
+        # todo 演示爬虫项目
+        # todo 演示的文本
+        # todo 谷歌历史记录
+
         return {"status": "ok", "error": None, "data": data}
     except Exception as err:
         return {"status": "err", "error": err, "data": None}
@@ -158,6 +184,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
         jid = result.get_jid()
         callbackJson.statusCode = 200
         content["jid"] = jid
+        content["log_file_path"] = log_file_path
     return callbackJson.callBacker(content)
 
 if __name__ == "__main__":

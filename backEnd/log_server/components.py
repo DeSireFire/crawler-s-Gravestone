@@ -7,13 +7,17 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
+import asyncio
 import io
 import json
+import os
 import time
 import logging
+import aiofiles
+from server_core.conf import redisconf
 from utils.RedisDBHelper import RedisDBHelper
 
-
+rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
 def create_log_message(log_data):
     """
     将客户端发送的日志信息，转化成可读的
@@ -115,6 +119,11 @@ def count_logs_by_level(log_data_list):
 
         # 使用 Redis 的INCR命令对计数器进行原子递增
         redis_client.incr(redis_key)
+        # 添加一周的过期时间
+        if redis_client.ttl(redis_key) <= 0:
+            # 设置过期时间为一个月（30天）
+            expire_time = 7 * 24 * 60 * 60
+            redis_client.expire(redis_key, expire_time)
 
     # 获取所有token对应不同level的日志数量
     log_count_by_token = {}
@@ -125,8 +134,79 @@ def count_logs_by_level(log_data_list):
             log_count_by_token[token] = {}
         log_count_by_token[token][level] = count
 
+    # todo 待添加过期时间
+
     return log_count_by_token
 
+def log_to_save(redis_log_key, log_file_path):
+    """
+    从redis获取日志数据，保存到log文件
+    :param redis_log_key:
+    :param log_file_path:
+    :return:
+    """
+    # 创建目录
+    log_directory = os.path.dirname(log_file_path)
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+
+    # 读取redis
+    # elements_to_pop = rdb.server.rpop(redis_log_key)
+    # 使用 LRANGE 获取列表中的多个元素（例如，从右端弹出前5个元素）
+    elements_to_pop = rdb.server.lrange(redis_log_key, -5, -1)
+    # 一次性删除多个元素
+    rdb.server.ltrim(redis_log_key, 0, -len(elements_to_pop) - 1)
+    with open(log_file_path, "a+", encoding="utf-8",) as log:
+        elements_to_pop = [f"{i}\n" for i in elements_to_pop]
+        log.writelines(elements_to_pop)
+
+
+async def save_redis_list_to_log(redis_list_key, log_file_path):
+    # Create a Redis client
+    r = rdb.server
+
+    try:
+        # Continue processing until the Redis list is empty
+        while True:
+            # Use BLPOP to retrieve the first element from the Redis list (FIFO)
+            # The function blocks until an item is available to pop
+            key, log_data = await asyncio.to_thread(r.blpop, redis_list_key)
+
+            # Convert the log_data to a string (assuming it's a string in the list)
+            log_data_str = str(log_data)
+
+            # Use aiofiles to asynchronously open the log file in append mode
+            async with aiofiles.open(log_file_path, mode='a') as file:
+                # Save the log data to the log file
+                await file.write(log_data_str + '\n')
+
+    except asyncio.CancelledError:
+        print("异步任务被取消。")
+    except Exception as e:
+        print("发生错误:", str(e))
+
+async def log_to_save2(redis_list_key, log_file_path):
+    log_directory = os.path.dirname(log_file_path)
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+    task = asyncio.create_task(save_redis_list_to_log(redis_list_key, log_file_path))
+
+    try:
+        # Wait for the task to complete
+        await task
+    except KeyboardInterrupt:
+        # Cancel the task if the user interrupts the process
+        task.cancel()
+        await task
+
+# if __name__ == "__main__":
+#     # 替换为你的 Redis 连接信息和 log 文件路径
+#     redis_host = "你的_redis主机"
+#     redis_port = 6379
+#     redis_list_key = "你的_redis_list_key"
+#     log_file_path = "你的_log文件路径.log"
+#
+#     asyncio.run(main(redis_host, redis_port, redis_list_key, log_file_path))
 
 
 if __name__ == '__main__':

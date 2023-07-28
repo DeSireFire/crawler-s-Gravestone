@@ -20,8 +20,8 @@
           :show-overflow-tooltip="true">
       >
         <el-table-column prop="id" label="ID" width="300" align="center"></el-table-column>
-        <el-table-column prop="log_project" label="所属项目" width="100"></el-table-column>
         <el-table-column prop="name" label="日志名称"></el-table-column>
+        <el-table-column prop="log_project" label="所属项目" width="200" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column label="日志备注">
           <template #default="scope">{{ scope.row.remarks }}</template>
         </el-table-column>

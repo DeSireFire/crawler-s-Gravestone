@@ -12,10 +12,10 @@
           <a href="javascript:void(0);" @click="handleUpToken(scope.$index, scope.row)">{{ scope.row.name }}</a>
         </template>
       </el-table-column>
-      <el-table-column prop="status" width="70" label="状态">
+      <el-table-column prop="status" width="100" label="状态" align="center">
         <template #default="scope">
           <el-tag
-              :type="['warning', 'info', 'success', 'error', 'danger'][scope.row.status]"
+              :type="['warning', 'success', 'info', 'error', 'danger'][scope.row.status]"
           >
             {{ ['未知', '执行中', '结束', '中断', '失败'][scope.row.status] }}
           </el-tag>
@@ -24,6 +24,7 @@
       <el-table-column prop="log_lv_error" width="50" label="错误"></el-table-column>
       <el-table-column prop="log_lv_warning" width="50" label="警告"></el-table-column>
       <el-table-column prop="log_lv_info" width="50" label="常规"></el-table-column>
+      <el-table-column prop="items_count" width="100" label="数据计数"></el-table-column>
       <el-table-column width="100" label="执行用户">
         <template #default="scope">{{ scope.row.run_user }}</template>
       </el-table-column>
@@ -109,6 +110,7 @@ interface TableItem {
   log_lv_error: string;
   log_lv_info: string;
   log_lv_debug: string;
+  items_count: string;
   extra: string;
   create_time: string;
   end_time: string;
