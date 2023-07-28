@@ -18,8 +18,11 @@
           <el-table-column width="100" label="工作流数量">
             <template #default="scope">--</template>
           </el-table-column>
-          <el-table-column width="100" label="所属用户">
+          <el-table-column width="150" label="所属用户" :show-overflow-tooltip="true">
             <template #default="scope">{{ scope.row.author }}</template>
+          </el-table-column>
+          <el-table-column width="150" label="委托方/人" :show-overflow-tooltip="true">
+            <template #default="scope">{{ scope.row.customer }}</template>
           </el-table-column>
           <el-table-column prop="description" width="300" label="背景描述" :show-overflow-tooltip="true">
           </el-table-column>
@@ -56,13 +59,19 @@
 		</div>
 
 		<!-- 弹出框 -->
-		<el-dialog title="创建项目" v-model="addVisible" width="30%">
-			<el-form label-width="70px">
+		<el-dialog title="创建项目" v-model="addVisible" width="40%">
+			<el-form label-width="80px">
 				<el-form-item label="项目名称">
 					<el-input v-model="addForm.name"></el-input>
 				</el-form-item>
+        <el-form-item label="委托方/人">
+          <el-input v-model="addForm.customer"></el-input>
+        </el-form-item>
         <el-form-item label="背景描述">
           <el-input type="textarea" v-model="addForm.description"></el-input>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="addForm.nickname"></el-input>
         </el-form-item>
 			</el-form>
 			<template #footer>
@@ -73,10 +82,13 @@
 			</template>
 		</el-dialog>
 
-		<el-dialog title="编辑项目" v-model="editVisible" width="30%">
-      <el-form label-width="70px">
+		<el-dialog title="编辑项目" v-model="editVisible" width="40%">
+      <el-form label-width="80px">
         <el-form-item label="备注">
           <el-input v-model="editForm.nickname"></el-input>
+        </el-form-item>
+        <el-form-item label="委托方/人">
+          <el-input v-model="editForm.customer"></el-input>
         </el-form-item>
         <el-form-item label="背景描述">
           <el-input
@@ -116,6 +128,7 @@ interface TableItem {
 	nickname: string;
   description: string;
   author: string;
+  customer: string;
   create_time: string;
   update_time: string;
 }
@@ -168,6 +181,7 @@ const addVisible = ref(false);
 let addForm = reactive({
   name: '',
   author: '',
+  customer: '',
   description: '',
 });
 const handleAdd = () => {

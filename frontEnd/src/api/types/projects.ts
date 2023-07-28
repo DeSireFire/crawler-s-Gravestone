@@ -5,6 +5,7 @@ export type project = Partial<{
     description: string | undefined;
     pid: string | undefined;
     author: string | undefined;
+    customer: string | undefined;
     create_time: string | undefined;
     update_time: string | undefined;
 }> | null;

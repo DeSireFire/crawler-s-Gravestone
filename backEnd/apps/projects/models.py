@@ -30,6 +30,7 @@ class ProjectInfos(db_Base, BaseJson):
     name = Column(String(255))
     nickname = Column(String(255))  # 用于展示的名称，由于存在项目名称重命名的情况
     author = Column(String(64))
+    customer = Column(String(64))   # 委任方/人
     workers_count = Column(Integer, default=int(0))
     runing_count = Column(Integer, default=int(0))
     description = Column(String, nullable=False)
@@ -37,13 +38,14 @@ class ProjectInfos(db_Base, BaseJson):
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
     update_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
 
-    def __init__(self, pid=None, name=None, nickname=None, author=None, description=None, extra=None):
+    def __init__(self, pid=None, name=None, nickname=None, author=None, description=None, extra=None, customer=None):
         self.pid = pid or get_md5(name)
         self.name = name
         self.nickname = nickname or name
         self.author = author
         self.description = description
         self.extra = extra
+        self.customer = customer
 
 
 class WorkerInfos(db_Base, BaseJson):

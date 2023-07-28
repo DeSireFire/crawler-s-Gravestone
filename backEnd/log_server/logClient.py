@@ -66,7 +66,7 @@ class CrawlLogUper:
             self.port = "50829"
         # if not self.port:
         self.log_name = f"{__name__} || {inspect.stack()[1][1]}"
-        self.handlers = None
+        self.http_handlers = None
         self.uper_name = uper_name
         dn = datetime.now()
         now_ts = int(dn.timestamp() * 1000)
@@ -91,13 +91,16 @@ class CrawlLogUper:
         _logger = logging.getLogger(jid)
         # print(f"__name__：{__name__}")
 
+        # todo 本地日志流
+
+
         if self.up_switch:
             # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
-            self.handlers = HTTPHandler(host=f'{self.ip_address}:{self.port}', url='/log', method='POST')
+            self.http_handlers = HTTPHandler(host=f'{self.ip_address}:{self.port}', url='/log', method='POST')
             # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
             _logger.setLevel(logging.NOTSET + 1)
             # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
-            _logger.addHandler(self.handlers)
+            _logger.addHandler(self.http_handlers)
 
         self._logger = _logger
         return self.extra_logger(_logger, jid)
