@@ -7,6 +7,7 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
+import os
 from datetime import datetime
 from utils.other import get_md5
 from .models import ProjectInfos, WorkerInfos
@@ -218,6 +219,17 @@ def check_id(model, temp_id=None):
     else:
         return False
 
+# 根据日志等级修改文件名
+def rename_log_file(log_file_path, log_level):
+    # 获取原始文件名和扩展名
+    original_filename, file_extension = os.path.splitext(os.path.basename(log_file_path))
+    # 构建新的文件名：原始文件名 + "_" + log_level + 扩展名
+    new_filename = f"{original_filename}_{log_level.lower()}{file_extension}"
+    # 获取原始文件所在的文件夹路径
+    directory = os.path.dirname(log_file_path)
+    # 构建新的文件路径：文件夹路径 + "/" + 新的文件名
+    new_file_path = os.path.join(directory, new_filename)
+    return new_file_path
 
 __all__ = [
     "check_pid",
@@ -233,4 +245,5 @@ __all__ = [
     "add_data_one",
     "del_data_one",
     "update_data",
+    "rename_log_file",
 ]

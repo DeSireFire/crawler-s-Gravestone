@@ -92,8 +92,6 @@ class CrawlLogUper:
         # print(f"__name__：{__name__}")
 
         # todo 本地日志流
-
-
         if self.up_switch:
             # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
             self.http_handlers = HTTPHandler(host=f'{self.ip_address}:{self.port}', url='/log', method='POST')
@@ -260,7 +258,8 @@ if __name__ == '__main__':
     obj = CrawlLogUper(
         token="a158dc3a9d0f71283132f2c1127bc8c0",
         uper_name="tester",
-        up_switch=False
+        up_switch=True,
+        # up_switch=False
     )
     print(obj.jid)
     logger = obj.logger

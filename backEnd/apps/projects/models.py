@@ -108,14 +108,13 @@ class JobInfos(db_Base, BaseJson):
         now_ts = int(dn.timestamp() * 1000)
         w_info = get_fetch_one(model=WorkerInfos, wid=wid)
         wname = w_info.get("name")
-        temp_wnname = w_info.get("nickname")
         self.wid = wid
         self.pid = pid
         self.pid = self.pid if self.pid else w_info.get("pid")
-        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("nickname")
-        self.w_nickname = w_nickname if w_nickname else temp_wnname
+        self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("name")
+        self.w_nickname = w_nickname if w_nickname else wname
         self.jid = jid or get_md5(f"{wname}_{wid}_{now_time}")
-        self.name = name if name else f"{temp_wnname}-{now_ts}"
+        self.name = name if name else f"{wname}-{now_ts}"
         self.run_user = run_user
         self.log_file_path = log_file_path
         self.log_lv_warning = log_lv_warning

@@ -138,11 +138,12 @@ def count_logs_by_level(log_data_list):
 
     return log_count_by_token
 
-def log_to_save(redis_log_key, log_file_path):
+def log_to_save(redis_log_key, log_file_path, log_level):
     """
     从redis获取日志数据，保存到log文件
-    :param redis_log_key:
-    :param log_file_path:
+    :param redis_log_key: str,从redis缓存中要读取的
+    :param log_file_path: str,日志要保存的路径
+    :param log_level: str，日志等级
     :return:
     """
     # 创建目录
@@ -156,10 +157,31 @@ def log_to_save(redis_log_key, log_file_path):
     elements_to_pop = rdb.server.lrange(redis_log_key, -5, -1)
     # 一次性删除多个元素
     rdb.server.ltrim(redis_log_key, 0, -len(elements_to_pop) - 1)
+
+    sub_elements_to_pop = rdb.server.lrange(f"{redis_log_key}:{log_level}", -5, -1)
+    # 一次性删除多个元素
+    rdb.server.ltrim(redis_log_key, 0, -len(sub_elements_to_pop) - 1)
+
+    # 总日志
     with open(log_file_path, "a+", encoding="utf-8",) as log:
         elements_to_pop = [f"{i}\n" for i in elements_to_pop]
         log.writelines(elements_to_pop)
+    # 等级分流日志
+    sub_path = rename_log_file(log_file_path, log_level)
+    with open(sub_path, "a+", encoding="utf-8",) as log:
+        sub_elements_to_pop = [f"{i}\n" for i in sub_elements_to_pop]
+        log.writelines(sub_elements_to_pop)
 
+def rename_log_file(log_file_path, log_level):
+    # 获取原始文件名和扩展名
+    original_filename, file_extension = os.path.splitext(os.path.basename(log_file_path))
+    # 构建新的文件名：原始文件名 + "_" + log_level + 扩展名
+    new_filename = f"{original_filename}_{log_level.lower()}{file_extension}"
+    # 获取原始文件所在的文件夹路径
+    directory = os.path.dirname(log_file_path)
+    # 构建新的文件路径：文件夹路径 + "/" + 新的文件名
+    new_file_path = os.path.join(directory, new_filename)
+    return new_file_path
 
 async def save_redis_list_to_log(redis_list_key, log_file_path):
     # Create a Redis client

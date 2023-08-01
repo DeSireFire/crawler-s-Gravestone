@@ -97,11 +97,12 @@ async def update_logging(request: Request):
         # 生成任务实例的jid=>
         # 通过jid获取任务实例信息，如果没有就生成新的任务实例=>
 
-
         # 调用函数并打印结果
         log_details = create_log_message(log_data)
         redis_log_key = f"crawl_monitor:logging:{jid}"
+        sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
         rdb.lpush(redis_log_key, log_details.get("log_record"))
+        rdb.lpush(sub_redis_log_key, log_details.get("log_record"))
 
         # 使用 Redis 的INCR命令对计数器进行原子递增
         lv_total = count_logs_by_level([log_data])
@@ -131,7 +132,7 @@ async def update_logging(request: Request):
 
         # 获取日志文件路径
         log_file_path = job_info.get("log_file_path")
-        log_to_save(redis_log_key, log_file_path)
+        log_to_save(redis_log_key, log_file_path, log_level)
         # asyncio.run(log_to_save2(redis_log_key, log_file_path))
 
         # 状态的控制，销毁前发送状态，推送时修改状态，atexit 模块的尝试

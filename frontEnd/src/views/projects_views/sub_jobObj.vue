@@ -37,8 +37,21 @@
       <el-table-column label="操作" width="300" align="center" fixed="right">
         <template #default="scope">
           <el-button text :icon="Edit" @click="handleMonit(scope.$index, scope.row)" v-permiss="15">
+            日志预览
+          </el-button>
+          <el-button text :icon="Edit"
+           @click="$router.push({
+           path: '/logging_detail',
+           query: {
+             pid: scope.row.pid,
+             wid: scope.row.wid,
+             jid: scope.row.jid,
+           }
+           })"
+           v-permiss="15">
             日志
           </el-button>
+
           <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
             删除
           </el-button>

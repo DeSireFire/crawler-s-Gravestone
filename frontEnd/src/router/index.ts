@@ -66,6 +66,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/projects_tabs.vue'),
             },
+            {
+                path: '/logging_detail',
+                name: 'logging_detail',
+                meta: {
+                    title: '日志详情',
+                    permiss: '42',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/logging_detail.vue'),
+            },
 
             // 原始模板
             {

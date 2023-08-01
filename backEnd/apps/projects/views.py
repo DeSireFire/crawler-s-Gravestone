@@ -16,6 +16,8 @@ from pprint import pprint
 from typing import Dict
 
 from fastapi.responses import JSONResponse
+
+from log_server.components import rename_log_file
 from server_core.control import constructResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
@@ -302,7 +304,11 @@ async def del_project(request: Request, pid: str = Query(None), wid: str = Query
 
 
 @route.get("/get_log", summary="获取任务日志")
-async def get_log(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
+async def get_log(request: Request,
+                  pid: str = Query(None),
+                  wid: str = Query(None),
+                  jid: str = Query(None),
+                  lv:str = Query(None)):
     """
     获取任务日志
     :param request:
@@ -312,15 +318,25 @@ async def get_log(request: Request, pid: str = Query(None), wid: str = Query(Non
     callbackJson.statusCode = 200
     content = {}
     print(f"pid:{pid}")
-    job_info = get_query_all(model=JobInfos, pid=pid, wid=wid, jid=jid) or []
+    job_info = get_query_all(model=JobInfos, pid=pid, wid=wid, jid=jid) or [{}]
     log_file_path = job_info[0].get("log_file_path", None)
     pprint(job_info)
     pprint(f"log_file_path --- > {log_file_path}")
+    if lv:
+        log_file_path = rename_log_file(log_file_path, lv)
     log_content = ""
-    with open(log_file_path, encoding="utf-8") as f:
-        log_content = f.read()
+    try:
+        with open(log_file_path, encoding="utf-8") as f:
+            log_content = f.read()
+    except FileNotFoundError as FNFE:
+        # 未找到指定文件
+        log_content = "未查询到符合条件的日志..."
 
     # 转换为业务响应数据
+    content["name"] = job_info[0].get("name", None)
+    content["p_nickname"] = job_info[0].get("p_nickname", None)
+    content["w_nickname"] = job_info[0].get("w_nickname", None)
+    content["run_user"] = job_info[0].get("run_user", None)
     content["content"] = log_content or None
     return callbackJson.callBacker(content)
 
