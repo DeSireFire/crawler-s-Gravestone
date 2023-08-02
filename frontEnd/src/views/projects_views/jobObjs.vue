@@ -12,10 +12,6 @@
       </el-tooltip>
     </div>
     <div class="handle-box">
-      <el-select v-model="query.filterWord" placeholder="所属项目" class="handle-select mr10">
-        <el-option  v-for="(item, index) in query.log_projects" :key="index+1" :label="item" :value="item"></el-option>
-        <el-option key="0" label="无" value=""></el-option>
-      </el-select>
       <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
       <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>

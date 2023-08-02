@@ -63,10 +63,11 @@
 </template>
 
 <script setup lang="ts" name="sub_jobObj">
-import { ref, reactive } from 'vue';
+import {ref, reactive, watch} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getJobs, delJobs, getLogContent} from '~/api/projects';
 import { um_api } from "~/store/user_mange";
+import {useRoute} from "vue-router";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 interface TableItem {
   id: string;
@@ -88,27 +89,33 @@ interface TableItem {
   create_time: string;
   end_time: string;
 }
+// 声明 props
+const props = defineProps<{
+  pid: String,
+  pname: String,
+}>();
+const pid = ref(props.pid||'');
 
 const query = um_api.query
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
-const pid = ref('');
 let project_info = reactive({
   pid: '',
   name: '',
 });
-const handleProjectInfo = () => {
-  const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-  pid.value = urlParams.get('pid') as string;
-  project_info.pid = urlParams.get('pid') as string;
-  project_info.name = urlParams.get('name') as string;
-};
-handleProjectInfo();
+// const handleProjectInfo = () => {
+//   const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+//   pid.value = urlParams.get('pid') as string;
+//   project_info.pid = urlParams.get('pid') as string;
+//   project_info.name = urlParams.get('name') as string;
+// };
+// handleProjectInfo();
 
 // 刷新数据
 const handleFlush = async (init = true) => {
   // 获取pid
-  handleProjectInfo();
+  pid.value = props.pid
+  project_info.name = props.pname||''
 
   if (pid.value != '') {
     // 获取数据
@@ -117,7 +124,8 @@ const handleFlush = async (init = true) => {
     }))
 
     if (res.data.pageTotal == 0) {
-      ElMessage.warning(`该项目没有定义工作流，无法获取有关信息！`);
+      ElMessage.warning(`该项目没有任务实例，无法获取有关信息！`);
+      tableData.value = [];
     }
 
     // 是否初始化
@@ -134,6 +142,13 @@ const handleFlush = async (init = true) => {
 };
 // 打开页面就刷新
 handleFlush();
+
+const route = useRoute();
+// 监听路由参数的变化
+watch(() => props.pid, (newPid, oldPid) => {
+  pid.value = newPid;
+  handleFlush();
+});
 
 // 删除操作
 let delform = reactive({

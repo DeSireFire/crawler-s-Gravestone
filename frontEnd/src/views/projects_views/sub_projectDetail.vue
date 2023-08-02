@@ -1,78 +1,80 @@
 <!-- sub_workerLinks.vue -->
 <template>
-  <div class="plugins-tips">
-    <b>项目首页</b>:
-    <el-tag class="ml-2" type="success">{{ params_info.name }}</el-tag>
+  <div>
+    <div class="plugins-tips">
+      <b>项目首页</b>:
+      <el-tag class="ml-2" type="success">{{ params_info.name }}</el-tag>
+    </div>
+    <el-row>
+      <el-col :span="11">
+        <div>
+          <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
+            <el-form-item label="项目编号" prop="pid">
+              <el-input v-model="params_info.pid" :disabled="true"></el-input>
+            </el-form-item>
+            <el-form-item label="项目名称" prop="name">
+              <el-input v-model="params_info.name" :disabled="true"></el-input>
+            </el-form-item>
+            <el-form-item label="创建时间" prop="create_time">
+              <el-input v-model="params_info.create_time" :disabled="true"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-col>
+      <el-col :span="1"></el-col>
+      <el-col :span="11">
+        <div>
+          <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
+            <el-form-item label="项目备注" prop="nickname">
+              <el-input v-model="params_info.nickname" :disabled="true"></el-input>
+            </el-form-item>
+            <el-form-item label="所属用户" prop="author">
+              <el-input v-model="params_info.author" :disabled="true"></el-input>
+            </el-form-item>
+            <el-form-item label="更新时间" prop="update_time">
+              <el-input v-model="params_info.update_time" :disabled="true"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-col>
+      <el-col :span="1"></el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="23">
+        <div>
+          <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
+            <el-form-item label="背景描述" prop="description">
+              <el-input type="textarea" rows="5" v-model="params_info.description" :disabled="true"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+      </el-col>
+      <el-col :span="1"></el-col>
+    </el-row>
+    <div class="handle-row">
+      <el-button type="primary" @click="$router.push('/projects_list')">
+        返回项目列表
+      </el-button>
+    </div>
+    <el-divider></el-divider>
+    <el-row ref="chartsDatas" :gutter="20" v-for="(item,index) in chartsDatas" :key="index">
+      <el-col :span="16">
+        <el-card shadow="hover">
+          <div :id="`chart${index}`" class="echart" :options="schartOption"></div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
-  <el-row>
-    <el-col :span="11">
-      <div>
-        <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
-          <el-form-item label="项目编号" prop="pid">
-            <el-input v-model="params_info.pid" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="项目名称" prop="name">
-            <el-input v-model="params_info.name" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="创建时间" prop="create_time">
-            <el-input v-model="params_info.create_time" :disabled="true"></el-input>
-          </el-form-item>
-        </el-form>
-      </div>
-    </el-col>
-    <el-col :span="1"></el-col>
-    <el-col :span="11">
-      <div>
-        <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
-          <el-form-item label="项目备注" prop="nickname">
-            <el-input v-model="params_info.nickname" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="所属用户" prop="author">
-            <el-input v-model="params_info.author" :disabled="true"></el-input>
-          </el-form-item>
-          <el-form-item label="更新时间" prop="update_time">
-            <el-input v-model="params_info.update_time" :disabled="true"></el-input>
-          </el-form-item>
-        </el-form>
-      </div>
-    </el-col>
-    <el-col :span="1"></el-col>
-  </el-row>
-  <el-row>
-    <el-col :span="23">
-      <div>
-        <el-form ref="formRef" :rules="rules" :model="params_info" label-width="80px">
-          <el-form-item label="背景描述" prop="description">
-            <el-input type="textarea" rows="5" v-model="params_info.description" :disabled="true"></el-input>
-          </el-form-item>
-        </el-form>
-      </div>
-    </el-col>
-    <el-col :span="1"></el-col>
-  </el-row>
-  <div class="handle-row">
-    <el-button type="primary" @click="$router.push('/projects_list')">
-      返回项目列表
-    </el-button>
-  </div>
-  <el-divider></el-divider>
-  <el-row ref="chartsDatas" :gutter="20" v-for="(item,index) in chartsDatas" :key="index">
-    <el-col :span="16">
-      <el-card shadow="hover">
-        <div :id="`chart${index}`" class="echart" :options="schartOption"></div>
-      </el-card>
-    </el-col>
-  </el-row>
 </template>
 
 <script setup lang="ts" name="sub_projectDetail">
-import {ref, reactive, onBeforeMount, onMounted} from 'vue';
+import {ref, reactive, onBeforeMount, onMounted, watch} from 'vue';
 import {ElMessage, ElMessageBox, FormInstance, FormRules} from 'element-plus';
 import { getProject,getPTask } from '~/api/projects';
 import {Delete, Edit, Plus, Refresh} from '@element-plus/icons-vue';
 import {fetchChartss} from "~/api";
 import * as echarts from "echarts";
-
+import {useRoute} from "vue-router";
 const chartsDatas = ref(null)
 const formRef = ref<FormInstance>();
 const rules: FormRules = {
@@ -82,12 +84,14 @@ const rules: FormRules = {
 interface baseSchartOption {
   schartOption: any;
 }
-
 const schartOption: baseSchartOption = {
   schartOption: {}
 };
-
-const pid = ref('');
+// 声明 props
+const props = defineProps<{
+  pid: string;
+}>();
+const pid = ref(props.pid||'');
 const params_info = reactive({
   id: "",
   pid: "",
@@ -98,16 +102,12 @@ const params_info = reactive({
   create_time: "",
   update_time: "",
 });
-const handleProjectInfo = () => {
-  const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-  pid.value = urlParams.get('pid') as string;
-};
-handleProjectInfo();
 
 // 刷新数据
 const handleFlush = async (init = true) => {
-  // 获取pid
-  handleProjectInfo();
+  // // 获取pid
+  // handleProjectInfo();
+  pid.value = props.pid
 
   if (pid.value != '') {
     // 获取数据
@@ -115,7 +115,7 @@ const handleFlush = async (init = true) => {
       pid: pid.value
     }))
 
-    params_info.id = res.data.id
+    // params_info.id = res.data.id
     params_info.pid = res.data.pid
     params_info.name = res.data.name
     params_info.nickname = res.data.nickname
@@ -130,6 +130,14 @@ const handleFlush = async (init = true) => {
 };
 // 打开页面就刷新
 handleFlush();
+
+// 获取当前路由
+const route = useRoute();
+// 监听路由参数的变化
+watch(() => props.pid, (newPid, oldPid) => {
+  pid.value = newPid;
+  handleFlush();
+});
 
 // 获取数据
 const getPTaskDatas = async () => {
@@ -151,11 +159,20 @@ const initEcharts = async () => {
   });
 }
 
+// 在子页面加载时获取并更新数据
+// onMounted(() => {
+//   // 根据 props.pid 进行数据请求并更新 params_info
+//   pid.value = props.pid
+//   console.log(2333)
+//   console.log(pid.value)
+// // 打开页面就刷新
+//   handleFlush();
+// });
 
-onBeforeMount(() => {
-  // getPTaskDatas()
-  initEcharts()
-})
+// onBeforeMount(() => {
+//   // getPTaskDatas()
+//   initEcharts()
+// })
 
 //
 // onMounted(() => {

@@ -2,39 +2,34 @@
 	<div class="container">
 		<el-tabs v-model="ptabs">
 			<el-tab-pane :label="`项目首页`" name="first">
-        <sub_projectDetail />
+        <sub_projectDetail v-if="pidExists" :pid="route.query.pid" :pname="route.query.name"/>
 			</el-tab-pane>
 			<el-tab-pane :label="`工作流定义`" name="second">
-        <sub_workerLinks />
+        <sub_workerLinks v-if="pidExists" :pid="route.query.pid" :pname="route.query.name"/>
+        <span></span>
 			</el-tab-pane>
 			<el-tab-pane :label="`任务实例`" name="third">
-        <sub_jobObj />
+        <sub_jobObj v-if="pidExists" :pid="route.query.pid" :pname="route.query.name"/>
+        <span></span>
 			</el-tab-pane>
 		</el-tabs>
 	</div>
 </template>
 
 <script setup lang="ts" name="projects_tabs">
-import {ref, reactive, onBeforeMount} from 'vue';
+import {useRoute} from 'vue-router';
+import {ref, reactive, watchEffect} from 'vue';
 import sub_projectDetail from './sub_projectDetail.vue';
 import sub_workerLinks from './sub_workerLinks.vue';
 import sub_jobObj from './sub_jobObj.vue';
 const ptabs = ref('first');
-let project_info = reactive({
-  pid: '',
-  name: '',
-  author: '',
-  description: '',
+// 获取当前路由
+const route = useRoute();
+// 使用 ref 来保存参数信息
+const pidExists = ref(false);
+watchEffect(() => {
+  pidExists.value = 'pid' in route.query;
 });
-const pid = ref('');
-const handleProjectInfo = () => {
-  const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-  pid.value = urlParams.get('pid') as string;
-  project_info.pid = urlParams.get('pid') as string;
-  project_info.name = urlParams.get('name') as string;
-};
-handleProjectInfo();
-// console.log(pid)
 const handleClick = (tab:any, event:any) => {
   //这样才能获取每个el-tab-pane的name属性
   console.log(tab.props.name);
