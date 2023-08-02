@@ -10,7 +10,7 @@ __author__ = 'RaXianch'
 import os
 from datetime import datetime
 from utils.other import get_md5
-from .models import ProjectInfos, WorkerInfos
+from .models import ProjectInfos, WorkerInfos, JobInfos
 from server_core.log import logger
 from server_core.db import engine, Newsession
 
@@ -131,6 +131,18 @@ def get_query_all(model, **kwargs):
         return None
 
 
+# 获取指定表数据量
+def get_query_count(model, **kwargs):
+    """
+    获取指定表数据量
+    :param model: 需要查询的数据表模组
+    :return:
+    """
+    session = Newsession()
+    result = session.query(model).filter_by(**kwargs).count() or 0
+    return result
+
+
 # 获取单条数据
 def get_fetch_one(model, **kwargs):
     """
@@ -219,6 +231,7 @@ def check_id(model, temp_id=None):
     else:
         return False
 
+
 # 根据日志等级修改文件名
 def rename_log_file(log_file_path, log_level):
     # 获取原始文件名和扩展名
@@ -231,6 +244,61 @@ def rename_log_file(log_file_path, log_level):
     new_file_path = os.path.join(directory, new_filename)
     return new_file_path
 
+
+# 反向同步部分数据
+def synchronous_workers(pid=None):
+    """
+    同步工作流数量到项目workers_count字段
+    :return:
+    """
+    if pid:
+        project_info = get_fetch_one(model=ProjectInfos, pid=pid)
+        project_info["workers_count"] = get_query_count(WorkerInfos, pid=pid)
+        del project_info["create_time"]
+        del project_info["update_time"]
+        try:
+            pr = update_data(model=ProjectInfos, datas=[project_info])
+            return True
+        except Exception as E:
+            return False
+    else:
+        workers = get_query_all(WorkerInfos)
+        ps = []
+        for w in workers:
+            pid = w.get("pid") or None
+            if pid:
+                p = get_fetch_one(model=ProjectInfos, pid=pid)
+                p["workers_count"] = get_query_count(WorkerInfos, pid=pid)
+                del p["create_time"]
+                del p["update_time"]
+                ps.append(p)
+
+        if ps:
+            try:
+                pr = update_data(model=ProjectInfos, datas=ps)
+                return True
+            except Exception as E:
+                return False
+        else:
+            return False
+
+
+def synchronous_jobs(pid):
+    """
+    同步工作流数量到项目workers_count字段
+    :return:
+    """
+    project_info = get_fetch_one(model=ProjectInfos, pid=pid)
+    project_info["runing_count"] = get_query_count(JobInfos, pid=pid)
+    del project_info["create_time"]
+    del project_info["update_time"]
+    try:
+        pr = update_data(model=ProjectInfos, datas=[project_info])
+        return True
+    except Exception as E:
+        return False
+
+
 __all__ = [
     "check_pid",
     "check_id",
@@ -239,8 +307,12 @@ __all__ = [
     "update_project_infos",
     "get_projects_info",
     "add_job_one",
+    "synchronous_workers",
+    "synchronous_jobs",
+
     # 通用性函数
     "get_query_all",
+    "get_query_count",
     "get_fetch_one",
     "add_data_one",
     "del_data_one",

@@ -15,7 +15,8 @@ import uvicorn
 from pprint import pprint
 from fastapi import FastAPI
 
-from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one
+from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
+    synchronous_jobs
 from server_core.conf import redisconf
 from utils.RedisDBHelper import RedisDBHelper
 from fastapi.middleware.cors import CORSMiddleware
@@ -181,7 +182,10 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     data["log_file_path"] = log_file_path
     del data['init_mark']
     result = add_job_one(JobInfos, data)
+    worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
     if result:
+        # 同步项目下的任务数量
+        synchronous_jobs(worker.get("pid"))
         jid = result.get_jid()
         callbackJson.statusCode = 200
         content["jid"] = jid

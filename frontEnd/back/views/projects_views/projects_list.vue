@@ -1,9 +1,7 @@
 <template>
 	<div>
 		<div class="container">
-      <div class="plugins-tips">
-        <b>项目管理</b>
-      </div>
+      <div class="plugins-tips">项目管理(开发中...)</div>
 			<div class="handle-box">
 				<el-button type="primary" :icon="Plus" @click="handleAdd()">创建项目</el-button>
 				<el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
@@ -13,18 +11,12 @@
           <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
           <el-table-column label="项目名称">
             <template #default="scope">
-              <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid, name:scope.row.name} }">{{ scope.row.name }}</router-link>
+              <!--            <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid} }">{{ scope.row.nickname }}</router-link>-->
+              <a :href="'#/projects_tabs/?pid='+scope.row.pid">{{ scope.row.name }}</a>
             </template>
           </el-table-column>
           <el-table-column width="100" label="工作流数量">
-            <template #default="scope">
-              {{ scope.row.workers_count }}
-            </template>
-          </el-table-column>
-          <el-table-column width="100" label="任务数量">
-            <template #default="scope">
-              {{ scope.row.runing_count }}
-            </template>
+            <template #default="scope">--</template>
           </el-table-column>
           <el-table-column width="150" label="所属用户" :show-overflow-tooltip="true">
             <template #default="scope">{{ scope.row.author }}</template>
@@ -137,8 +129,6 @@ interface TableItem {
   description: string;
   author: string;
   customer: string;
-  workers_count: number;
-  runing_count: number;
   create_time: string;
   update_time: string;
 }
@@ -252,7 +242,6 @@ let idx: number = -1;
 let editForm = reactive({
   pid: '',
   name: '',
-  customer: '',
   nickname: '',
   description: '',
 });
@@ -261,7 +250,6 @@ const handleEdit = (index: number, row: any) => {
   editForm.pid = row.pid;
   editForm.name = row.name;
   editForm.nickname = row.nickname;
-  editForm.customer = row.customer;
   editForm.description = row.description;
   // editForm.nickname = editForm.nickname ? editForm.nickname : row.nickname;
   // editForm.description = editForm.description ? editForm.description : row.description;

@@ -1,9 +1,7 @@
 <template>
   <div>
     <div class="container">
-      <div class="plugins-tips">
-        <b>日志管理</b>
-      </div>
+      <div class="plugins-tips">日志管理</div>
       <div class="handle-box">
         <el-select v-model="query.filterWord" placeholder="所属项目" class="handle-select mr10">
           <el-option  v-for="(item, index) in query.log_projects" :key="index+1" :label="item" :value="item"></el-option>
@@ -148,7 +146,7 @@ handleFlush();
 // 分页操作
 const handlePageChange = (val: number) => {
   // todo 封装一个函数，对从浏览器缓存中获取数据时，产生的错误进行处理
-  let temp = JSON.parse(localStorage.getItem('jobs_list') as string).list;
+  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
 
   // 先筛选后搜索
   if (query.filterWord) {
@@ -158,7 +156,7 @@ const handlePageChange = (val: number) => {
     temp = wl_api.keywordSearch(query.keyword, temp);
     console.log("检测为翻页query.keyword", query.keyword)
   } else {
-    temp = JSON.parse(localStorage.getItem('jobs_list') as string).list;
+    temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
   }
 
   // 对新的搜索结果做分页处理

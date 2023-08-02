@@ -1,9 +1,6 @@
 <!-- sub_workerLinks.vue -->
 <template>
-  <div class="plugins-tips">
-    <b>项目首页</b>:
-    <el-tag class="ml-2" type="success">{{ params_info.name }}</el-tag>
-  </div>
+  <div class="plugins-tips">项目首页</div>
   <el-row>
     <el-col :span="11">
       <div>
@@ -35,6 +32,19 @@
           </el-form-item>
         </el-form>
       </div>
+      <!--      <el-table :data="state.unread" :show-header="false" style="width: 100%">-->
+      <!--        <el-table-column>-->
+      <!--          <template #default="scope">-->
+      <!--            <span class="message-title">{{ scope.row.title }}</span>-->
+      <!--          </template>-->
+      <!--        </el-table-column>-->
+      <!--        <el-table-column prop="date" width="180"></el-table-column>-->
+      <!--        <el-table-column width="120">-->
+      <!--          <template #default="scope">-->
+      <!--            <el-button size="small" @click="handleRead(scope.$index)">标为已读</el-button>-->
+      <!--          </template>-->
+      <!--        </el-table-column>-->
+      <!--      </el-table>-->
     </el-col>
     <el-col :span="1"></el-col>
   </el-row>

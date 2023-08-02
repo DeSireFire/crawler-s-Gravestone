@@ -123,6 +123,11 @@ const items = [
         permiss: '42',
       },
       {
+        index: '/jobObjs',
+        title: '任务总表',
+        permiss: '41',
+      },
+      {
         index: '/worker_logs',
         title: '日志管理',
         permiss: '43',

@@ -1,9 +1,6 @@
 <!-- sub_workerLinks.vue -->
 <template v-if="ptabs === 'second'">
-  <div class="plugins-tips">
-    <b>任务实例</b>:
-    <el-tag class="ml-2" type="success">{{ project_info.name }}</el-tag>
-  </div>
+  <div class="plugins-tips">任务实例</div>
   <div class="handle-box">
     <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
   </div>
@@ -39,6 +36,9 @@
       </el-table-column>
       <el-table-column label="操作" width="300" align="center" fixed="right">
         <template #default="scope">
+          <el-button text :icon="Edit" @click="handleMonit(scope.$index, scope.row)" v-permiss="15">
+            日志预览
+          </el-button>
           <el-button text :icon="Edit"
            @click="$router.push({
            path: '/logging_detail',
@@ -60,6 +60,46 @@
     </el-table>
   </el-scrollbar>
 
+  <!-- 日志查看弹出框 -->
+  <el-dialog
+      v-model="logVisible"
+      title="查看日志"
+      width="50%"
+      :fullscreen="fullscreen"
+      :before-close="handleClose"
+      :show-close="false"
+      :close-on-click-modal="false"
+      destroy-on-close
+  >
+    <!-- 弹窗头部 -->
+    <template #header="{ close, titleId, titleClass, scope }">
+      <div class="my-header">
+        <h4 :id="titleId" :class="titleClass">查看日志</h4>
+        <div class="dialog-header-right">
+          <el-button link :icon="RefreshRight" @click="handleLogContent"></el-button>
+          <el-button link :icon="FullScreen" @click="changeScreen"></el-button>
+          <el-button link :icon="Close" @click="close"></el-button>
+        </div>
+      </div>
+    </template>
+
+    <el-input
+        v-model="logTextarea"
+        :autosize="{ minRows: 10, maxRows: 20 }"
+        :readonly="false"
+        type="textarea"
+        placeholder="日志加载中..."
+        class="log-text"
+    />
+
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button type="primary" @click="fullscreen = false; logVisible = false;">
+          关闭
+        </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts" name="sub_jobObj">
@@ -93,15 +133,11 @@ const query = um_api.query
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 const pid = ref('');
-let project_info = reactive({
-  pid: '',
-  name: '',
-});
+let params_info = {};
 const handleProjectInfo = () => {
   const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
   pid.value = urlParams.get('pid') as string;
-  project_info.pid = urlParams.get('pid') as string;
-  project_info.name = urlParams.get('name') as string;
+  params_info = Object.fromEntries(urlParams.entries());
 };
 handleProjectInfo();
 
@@ -126,7 +162,7 @@ const handleFlush = async (init = true) => {
       tableData.value = res.data.list.slice(0, query.pageSize);
       pageTotal.value = res.data.pageTotal || 1;
       // 缓存数据
-      // localStorage.setItem('sub_jobs_list', JSON.stringify(res.data));
+      // localStorage.setItem('jobs_list', JSON.stringify(res.data));
     }
   } else {
     ElMessage.error(`未找到项目ID，无法获取项目相关工作流信息！`);
@@ -160,7 +196,7 @@ const handleDelete = (index: number, row: any) => {
           const sub_flush = (await getJobs({
             pid: pid.value
           }))
-          localStorage.setItem('sub_jobs_list', JSON.stringify(sub_flush.data));
+          localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
           let temp = tableData.value.splice(index, 1)[0];
           pageTotal.value -= 1
 
@@ -174,6 +210,77 @@ const handleDelete = (index: number, row: any) => {
       });
 };
 
+// 定位待处理行的下标
+let idx: number = -1;
+// 日志内容查看
+// 日志窗口的显示开关
+const logVisible = ref(false)
+// 日志窗口待操作的变量
+let logMointForm = reactive({
+  pid: '',
+  wid: '',
+  jid: '',
+})
+
+// 日志窗口处理器（void类型表示函数没有返回值）
+const handleMonit = (index: number, row: any, done: () => void) => {
+  idx = index;
+  logMointForm.pid = row.pid;
+  logMointForm.wid = row.wid;
+  logMointForm.jid = row.jid;
+  logVisible.value = true;
+  // 获取日志文本
+  handleLogContent(index,row)
+  // console.log("handleMonit~")
+};
+
+//全屏
+const fullscreen = ref(false)
+
+let minRows = ref(10)
+let maxRows = ref(20)
+// let textArea = {
+//   "minRows":minRows,
+//   "maxRows":maxRows,
+// }
+const changeScreen = () => {
+  if (fullscreen.value == true) {
+    fullscreen.value = false;
+    minRows.value = 10
+    maxRows.value = 20
+    console.log("textAreaRows true", minRows, maxRows)
+  } else {
+    fullscreen.value = true;
+    minRows.value = 50
+    maxRows.value = 100
+    console.log("textAreaRows false", minRows, maxRows)
+  }
+  //fullscreen.value = !fullscreen.value;
+}
+
+// 弹窗关闭确认
+const handleClose = (done: () => void) => {
+  // 弹窗关闭确认，:before用法的实践
+  ElMessageBox.confirm('确定要退出日志查看吗?')
+      .then(() => {
+        done()
+        changeScreen()
+      })
+      .catch(() => {
+        // catch error
+      })
+}
+
+// 获取日志文件内容
+// 日志文本容器
+const logTextarea = ref('')
+const handleLogContent = async (index: number, row: any) => {
+  let watiGetInfo: TableItem = row ?? logMointForm;
+  // console.log("row", row)
+  // console.log("watiGetInfo", watiGetInfo)
+  const response = (await getLogContent(watiGetInfo))
+  logTextarea.value = response.data.content
+}
 
 </script>
 

@@ -75,6 +75,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/logging_detail.vue'),
             },
+            {
+                path: '/jobObjs',
+                name: 'jobObjs',
+                meta: {
+                    title: '任务总表',
+                    permiss: '42',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/jobObjs.vue'),
+            },
 
             // 原始模板
             {

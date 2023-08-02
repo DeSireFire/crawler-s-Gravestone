@@ -5,7 +5,7 @@
       <el-button type="primary" @click="$router.go(-1)">
         返回项目列表
       </el-button>
-      <el-button v-if="logTextarea.length !== 0" type="primary" :icon="Download" @click="downloadLog">
+      <el-button type="primary" :icon="Download" @click="$router.go(-1)">
         下载日志
       </el-button>
     </div>
@@ -74,9 +74,16 @@
       <el-tag class="ml-2" >日志内容（共{{ logLines.length }}行）</el-tag>
       <el-tag class="ml-2" type="warning">由于网页的处理性能有限，大型日志建议使用日志下载功能。</el-tag>
     </p>
+<!--    <el-input-->
+<!--        v-model="logTextarea"-->
+<!--        :autosize="{ minRows: 10, maxRows: 20 }"-->
+<!--        :readonly="false"-->
+<!--        type="textarea"-->
+<!--        placeholder="日志加载中..."-->
+<!--        class="log-text"-->
+<!--    />-->
     <el-scrollbar>
       <ul>
-        <li v-if="logLines.length === 0">日志加载中...</li>
         <li v-for="(item, index) in logLines" :key="index">
           <span>{{ item }}</span>
         </li>
@@ -85,7 +92,7 @@
 	</div>
 </template>
 
-<script setup lang="ts" name="logging_detail">
+<script setup lang="ts" name="icon">
 import {computed, reactive, ref} from 'vue';
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Download} from '@element-plus/icons-vue';
 import {getLogContent} from "~/api/projects";
@@ -127,6 +134,133 @@ const handleProjectInfo = () => {
   jid.value = urlParams.get('jid') as string;
   // params_info = Object.fromEntries(urlParams.entries());
 };
+const iconList: Array<string> = [
+	'attentionforbid',
+	'attentionforbidfill',
+	'attention',
+	'attentionfill',
+	'tag',
+	'tagfill',
+	'people',
+	'peoplefill',
+	'notice',
+	'noticefill',
+	'mobile',
+	'mobilefill',
+	'voice',
+	'voicefill',
+	'unlock',
+	'lock',
+	'home',
+	'homefill',
+	'delete',
+	'deletefill',
+	'notification',
+	'notificationfill',
+	'notificationforbidfill',
+	'like',
+	'likefill',
+	'comment',
+	'commentfill',
+	'camera',
+	'camerafill',
+	'warn',
+	'warnfill',
+	'time',
+	'timefill',
+	'location',
+	'locationfill',
+	'favor',
+	'favorfill',
+	'skin',
+	'skinfill',
+	'news',
+	'newsfill',
+	'record',
+	'recordfill',
+	'emoji',
+	'emojifill',
+	'message',
+	'messagefill',
+	'goods',
+	'goodsfill',
+	'crown',
+	'crownfill',
+	'move',
+	'add',
+	'hot',
+	'hotfill',
+	'service',
+	'servicefill',
+	'present',
+	'presentfill',
+	'pic',
+	'picfill',
+	'rank',
+	'rankfill',
+	'male',
+	'female',
+	'down',
+	'top',
+	'recharge',
+	'rechargefill',
+	'forward',
+	'forwardfill',
+	'info',
+	'infofill',
+	'redpacket',
+	'redpacket_fill',
+	'roundadd',
+	'roundaddfill',
+	'friendadd',
+	'friendaddfill',
+	'cart',
+	'cartfill',
+	'more',
+	'moreandroid',
+	'back',
+	'right',
+	'shop',
+	'shopfill',
+	'question',
+	'questionfill',
+	'roundclose',
+	'roundclosefill',
+	'roundcheck',
+	'roundcheckfill',
+	'global',
+	'mail',
+	'punch',
+	'exit',
+	'upload',
+	'read',
+	'file',
+	'link',
+	'full',
+	'group',
+	'friend',
+	'profile',
+	'addressbook',
+	'calendar',
+	'text',
+	'copy',
+	'share',
+	'wifi',
+	'vipcard',
+	'weibo',
+	'remind',
+	'refresh',
+	'filter',
+	'settings',
+	'scan',
+	'qrcode',
+	'cascades',
+	'apps',
+	'sort',
+	'searchlist',
+	'search',
+	'edit'
+];
 const activeNames = ref(['1'])
 const handleChange = (val: string[]) => {
   console.log(val)
@@ -137,6 +271,7 @@ const logLines = computed(() => {
 		return item.indexOf(keyword.value) !== -1;
 	});
 });
+console.log("logLines",logLines.length,logLines)
 
 // 获取日志文件内容
 // 日志文本容器
@@ -154,17 +289,6 @@ const logInfo = reactive({
   run_user: "",
 })
 const logTextarea = ref('')
-// 下载日志文件
-function downloadLog() {
-  const date = new Date().toISOString().slice(0, 10);
-  const filename = `日志导出-${logInfo.name}-${logInfo.jid}-${date}.log`;
-  const blob = new Blob([logTextarea.value + '\n' + date + "时导出日志..."], { type: 'text/plain' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-}
-
 const logArray = ref<Array<string>>([]);
 const handleLogContent = async () => {
   handleProjectInfo();

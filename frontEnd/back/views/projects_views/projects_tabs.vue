@@ -1,5 +1,6 @@
 <template>
 	<div class="container">
+<!--		<el-tabs v-model="ptabs" @tab-click="handleClick">-->
 		<el-tabs v-model="ptabs">
 			<el-tab-pane :label="`项目首页`" name="first">
         <sub_projectDetail />
@@ -26,12 +27,12 @@ let project_info = reactive({
   author: '',
   description: '',
 });
+let params_info = {};
 const pid = ref('');
 const handleProjectInfo = () => {
   const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
   pid.value = urlParams.get('pid') as string;
-  project_info.pid = urlParams.get('pid') as string;
-  project_info.name = urlParams.get('name') as string;
+  params_info = Object.fromEntries(urlParams.entries());
 };
 handleProjectInfo();
 // console.log(pid)

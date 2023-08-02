@@ -29,7 +29,8 @@ from utils.other import get_md5
 from .components import \
     get_projects_info, check_pid, \
     add_project_info, del_project_info, \
-    update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, add_job_one
+    update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, add_job_one, \
+    get_query_count, synchronous_workers, synchronous_jobs
 from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
@@ -120,7 +121,7 @@ async def get_project(request: Request, pid: str = Query(None)):
 @route.get("/get_projects", summary="获取项目列表")
 async def get_projects(request: Request):
     """
-    更新项目列表
+    获取项目列表
     :param request:
     :param name:
     :return:
@@ -132,6 +133,25 @@ async def get_projects(request: Request):
     # pprint(pro_list)
     # 转换为业务响应数据
     content["list"] = pro_list or None
+    content["pageTotal"] = len(pro_list)
+    return callbackJson.callBacker(content)
+
+@route.get("/get_projects_names", summary="获取所有项目名称")
+async def get_projects_names(request: Request):
+    """
+    获取项目名称
+    :param request:
+    :param name:
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    pro_list = get_projects_info() or []
+    names = [v for k,v in pro_list.items() if k == "name"]
+    # pprint(pro_list)
+    # 转换为业务响应数据
+    content["list"] = names or None
     content["pageTotal"] = len(pro_list)
     return callbackJson.callBacker(content)
 
@@ -168,9 +188,9 @@ async def add_workers(request: Request):
     name = data.get("name")
     pid = data.get("pid")
     temp_wid = get_md5(f"{name}_{pid}")
-    pn = get_fetch_one(model=ProjectInfos, pid=pid).get("nickname")
+    project_info = get_fetch_one(model=ProjectInfos, pid=pid)
     data["wid"] = temp_wid
-    data["p_nickname"] = pn
+    data["p_nickname"] = project_info.get("nickname")
     data["pid"] = pid
     # 检测所属项目存在
     if check_pid(pid=pid):
@@ -178,6 +198,8 @@ async def add_workers(request: Request):
         if not check_id(model=WorkerInfos, temp_id=temp_wid):
             result = add_data_one(WorkerInfos, data)
             if result:
+                # 更新项目上面显示的工作流数量
+                synchronous_workers(pid)
                 callbackJson.statusCode = 200
             else:
                 callbackJson.resData["errMsg"] = "数据添加错误！"
@@ -189,7 +211,7 @@ async def add_workers(request: Request):
 
 
 @route.delete("/del_workers", summary="删除工作流")
-async def del_project(request: Request, pid: str = Query(None), wid: str = Query(None)):
+async def del_workers(request: Request, pid: str = Query(None), wid: str = Query(None)):
     """
     接收要删除的项目信息
     参数以url传参的方式接收，数据结构为
@@ -212,6 +234,9 @@ async def del_project(request: Request, pid: str = Query(None), wid: str = Query
     if all(list(jugements.values())):
         # os.remove(del_file_path)
         res = del_data_one(model=WorkerInfos, **del_data)
+
+        # 更新项目上面显示的工作流数量
+        synchronous_workers(pid)
     else:
         callbackJson.statusCode = 404
         for k, v in jugements.items():
@@ -262,7 +287,11 @@ async def get_jobs(request: Request, pid: str = Query(None), wid: str = Query(No
     callbackJson.statusCode = 200
     content = {}
     print(f"pid:{pid}")
-    jobs_list = get_query_all(model=JobInfos, pid=pid) or []
+    if pid:
+        jobs_list = get_query_all(model=JobInfos, pid=pid) or []
+    else:
+        jobs_list = get_query_all(model=JobInfos) or []
+
     # pprint(jobs_list)
     # 转换为业务响应数据
     content["list"] = jobs_list or None
@@ -271,7 +300,7 @@ async def get_jobs(request: Request, pid: str = Query(None), wid: str = Query(No
 
 
 @route.delete("/del_jobs", summary="删除任务实例")
-async def del_project(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
+async def del_jobs(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """
     接收要删除的任务实例
     参数以url传参的方式接收
@@ -286,7 +315,6 @@ async def del_project(request: Request, pid: str = Query(None), wid: str = Query
     del_data = dict(request.query_params)
     callbackJson.url = request.url
     content = del_data
-
     jugements = {
         "无效的文件..": True,
         "服务器找不到请求的资源": True,
@@ -295,6 +323,7 @@ async def del_project(request: Request, pid: str = Query(None), wid: str = Query
     if all(list(jugements.values())):
         # os.remove(del_file_path)
         res = del_data_one(model=JobInfos, **del_data)
+        synchronous_jobs(del_data.get("pid"))
     else:
         callbackJson.statusCode = 404
         for k, v in jugements.items():
@@ -308,7 +337,8 @@ async def get_log(request: Request,
                   pid: str = Query(None),
                   wid: str = Query(None),
                   jid: str = Query(None),
-                  lv:str = Query(None)):
+                  lv:str = Query(None)
+                  ):
     """
     获取任务日志
     :param request:
@@ -362,14 +392,14 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     :param request:
     :return:
     """
-    data = await request.body()
     fdata = await request.form()
     data = dict(fdata)
-
     callbackJson = constructResponse()
     callbackJson.statusCode = 400
     content = {}
     result = add_job_one(JobInfos, data)
+    # 同步项目下的任务数量
+    synchronous_jobs(data.get("pid"))
     if result:
         jid = result.get_jid()
         callbackJson.statusCode = 200

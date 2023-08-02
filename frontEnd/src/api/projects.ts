@@ -13,6 +13,15 @@ export const getProjects = () => {
     });
 };
 
+// 获取项目列表
+export const getProjectsNames = () => {
+    return handleGet({
+        url: API.PROJECTS.GETPROJECTSNAMES,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};
+
 // 获取指定项目信息
 export const getProject = (params:any) => {
     return handleGet({

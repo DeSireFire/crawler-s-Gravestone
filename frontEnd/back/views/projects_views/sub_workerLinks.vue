@@ -1,9 +1,6 @@
 <!-- sub_workerLinks.vue -->
 <template v-if="ptabs === 'second'">
-  <div class="plugins-tips">
-    <b>工作流定义</b>:
-    <el-tag class="ml-2" type="success">{{ project_info.name }}</el-tag>
-  </div>
+  <div class="plugins-tips">工作流定义</div>
   <div class="handle-box">
     <el-button type="primary" :icon="Plus" @click="handleAdd()">创建工作流</el-button>
     <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
@@ -174,15 +171,10 @@ const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 const pid = ref('');
 let params_info = {};
-let project_info = reactive({
-  pid: '',
-  name: '',
-});
 const handleProjectInfo = () => {
   const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
   pid.value = urlParams.get('pid') as string;
-  project_info.pid = urlParams.get('pid') as string;
-  project_info.name = urlParams.get('name') as string;
+  params_info = Object.fromEntries(urlParams.entries());
 };
 handleProjectInfo();
 

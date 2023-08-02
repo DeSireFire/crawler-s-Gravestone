@@ -36,6 +36,7 @@ export enum WORKERLOGS {
 // 项目管理
 export enum PROJECTS {
   GETPROJECTS = "/get_projects",
+  GETPROJECTSNAMES = "/get_projects_names",
   GETPROJECT = "/get_project",
   ADDPROJECT = "/add_project",
   DELPROJECT = "/del_project",

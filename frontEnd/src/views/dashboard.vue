@@ -67,7 +67,7 @@
 								<el-icon class="grid-con-icon"><Document /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">{{ board_info.logger_total }}</div>
-									<div>任务数量</div>
+									<div>日志数量</div>
 								</div>
 							</div>
 						</el-card>
@@ -88,7 +88,7 @@
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
 							<div class="grid-content grid-con-3">
-								<el-icon class="grid-con-icon"><Odometer /></el-icon>
+								<el-icon class="grid-con-icon"><Cpu /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">{{ board_info.master_cpu }} %</div>
 									<div>CPU负载</div>
@@ -99,10 +99,11 @@
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
 							<div class="grid-content grid-con-3">
-								<el-icon class="grid-con-icon"><Odometer /></el-icon>
+<!--								<el-icon class="grid-con-icon"><Odometer /></el-icon>-->
+								<el-icon class="grid-con-icon"><PieChart /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">{{ board_info.memory_total }}</div>
-									<div>Memory载荷</div>
+									<div>内存占用</div>
 								</div>
 							</div>
 						</el-card>
