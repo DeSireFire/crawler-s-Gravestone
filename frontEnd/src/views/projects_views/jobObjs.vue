@@ -7,13 +7,14 @@
           <p>“任务实例总表”</p>
           <p>是一个展示所有任务实例的列表，不区分项目和工作流。</p>
           <p>超出用户访问权限的部分任务实例将不会展示。</p>
+          <p>默认根据记录开始时间排序。</p>
         </template>
         <el-icon><InfoFilled /></el-icon>
       </el-tooltip>
     </div>
     <div class="handle-box">
-      <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
-      <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>
+<!--      <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>-->
+<!--      <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>-->
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
     </div>
     <el-scrollbar>
@@ -148,8 +149,14 @@ const sortOrder = ref('descending');
 const sortTime = (a: string, b: string) => {
   const dateA = new Date(a);
   const dateB = new Date(b);
-  return sortOrder.value === 'ascending' ? dateA - dateB : dateB - dateA;
+  const order = sortOrder.value as 'ascending' | 'descending'; // 明确类型
+  if (order === 'ascending') {
+    return dateA.getTime() - dateB.getTime();
+  } else {
+    return dateB.getTime() - dateA.getTime();
+  }
 };
+
 
 const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
@@ -184,7 +191,7 @@ const handleDelete = (index: number, row: any) => {
           // 响应删除成功则弹出提示
           ElMessage.success('删除成功！');
           // 刷新缓存数据
-          const sub_flush = (await getJobs())
+          const sub_flush = (await getJobs({}))
           localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
           let temp = tableData.value.splice(index, 1)[0];
           pageTotal.value -= 1
@@ -198,8 +205,6 @@ const handleDelete = (index: number, row: any) => {
         ElMessage.error(`删除失败! ${error}`);
       });
 };
-
-
 </script>
 
 <style scoped>

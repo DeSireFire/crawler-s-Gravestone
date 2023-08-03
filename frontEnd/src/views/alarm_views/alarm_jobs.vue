@@ -2,7 +2,7 @@
   <div>
     <div class="container">
       <div class="plugins-tips">
-        <b>日志管理</b>
+        <b>监控任务</b>
       </div>
       <div class="handle-box">
         <el-select v-model="query.filterWord" placeholder="所属项目" class="handle-select mr10">

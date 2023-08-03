@@ -86,7 +86,8 @@
 </template>
 
 <script setup lang="ts" name="logging_detail">
-import {computed, reactive, ref} from 'vue';
+import {computed, reactive, ref, watch, watchEffect} from 'vue';
+import {useRoute} from "vue-router";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Download} from '@element-plus/icons-vue';
 import {getLogContent} from "~/api/projects";
 interface TableItem {
@@ -109,9 +110,12 @@ interface TableItem {
   create_time: string;
   end_time: string;
 }
-const pid = ref('');
-const wid = ref('');
-const jid = ref('');
+
+const route = useRoute();
+
+const pid = ref(route.query.pid||'');
+const wid = ref(route.query.wid||'');
+const jid = ref(route.query.jid||'');
 const lv = ref('');
 const level_name = ref([
     "INFO",
@@ -137,6 +141,20 @@ const logLines = computed(() => {
 		return item.indexOf(keyword.value) !== -1;
 	});
 });
+
+// 使用 ref 来保存参数信息
+const logExists = ref(false);
+// 监听路由参数的变化
+watch(() => route.query, (newPid, oldPid) => {
+  // 如果跳出日志详情页面，则不再执行往后的内容
+  const currentPath = route.path;
+  logExists.value = '/logging_detail' === currentPath;
+  if (logExists.value) {
+    handleProjectInfo();
+    handleLogContent();
+  }
+});
+
 
 // 获取日志文件内容
 // 日志文本容器

@@ -103,13 +103,21 @@ const params_info = reactive({
   update_time: "",
 });
 
+const handleProjectInfo = () => {
+  const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+  pid.value = urlParams.get('pid') as string;
+};
+
 // 刷新数据
 const handleFlush = async (init = true) => {
   // // 获取pid
-  // handleProjectInfo();
-  pid.value = props.pid
+  pid.value = props.pid ?? ""
+  if (!pid.value) {
+    console.log('页面刷新，判断')
+    handleProjectInfo();
+  }
 
-  if (pid.value != '') {
+  if (pid.value) {
     // 获取数据
     const res = (await getProject({
       pid: pid.value

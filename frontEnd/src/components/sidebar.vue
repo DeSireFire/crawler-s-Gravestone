@@ -100,32 +100,15 @@ const items = [
     title: '项目管理',
     permiss: '4',
     subs: [
-      // {
-      //   index: '/404',
-      //   title: '任务管理',
-      //   permiss: '41',
-      //   subs: [
-      //     {
-      //       index: '/403',
-      //       title: '历史任务',
-      //       permiss: '42',
-      //     },
-      //     {
-      //       index: '/worker_logs',
-      //       title: '日志管理',
-      //       permiss: '43',
-      //     },
-      //   ],
-      // },
       {
         index: '/projects_list',
         title: '项目列表',
-        permiss: '42',
+        permiss: '41',
       },
       {
         index: '/jobObjs',
         title: '任务总表',
-        permiss: '41',
+        permiss: '42',
       },
       {
         index: '/worker_logs',
@@ -141,17 +124,23 @@ const items = [
     permiss: '5',
     subs: [
       {
-        index: '/403',
+        index: '/alarm_setting',
         title: '告警器设置',
         permiss: '51',
 
       },
       {
-        index: '/403',
+        index: '/alarm_jobs',
         title: '任务监控',
         permiss: '52',
 
       },
+      // {
+      //   index: '/markdown',
+      //   title: '任务监控markdown.vue',
+      //   permiss: '52',
+      //
+      // },
     ],
   },
   // {

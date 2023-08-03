@@ -37,7 +37,7 @@ const routes: RouteRecordRaw[] = [
                     title: 'ResfulAPI响应文档',
                     permiss: '2',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/api_docs.vue'),
+                component: () => import(/* webpackChunkName: "api_docs" */ '../views/api_docs.vue'),
             },
             {
                 path: '/users',
@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
                     title: '账号管理',
                     permiss: '2',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/users/users_manage.vue'),
+                component: () => import(/* webpackChunkName: "users_manage" */ '../views/users/users_manage.vue'),
             },
             {
                 path: '/projects_list',
@@ -55,7 +55,7 @@ const routes: RouteRecordRaw[] = [
                     title: '项目列表',
                     permiss: '42',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/projects_list.vue'),
+                component: () => import(/* webpackChunkName: "projects_list" */ '../views/projects_views/projects_list.vue'),
             },
             {
                 path: '/projects_tabs',
@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
                     title: '项目详细',
                     permiss: '42',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/projects_tabs.vue'),
+                component: () => import(/* webpackChunkName: "projects_tabs" */ '../views/projects_views/projects_tabs.vue'),
             },
             {
                 path: '/logging_detail',
@@ -73,7 +73,7 @@ const routes: RouteRecordRaw[] = [
                     title: '日志详情',
                     permiss: '42',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/logging_detail.vue'),
+                component: () => import(/* webpackChunkName: "logging_detail" */ '../views/projects_views/logging_detail.vue'),
             },
             {
                 path: '/jobObjs',
@@ -82,7 +82,25 @@ const routes: RouteRecordRaw[] = [
                     title: '任务总表',
                     permiss: '42',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/projects_views/jobObjs.vue'),
+                component: () => import(/* webpackChunkName: "jobObjs" */ '../views/projects_views/jobObjs.vue'),
+            },
+            {
+                path: '/alarm_setting',
+                name: 'alarm_setting',
+                meta: {
+                    title: '告警设置',
+                    permiss: '5',
+                },
+                component: () => import(/* webpackChunkName: "alarm_setting" */ '../views/alarm_views/alarm_setting.vue'),
+            },
+            {
+                path: '/alarm_jobs',
+                name: 'alarm_jobs',
+                meta: {
+                    title: '任务监控',
+                    permiss: '5',
+                },
+                component: () => import(/* webpackChunkName: "alarm_setting" */ '../views/alarm_views/alarm_jobs.vue'),
             },
 
             // 原始模板

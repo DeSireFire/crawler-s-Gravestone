@@ -11,17 +11,17 @@
       <el-scrollbar>
         <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
           <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
-          <el-table-column label="项目名称">
+          <el-table-column label="项目名称" width="300" :show-overflow-tooltip="true">
             <template #default="scope">
               <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid, name:scope.row.name} }">{{ scope.row.name }}</router-link>
             </template>
           </el-table-column>
-          <el-table-column width="100" label="工作流数量">
+          <el-table-column label="工作流数量" width="100" :show-overflow-tooltip="true">
             <template #default="scope">
               {{ scope.row.workers_count }}
             </template>
           </el-table-column>
-          <el-table-column width="100" label="任务数量">
+          <el-table-column width="100" label="任务数量" :show-overflow-tooltip="true">
             <template #default="scope">
               {{ scope.row.runing_count }}
             </template>

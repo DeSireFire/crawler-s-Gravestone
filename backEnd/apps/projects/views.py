@@ -356,6 +356,8 @@ async def get_log(request: Request,
         log_file_path = rename_log_file(log_file_path, lv)
     log_content = ""
     try:
+        if not log_file_path:
+            raise FileNotFoundError
         with open(log_file_path, encoding="utf-8") as f:
             log_content = f.read()
     except FileNotFoundError as FNFE:
@@ -504,3 +506,9 @@ def random_int_list(start, stop, length):
     for i in range(length):
         random_list.append(random.randint(start, stop))
     return random_list
+
+# try:
+#     pass
+# except Exception as e:
+#     print "报错信息："
+#     print e

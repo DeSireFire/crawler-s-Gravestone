@@ -55,6 +55,19 @@ export enum PROJECTS {
   GETPTASKS = "/get_ptasks",
 }
 
+// 告警管理
+export enum ALARMS {
+  // 添加删除告警器
+  GETALARMERS = "/get_alarmers",
+  ADDALARMERS = "/add_alarmers",
+  DELALARMERS = "/del_alarmers",
+
+  // 注册告警服务
+  GETALARMERJOBS = "/get_alarmer_jobs",
+  ADDALARMERJOBS = "/add_alarmer_jobs",
+  DELALARMERJOBS = "/del_alarmer_jobs",
+}
+
 // 附加功能接口
 export enum EXTRALS {
   // IPINFO = "https://api.live.bilibili.com/xlive/web-room/v1/index/getIpInfo",
