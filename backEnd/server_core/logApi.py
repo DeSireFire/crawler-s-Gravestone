@@ -15,6 +15,7 @@ import uvicorn
 from pprint import pprint
 from fastapi import FastAPI
 
+from apps.alarms.alarmers_components import AlarmHandler
 from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
     synchronous_jobs
 from server_core.conf import redisconf
@@ -88,9 +89,9 @@ async def update_logging(request: Request):
     log_level = log_data['levelname']
     # 工作流密钥
     token = extra_data.get('token', 'unknown')
-    wid = extra_data.get("token")
+    wid = token
     jid = extra_data.get("jid")
-    status = extra_data.get("status") or 0
+    j_status = extra_data.get("status") or 0
     items_count = extra_data.get("items_count") or 0
     try:
         # 同步到数据库
@@ -113,8 +114,8 @@ async def update_logging(request: Request):
 
         # 状态
         # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
-        if status:
-            job_info["status"] = status
+        if j_status:
+            job_info["status"] = j_status
         else:
             job_info["status"] = job_info["status"] if job_info["status"] else 3
 
@@ -135,6 +136,15 @@ async def update_logging(request: Request):
         log_file_path = job_info.get("log_file_path")
         log_to_save(redis_log_key, log_file_path, log_level)
         # asyncio.run(log_to_save2(redis_log_key, log_file_path))
+
+        # 告警任务推送
+        if log_level == "ERROR":
+            alarm_handler = AlarmHandler()
+            alarm_handler.handle_alarm(
+                wid, f'{job_info["name"]}_有关告警信息',
+                f"该任务接收到了一次报错日志！内容如下:"
+                f"{log_data['msg']}"
+            )
 
         # 状态的控制，销毁前发送状态，推送时修改状态，atexit 模块的尝试
         # todo 演示爬虫项目
