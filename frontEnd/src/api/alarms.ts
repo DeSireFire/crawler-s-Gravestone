@@ -2,32 +2,76 @@ import { API } from "~/constants/api";
 import {CONTENT_TYPE, REQUEST_HEADER, REQUEST_METHOD} from "~/constants/request";
 import useHttp from "~/utils/request";
 import { alarmers,alarm_jobs } from "~/api/types/alarms";
+import {job, project, worker} from "~/api/types/projects";
 const { handleGet,handleDelete, http, handlePost } = useHttp();
 
-// 获取项目列表
-export const getProjects = () => {
+// 获取告警器列表
+export const getAlarmers = () => {
     return handleGet({
-        url: API.PROJECTS.GETPROJECTS,
+        url: API.ALARMS.GETALARMERS,
         method: REQUEST_METHOD.GET,
         headers: {},
     });
 };
 
-// 获取项目列表
-export const getProjectsNames = () => {
+// 新增告警器
+export const addAlarmers = (payload:alarmers) => {
+    return handlePost({
+        url: API.ALARMS.ADDALARMERS,
+        headers: {
+            [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+        },
+        data: payload,
+    });
+};
+
+// 删除告警器
+export const delAlarmers = (DelData:alarmers) => {
+    return handleDelete({
+        url: API.ALARMS.DELALARMERS,
+        method: REQUEST_METHOD.DELETE,
+        headers: {},
+        params: DelData,
+    });
+};
+
+// 获取监控任务列表接口
+export const getAlarmerJobs = () => {
     return handleGet({
-        url: API.PROJECTS.GETPROJECTSNAMES,
+        url: API.ALARMS.GETALARMERJOBS,
         method: REQUEST_METHOD.GET,
         headers: {},
     });
 };
 
-// 获取指定项目信息
-export const getProject = (params:any) => {
-    return handleGet({
-        url: API.PROJECTS.GETPROJECT,
-        method: REQUEST_METHOD.GET,
+// 创建项目
+export const addAlarmerJobs = (payload: alarm_jobs) => {
+    return handlePost({
+        url: API.ALARMS.ADDALARMERJOBS,
+        headers: {
+            [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+        },
+        data: payload,
+    });
+};
+
+// 修改项目
+export const updateAlarmerJobs = (payload: alarm_jobs) => {
+    return handlePost({
+        url: API.ALARMS.UPDATEALARMERJOBS,
+        headers: {
+            [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+        },
+        data: payload,
+    });
+};
+
+// 删除项目
+export const delAlarmerJobs = (DelData: alarm_jobs) => {
+    return handleDelete({
+        url: API.ALARMS.DELALARMERJOBS,
+        method: REQUEST_METHOD.DELETE,
         headers: {},
-        params,
+        params: DelData,
     });
 };

@@ -118,7 +118,7 @@ const items = [
     ],
   },
   {
-    icon: 'List',
+    icon: 'Bell',
     index: '5',
     title: '告警管理',
     permiss: '5',
@@ -131,7 +131,7 @@ const items = [
       },
       {
         index: '/alarm_jobs',
-        title: '任务监控',
+        title: '任务告警',
         permiss: '52',
 
       },

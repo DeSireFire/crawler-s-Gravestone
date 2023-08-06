@@ -9,7 +9,7 @@
           <el-tabs v-model="alarmers">
             <el-tab-pane :label="`电子邮件设置`" name="first">
               <div class="form-box">
-                <el-form ref="formRef" :rules="rulesEmail" :model="formEmail" label-width="100px">
+                <el-form ref="formRefEmail" :rules="rulesEmail" :model="formEmail" label-width="100px">
                   <el-form-item label="告警名称" prop="name">
                     <el-input v-model="formEmail.name"></el-input>
                   </el-form-item>
@@ -26,15 +26,15 @@
                     <el-input type="textarea" rows="5" v-model="formEmail.desc"></el-input>
                   </el-form-item>
                   <el-form-item>
-                    <el-button type="primary" @click="onSubmitE(formRef)">表单提交</el-button>
-                    <el-button @click="onReset(formRef)">重置表单</el-button>
+                    <el-button type="primary" @click="submitEmailForm">表单提交</el-button>
+                    <el-button @click="resetEmailForm">重置表单</el-button>
                   </el-form-item>
                 </el-form>
               </div>
             </el-tab-pane>
             <el-tab-pane :label="`企微机器人设置`" name="second">
               <div class="form-box">
-                <el-form ref="formRef" :rules="rulesQW" :model="formQW" label-width="100px">
+                <el-form ref="formRefQW" :rules="rulesQW" :model="formQW" label-width="100px">
                   <el-form-item label="告警名称" prop="name">
                     <el-input v-model="formQW.name"></el-input>
                   </el-form-item>
@@ -51,8 +51,8 @@
                     <el-input type="textarea" rows="5" v-model="formQW.desc"></el-input>
                   </el-form-item>
                   <el-form-item>
-                    <el-button type="primary" @click="onSubmitQ(formRef)">表单提交</el-button>
-                    <el-button @click="onReset(formRef)">重置表单</el-button>
+                    <el-button type="primary" @click="submitQWForm">表单提交</el-button>
+                    <el-button @click="resetQWForm">重置表单</el-button>
                   </el-form-item>
                 </el-form>
               </div>
@@ -68,7 +68,7 @@
           <div class="plugins-tips">
             <b>电子邮件告警器</b>:
           </div>
-          <el-table :data="state.unread" :show-header="false" style="width: 100%">
+          <el-table :data="filterEmail" :show-header="false" style="width: 100%">
             <el-table-column prop="name" :show-overflow-tooltip="true">
               <template #default="scope">
                 <span class="message-title">名称: {{ scope.row.name }}</span>
@@ -83,8 +83,7 @@
             <el-table-column prop="create_time" width="180"></el-table-column>
             <el-table-column width="100">
               <template #default="scope">
-                <!--                <el-button type="danger" @click="handleDel(scope.$index)">删除</el-button>-->
-                <el-button type="danger">删除</el-button>
+                <el-button type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -96,9 +95,9 @@
       <el-col :span="24">
         <div class="container">
           <div class="plugins-tips">
-            <b>企信机器人告警器</b>:
+            <b>企微bot告警器</b>:
           </div>
-          <el-table :data="state.read" :show-header="false" style="width: 100%">
+          <el-table :data="filterQW" :show-header="false" style="width: 100%">
             <el-table-column prop="name" :show-overflow-tooltip="true">
               <template #default="scope">
                 <span class="message-title">名称: {{ scope.row.name }}</span>
@@ -113,8 +112,7 @@
             <el-table-column prop="create_time" width="180"></el-table-column>
             <el-table-column width="100">
               <template #default="scope">
-                <!--                <el-button type="danger" @click="handleDel(scope.$index)">删除</el-button>-->
-                <el-button type="danger">删除</el-button>
+                <el-button type="danger" @click="handleDel(scope.$index, scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -125,50 +123,22 @@
 </template>
 
 <script setup lang="ts" name="alarm_setting">
-import {reactive, ref} from 'vue';
-import {ElMessage} from 'element-plus';
+import {reactive, ref, computed, onMounted, Ref} from 'vue';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import type {FormInstance, FormRules} from 'element-plus';
-
-const state = reactive({
-  unread: [
-    {
-      create_time: '2018-04-19 20:00:00',
-      name: '国家药典委员会告警',
-      email: 'xx@qq.com',
-      desc: '主数据采集药典委员会任务推送',
-    },
-    {
-      create_time: '2018-04-19 21:00:00',
-      name: '企查查企业信息采集',
-      email: 'xx@qq.com',
-      desc: '主数据采集药典委员会任务推送',
-    }
-  ],
-  read: [
-    {
-      create_time: '2018-04-19 20:00:00',
-      name: '国家药典委员会告警',
-      qw_token: '325g455',
-      desc: '主数据数据研究群',
-    },
-  ],
-  recycle: [
-    {
-      date: '2018-04-19 20:00:00',
-      title: '【系统通知】该系统将于今晚凌晨2点到5点进行升级维护'
-    }
-  ]
-});
+import {getAlarmers, addAlarmers, delAlarmers} from "~/api/alarms";
+import {ElForm, ElFormItem} from 'element-plus';
 
 interface TableItem {
   id: number;
+  aid: string,
   name: string,
   email: string,
   qw_token: string,
   resource: string,
   desc: string,
+  extra: string;
   create_time: string;
-  update_time: string;
 }
 
 const tableData = ref<TableItem[]>([]);
@@ -181,7 +151,6 @@ const rulesQW: FormRules = {
   name: [{required: true, message: '请输入告警器名称', trigger: 'blur'}],
   qw_token: [{required: true, message: '请输入企业微信的机器人调用密钥', trigger: 'blur'}],
 };
-const formRef = ref<FormInstance>();
 const formEmail = reactive({
   name: '',
   email: '',
@@ -195,35 +164,70 @@ const formQW = reactive({
   desc: '',
 });
 
-// 提交
-const onSubmitE = (formEl: FormInstance | undefined) => {
-  // 表单校验
-  if (!formEl) return;
-  formEl.validate((valid) => {
+const formRefEmail = ref<FormInstance>();
+const formRefQW = ref<FormInstance>();
+
+// 电子邮件表单提交
+const submitEmailForm = () => {
+  submitForm(formRefEmail, formEmail, rulesEmail);
+};
+
+// 企微机器人表单提交
+const submitQWForm = () => {
+  submitForm(formRefQW, formQW, rulesQW);
+};
+
+// 表单提交共用逻辑
+const submitForm = (formRef: Ref<FormInstance | undefined>, formData: any, rules: FormRules) => {
+  console.log("formRef!!", formRef)
+  if (!formRef.value) return;
+  formRef.value.validate((valid) => {
     if (valid) {
-      console.log(formEmail);
+      // 提交表单
+      addForm(formData);
       ElMessage.success('提交成功！');
+      handleFlush();
     } else {
       return false;
     }
   });
 };
-const onSubmitQ = (formEl: FormInstance | undefined) => {
-  // 表单校验
-  if (!formEl) return;
-  formEl.validate((valid) => {
-    if (valid) {
-      console.log(formQW);
-      ElMessage.success('提交成功！');
-    } else {
-      return false;
-    }
-  });
+
+// 重置电子邮件表单
+const resetEmailForm = () => {
+  resetForm(formRefEmail);
 };
-// 重置
-const onReset = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.resetFields();
+
+// 重置企微机器人表单
+const resetQWForm = () => {
+  resetForm(formRefQW);
+};
+
+// 表单重置共用逻辑
+const resetForm = (formRef: Ref<FormInstance | undefined>) => {
+  if (formRef.value) {
+    formRef.value.resetFields();
+  }
+};
+
+// 添加表单数据
+const addForm = (formData: any) => {
+  // 发送添加请求
+  const payload = {
+    name: formData.name,
+    email: formData.email,
+    qw_token: formData.qw_token,
+    resource: formData.resource,
+    desc: formData.desc,
+  };
+  addAlarmers(payload)
+      .then(() => {
+        // 添加成功后处理
+        // 可以刷新数据或进行其他操作
+      })
+      .catch((error) => {
+        console.error('添加失败：', error);
+      });
 };
 
 // 数据打码
@@ -239,18 +243,53 @@ const maskSensitiveData = (data: string) => {
   }
 };
 
-const handleRead = (index: number) => {
-  const item = state.unread.splice(index, 1);
-  // state.read = item.concat(state.read);
+// 刷新数据
+const filterEmail = ref<TableItem[]>([]);
+const filterQW = ref<TableItem[]>([]);
+
+const handleFlush = async () => {
+  // 获取数据
+  const res = await getAlarmers();
+  tableData.value = res.data.list;
+
+  // 过滤出 resource 为 "电子邮件" 的行数据
+  filterEmail.value = tableData.value.filter(item => item.resource === '电子邮件');
+
+  // 过滤出 resource 为 "企微机器人" 的行数据
+  filterQW.value = tableData.value.filter(item => item.resource === '企微bot');
 };
-const handleDel = (index: number) => {
-  const item = state.read.splice(index, 1);
-  // state.recycle = item.concat(state.recycle);
+
+onMounted(() => {
+  // 页面加载时刷新数据
+  handleFlush();
+});
+
+// 删除操作
+const handleDel = async (index: number, row: TableItem) => {
+  const confirmResult = await ElMessageBox.confirm('确定要删除该告警器吗？', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  });
+
+  if (confirmResult === 'confirm') {
+    try {
+      await delAlarmers({aid: row.aid}); // 调用删除请求函数
+      ElMessage.success('删除成功！');
+      // 从表格中移除被删除的数据
+      filterEmail.value.splice(index, 1);
+      filterQW.value.splice(index, 1);
+    } catch (error) {
+      console.error('删除失败：', error);
+      ElMessage.error('删除失败！');
+    }
+  }
 };
-const handleRestore = (index: number) => {
-  const item = state.recycle.splice(index, 1);
-  // state.read = item.concat(state.read);
-};
+
+// const handleRestore = (index: number) => {
+//   const item = state.recycle.splice(index, 1);
+//   // state.read = item.concat(state.read);
+// };
 </script>
 
 <style>

@@ -88,6 +88,54 @@ def inituser():
         session.commit()
         session.flush()
 
+    from apps.alarms.models import Alamers
+    # 创建一个测试任务实例
+    Alamers_demo = session.query(Alamers).filter_by().first()
+    if not Alamers_demo:
+        Alamers_demo = Alamers(
+            name="测试用邮件告警器",
+            email="xx@qq.com",
+            desc="测试用占位用的邮箱告警器",
+            resource="电子邮件"
+        )
+        Alamers_demo_qw = Alamers(
+            name="测试用企微告警器",
+            qw_token="kjbcsh893223f2525v426384624b6324b364hyt68j44654j644j64386j4626146fewgwr",
+            desc="测试用占位用的企微告警器",
+            resource="企微bot"
+        )
+        session.add(Alamers_demo)
+        session.add(Alamers_demo_qw)
+        session.commit()
+        session.flush()
+
+    from apps.alarms.models import AlamerJobs
+    # 创建一个测试任务实例
+    AlamerJobs_demo = session.query(AlamerJobs).filter_by().first()
+    if not AlamerJobs_demo:
+        AlamerJobs_demo = AlamerJobs(
+            aid="418bacbe48b5ea11dcd8a17a11efddca",
+            wid="a158dc3a9d0f71283132f2c1127bc8c0",
+            name="测试邮箱告警任务",
+            desc="测试用占位用的告警器",
+            alarm_content="告警内容测试！",
+            resource="电子邮件"
+        )
+        AlamerJobs_demo_qw = AlamerJobs(
+            aid="418bacbe48b5ea11dcd8a17a11efddca",
+            wid="327d52aece3b4a47de5dac899f3407e7",
+            name="测试用企微告警任务",
+            desc="测试用占位用的企微告警任务",
+            alarm_content="告警内容测试！",
+            resource="企微bot"
+        )
+        session.add(AlamerJobs_demo)
+        session.add(AlamerJobs_demo_qw)
+        session.commit()
+        session.flush()
+
+
+
 
 def initdb():
     from . import db_Base

@@ -12,3 +12,4 @@ from apps import extras
 from apps import workerLogs
 from apps import dashboard
 from apps import projects
+from apps import alarms

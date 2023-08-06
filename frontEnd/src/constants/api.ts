@@ -43,6 +43,7 @@ export enum PROJECTS {
   UPDATEPROJECT = "/update_project",
 
   GETWORKERS = "/get_workers",
+  GETWORKER = "/get_worker",
   ADDWORKERS = "/add_workers",
   DELWORKERS = "/del_workers",
   UPDATEWORKERS = "/update_workers",
@@ -64,6 +65,7 @@ export enum ALARMS {
 
   // 注册告警服务
   GETALARMERJOBS = "/get_alarmer_jobs",
+  UPDATEALARMERJOBS = "/update_alarmer_jobs",
   ADDALARMERJOBS = "/add_alarmer_jobs",
   DELALARMERJOBS = "/del_alarmer_jobs",
 }
@@ -83,4 +85,5 @@ export const API = {
   WORKERLOGS,
   EXTRALS,
   PROJECTS,
+  ALARMS,
 };

@@ -74,6 +74,17 @@ export const getWorkers = (params: any) => {
     });
 };
 
+// 获取工作流列表
+// wid:xxx
+export const getWorker = (params: any) => {
+    return handleGet({
+        url: API.PROJECTS.GETWORKER,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+        params,
+    });
+};
+
 // 新增工作流
 export const addWorkers = (payload:worker) => {
     return handlePost({

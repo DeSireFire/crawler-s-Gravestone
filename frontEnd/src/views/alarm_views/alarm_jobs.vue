@@ -2,50 +2,37 @@
   <div>
     <div class="container">
       <div class="plugins-tips">
-        <b>监控任务</b>
+        <b>任务告警</b>
       </div>
       <div class="handle-box">
-        <el-select v-model="query.filterWord" placeholder="所属项目" class="handle-select mr10">
-          <el-option  v-for="(item, index) in query.log_projects" :key="index+1" :label="item" :value="item"></el-option>
-          <el-option key="0" label="无" value=""></el-option>
-        </el-select>
-        <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
-        <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>
-        <el-button type="primary" :icon="Plus" @click="handleFlush">刷新列表</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleAdd()">创建监控</el-button>
+        <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
       </div>
-      <el-table
-          :data="tableData"
-          border class="table"
-          ref="multipleTable"
-          header-cell-class-name="table-header"
-          min-width="120"
-          :show-overflow-tooltip="true">
-      >
-        <el-table-column prop="id" label="ID" width="300" align="center"></el-table-column>
-        <el-table-column prop="name" label="日志名称"></el-table-column>
-        <el-table-column prop="log_project" label="所属项目" width="200" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column label="日志备注">
-          <template #default="scope">{{ scope.row.remarks }}</template>
-        </el-table-column>
-        <el-table-column prop="address" label="来源ip" width="200"></el-table-column>
-        <el-table-column label="操作" width="300" align="center">
-          <template #default="scope">
-            <el-button text :icon="Edit" @click="handleMonit(scope.$index, scope.row)" v-permiss="15">
-              查看
-            </el-button>
-            <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="100">
-              编辑
-            </el-button>
-            <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index)" v-permiss="16">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-scrollbar>
+        <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+          <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
+          <el-table-column prop="name" label="名称" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="resource" label="类型" width="100" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="desc" width="200" label="描述" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column width="200" label="创建时间">
+            <template #default="scope">{{ scope.row.create_time }}</template>
+          </el-table-column>
+          <el-table-column label="操作" width="200" align="center" fixed="right">
+            <template #default="scope">
+              <el-button text :icon="Edit" @click="handleEdit(scope.$index, scope.row)" v-permiss="15">
+                信息
+              </el-button>
+              <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-scrollbar>
       <div class="pagination">
         <el-pagination
             background
-            layout="total, prev, pager, next, jumper"
+            layout="total, prev, pager, next"
             :current-page="query.pageIndex"
             :page-size="query.pageSize"
             :total="pageTotal"
@@ -54,167 +41,190 @@
       </div>
     </div>
 
-    <!-- 日志查看弹出框 -->
-    <el-dialog
-        v-model="logVisible"
-        title="查看日志"
-        width="50%"
-        :fullscreen="fullscreen"
-        :before-close="handleClose"
-        :show-close="false"
-        :close-on-click-modal="false"
-        destroy-on-close
-    >
-      <!-- 弹窗头部 -->
-      <template #header="{ close, titleId, titleClass, scope }">
-        <div class="my-header">
-          <h4 :id="titleId" :class="titleClass">查看日志</h4>
-          <div class="dialog-header-right">
-            <el-button link :icon="RefreshRight" @click="handleLogContent"></el-button>
-            <el-button link :icon="FullScreen" @click="changeScreen"></el-button>
-            <el-button link :icon="Close" @click="close"></el-button>
-          </div>
-        </div>
-      </template>
-
-      <el-input
-          v-model="logTextarea"
-          :autosize="{ minRows: 10, maxRows: 20 }"
-          :readonly="false"
-          type="textarea"
-          placeholder="日志加载中..."
-          class="log-text"
-      />
-
-      <template #footer>
-      <span class="dialog-footer">
-        <el-button type="primary" @click="fullscreen = false; logVisible = false;">
-          关闭
-        </el-button>
-      </span>
-      </template>
-    </el-dialog>
-
-    <!-- 编辑弹出框 -->
-    <el-dialog title="编辑" v-model="editVisible" width="30%">
-      <el-form label-width="70px">
-        <el-form-item label="日志名称">
-          <el-input v-model="form.name"></el-input>
+    <!-- 弹出框 -->
+    <el-dialog title="创建监控" v-model="addVisible" width="40%">
+      <el-form label-width="100px">
+        <el-form-item label="监控名称">
+          <el-input v-model="addForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="来源ip">
-          <el-input v-model="form.address"></el-input>
+        <el-form-item label="工作流密钥">
+          <el-input v-model="addForm.wid"></el-input>
+        </el-form-item>
+        <el-form-item label="告警器">
+          <el-select v-model="addForm.aid" placeholder="告警器">
+            <el-option v-for="(item, index) in alarmers_list" :key="item.aid"
+                       :label="item.resource + '_' + item.name" :value="item.aid"
+                       @click="handleAddResource(item.resource)"
+            >
+            </el-option>
+            <el-option key="0" label="无" value=""></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="告警类型">
+          <el-input v-model="addForm.resource" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="监控描述">
+          <el-input type="textarea" v-model="addForm.desc"></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
 				<span class="dialog-footer">
-					<el-button @click="editVisible = false">取 消</el-button>
-					<el-button type="primary" @click="saveEdit">确 定</el-button>
+					<el-button @click="addVisible = false">取 消</el-button>
+					<el-button type="primary" @click="addSaveEdit">确 定</el-button>
+				</span>
+      </template>
+    </el-dialog>
+
+    <el-dialog title="任务信息" v-model="editVisible" width="40%">
+      <el-form label-width="100px">
+        <el-form-item v-for="(value, key) in editForm" :key="key" :label="key">
+          <el-input
+              v-if="typeof value === 'string'"
+              v-model="editForm[key]"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <el-form label-width="100px">
+        <el-form-item v-for="(value, key) in worker_info" :key="key" :label="key">
+          <el-input
+              v-if="typeof value === 'string'"
+              v-model="worker_info[key]"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+				<span class="dialog-footer">
+					<el-button @click="editVisible = false">关闭</el-button>
 				</span>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup lang="ts" name="worker_logs">
-import {onBeforeMount, reactive, ref} from 'vue';
+<script setup lang="ts" name="projects_list">
+import {ref, reactive, onBeforeMount} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight} from '@element-plus/icons-vue';
-import {TableItem, textAreaItem, query, pageTotal, tableData, editVisible, form} from "~/constants/worker_logs";
-import {wl_api} from "~/store/worker_logs";
-import {getLogs, delLogs, getLogContent} from "~/api/workerLogs";
+import {getAlarmers, getAlarmerJobs, addAlarmerJobs, updateAlarmerJobs, delAlarmerJobs} from '~/api/alarms';
+import {getWorker} from '~/api/projects';
+import {um_api} from "~/store/user_mange";
+import {Delete, Edit, Plus, Refresh} from '@element-plus/icons-vue';
+
+interface TableItem {
+  id: number;
+  a_jid: string,
+  wid: string,
+  aid: string,
+  name: string,
+  resource: string,
+  desc: string,
+  alarm_content: string,
+  extra: string;
+  create_time: string;
+}
+
+interface alarmers_TableItem {
+  id: number;
+  aid: string,
+  name: string,
+  email: string,
+  qw_token: string,
+  resource: string,
+  desc: string,
+  extra: string;
+  create_time: string;
+}
+
+const query = um_api.query
+const tableData = ref<TableItem[]>([]);
+const pageTotal = ref(0);
+
 
 // 刷新数据
 const handleFlush = async (init = true) => {
   // 获取数据
-  const res = (await getLogs())
+  const res = (await getAlarmerJobs())
   // 是否初始化
   if (init) {
     // 载入数据
     tableData.value = res.data.list.slice(0, query.pageSize);
     pageTotal.value = res.data.pageTotal || 1;
     // 缓存数据
-    localStorage.setItem('workerLogs', JSON.stringify(res.data));
-    // 将查询条件初始化
-    query.keyword = ""
-    query.filterWord = ""
-    query.log_projects = res.data.log_projects
-    console.log("res.data.log_projects",res.data.log_projects)
-    console.log("query.log_projects",query.log_projects)
+    localStorage.setItem('alarmerJobs_list', JSON.stringify(res.data));
   }
 };
 // 打开页面就刷新
 handleFlush();
 
-// 分页操作
+// 分页导航
 const handlePageChange = (val: number) => {
   // todo 封装一个函数，对从浏览器缓存中获取数据时，产生的错误进行处理
-  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
-
-  // 先筛选后搜索
-  if (query.filterWord) {
-    temp = wl_api.logProjectFilter(query.filterWord, temp);
-    console.log("检测为翻页query.filterWord", query.filterWord)
-  } else if (query.keyword) {
-    temp = wl_api.keywordSearch(query.keyword, temp);
-    console.log("检测为翻页query.keyword", query.keyword)
-  } else {
-    temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
-  }
+  let temp = JSON.parse(localStorage.getItem('alarmerJobs_list') as string).list;
 
   // 对新的搜索结果做分页处理
   query.pageIndex = val;
   pageTotal.value = temp.length || 1;
   console.log("翻页搜索结果datas", temp)
   // 缓存数据
-  tableData.value = wl_api.updateView(val, temp);
+  tableData.value = um_api.updateView(val, temp);
 };
 
-// 查询操作
-const handleSearch = () => {
-  // 搜索关键词，刷新表格为搜索结果
-  let temp = JSON.parse(localStorage.getItem('workerLogs') as string).list
-  // let temp:TableItem[] = []
-
-  // 先筛选后搜索
-  if (query.filterWord) {
-    temp = wl_api.logProjectFilter(query.filterWord, temp);
-    console.log("检测为翻页query.filterWord", query.filterWord, temp)
+// 增删改
+// 新增操作，表格新增项目时弹窗和保存
+const addVisible = ref(false);
+let addForm = reactive({
+  name: '',
+  aid: '',
+  wid: '',
+  resource: '',
+  desc: '',
+});
+const alarmers_list = ref<alarmers_TableItem[]>([]);
+const handleAddResource = (resource: string) => {
+  // 将resource数据填入到 addForm
+  addForm.resource = resource
+}
+const handleAdd = async () => {
+  // 获取告警器列表,用于下来选择
+  const response = (await getAlarmers())
+  alarmers_list.value = response.data.list
+  addVisible.value = true;
+};
+const addSaveEdit = async () => {
+  // 向后端发起操作
+  const response = (await addAlarmerJobs(addForm));
+  if (response.isSuccess) {
+    addVisible.value = false;
+    handleFlush();
+    ElMessage.success(`新增 ${addForm.name} 成功！`);
+  } else {
+    ElMessage.error(`新增 ${addForm.name} 失败！`);
   }
-
-  if (query.keyword) {
-    temp = wl_api.keywordSearch(query.keyword, temp);
-    console.log("检测为翻页query.keyword", query.keyword, temp)
-  }
-
-  if (!temp) {
-    temp = JSON.parse(localStorage.getItem('workerLogs') as string).list;
-  }
-
-  // 对新的搜索结果做分页处理
-  query.pageIndex = 1;
-  pageTotal.value = temp.length || 1;
-  tableData.value = temp.slice(0, query.pageSize);
 };
 
 // 删除操作
-const handleDelete = (index: number) => {
+let delform = reactive({
+  name: '',
+  a_jid: '',
+});
+const handleDelete = (index: number, row: any) => {
   // 二次确认删除
   ElMessageBox.confirm('确定要删除吗？', '提示', {
     type: 'warning'
   })
       .then(async () => { /* 处理正常时 */
         // 获取当前表行数据
-        // let watiDelData: TableItem = tableData.value.splice(index, 1)[0];
-        let watiDelData: TableItem = tableData.value[index];
-        console.log("watiDelData", watiDelData)
+        delform.name = row.name;
+        delform.a_jid = row.a_jid;
         // 向后端发起删除操作
-        const response = (await delLogs(watiDelData));
+        const response = (await delAlarmerJobs(delform));
         if (response.isSuccess) {
           // 响应删除成功则弹出提示
           ElMessage.success('删除成功！');
           // 刷新缓存数据
-          const sub_flush = (await getLogs())
-          localStorage.setItem('workerLogs', JSON.stringify(sub_flush.data));
+          const sub_flush = (await getAlarmerJobs())
+          localStorage.setItem('alarmerJobs_list', JSON.stringify(sub_flush.data));
           let temp = tableData.value.splice(index, 1)[0];
           pageTotal.value -= 1
 
@@ -229,129 +239,38 @@ const handleDelete = (index: number) => {
 
 };
 
-// 定位待处理行的下标
+// 修改操作,表格编辑时弹窗和保存
+const editVisible = ref(false);
 let idx: number = -1;
-// 日志内容查看
-// 日志窗口的显示开关
-const logVisible = ref(false)
-// 日志窗口待操作的变量
-let logMointForm = reactive({
-  id: '',
-  log_project: '',
-  name: '',
-  remarks: '',
-  address: '',
-  create_time: 0,
-  modify_time: 0,
+let editForm = reactive({
+  监控编号: '',
+  监控目标: '',
+  监控名称: '',
+  监控描述: '',
+});
+let worker_info = reactive({
+  受控目标名称: '',
+  受控所属项目: '',
+  受控目标描述: '',
 })
-
-// 日志窗口处理器（void类型表示函数没有返回值）
-const handleMonit = (index: number, row: any, done: () => void) => {
+const handleEdit = async (index: number, row: any) => {
+  // 获取被监控工作流的信息
+  const response = (await getWorker({wid: row.wid}))
+  const worker_info = response.data
+  console.log(worker_info)
   idx = index;
-  logMointForm.id = row.id;
-  logMointForm.log_project = row.log_project;
-  logMointForm.name = row.name;
-  logMointForm.remarks = row.remarks;
-  logMointForm.address = row.address;
-  logVisible.value = true;
-  // 获取日志文本
-  handleLogContent(index,row)
-  console.log("handleMonit~")
-};
-//全屏
-const fullscreen = ref(false)
-
-let minRows = ref(10)
-let maxRows = ref(20)
-// let textArea = {
-//   "minRows":minRows,
-//   "maxRows":maxRows,
-// }
-const changeScreen = () => {
-  if (fullscreen.value == true) {
-    fullscreen.value = false;
-    minRows.value = 10
-    maxRows.value = 20
-    console.log("textAreaRows true", minRows, maxRows)
-  } else {
-    fullscreen.value = true;
-    minRows.value = 50
-    maxRows.value = 100
-    console.log("textAreaRows false", minRows, maxRows)
-  }
-  //fullscreen.value = !fullscreen.value;
-}
-
-// 弹窗关闭确认
-const handleClose = (done: () => void) => {
-  // 弹窗关闭确认，:before用法的实践
-  ElMessageBox.confirm('确定要退出日志查看吗?')
-      .then(() => {
-        done()
-        changeScreen()
-      })
-      .catch(() => {
-        // catch error
-      })
-}
-
-// 获取日志文件内容
-// 日志文本容器
-const logTextarea = ref('')
-const handleLogContent = async (index: number, row: any) => {
-  let watiGetInfo: TableItem = row ?? logMointForm;
-  // console.log("row", row)
-  // console.log("watiGetInfo", watiGetInfo)
-  const response = (await getLogContent(watiGetInfo))
-  logTextarea.value = response.data.content
-}
-
-
-const handleEdit = (index: number, row: any) => {
-  idx = index;
-  form.name = row.name;
-  form.address = row.address;
+  editForm.监控目标 = row.wid;
+  editForm.监控编号 = row.a_jid;
+  editForm.监控名称 = row.name;
+  editForm.监控描述 = row.desc;
+  worker_info.受控目标名称 = worker_info.name;
+  worker_info.受控所属项目 = worker_info.p_nickname;
+  worker_info.受控目标描述 = worker_info.description;
   editVisible.value = true;
 };
-
-const saveEdit = () => {
-  editVisible.value = false;
-  ElMessage.success(`修改第 ${idx + 1} 行成功`);
-  tableData.value[idx].name = form.name;
-  tableData.value[idx].address = form.address;
-};
-
 </script>
 
 <style scoped>
-.my-header {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  align-items: center;
-}
-
-.dialog-header-right {
-  display: flex;
-}
-
-.dialog-header-right i {
-  margin-left: 10px;
-}
-
-/*.el-input__inner .log-text {*/
-/*  background-color: #67C23A;*/
-/*  color: #000;*/
-/*}*/
-
-
-/* raw */
-
-.dialog-footer button:first-child {
-  margin-right: 10px;
-}
-
 .handle-box {
   margin-bottom: 20px;
 }

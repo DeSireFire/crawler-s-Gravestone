@@ -157,10 +157,10 @@ async def get_projects_names(request: Request):
 
 
 # 工作流视图
-@route.get("/get_workers", summary="获取工作流列表")
+@route.get("/get_workers", summary="获取项目所属工作流列表")
 async def get_workers(request: Request, pid: str = Query(None)):
     """
-    获取工作流列表
+    获取项目所属工作流列表
     :param request:
     :param name:
     :return:
@@ -173,6 +173,26 @@ async def get_workers(request: Request, pid: str = Query(None)):
     # 转换为业务响应数据
     content["list"] = workers_list or None
     content["pageTotal"] = len(workers_list)
+    return callbackJson.callBacker(content)
+
+@route.get("/get_worker", summary="获取工作流信息")
+async def get_worker(request: Request, wid: str = Query(None)):
+    """
+    获取工作流信息
+    :param request:
+    :param name:
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    workers_info = get_fetch_one(model=WorkerInfos, wid=wid) or {}
+    # 转换为业务响应数据
+    if workers_info:
+        content.update(workers_info)
+    else:
+        callbackJson.statusCode = 400
+
     return callbackJson.callBacker(content)
 
 
