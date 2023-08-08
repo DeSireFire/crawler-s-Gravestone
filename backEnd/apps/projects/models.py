@@ -13,7 +13,8 @@ from datetime import datetime
 from utils.other import get_md5
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.sql import func
-
+import pytz
+local_tz = pytz.timezone('Asia/Shanghai')  # 设置所需的时区
 
 class BaseJson:
     def json(self):
@@ -122,7 +123,6 @@ class JobInfos(db_Base, BaseJson):
         self.log_lv_info = log_lv_info
         self.log_lv_debug = log_lv_debug
         self.extra = extra
-        self.create_time = dn
 
     def get_jid(self):
         return self.jid

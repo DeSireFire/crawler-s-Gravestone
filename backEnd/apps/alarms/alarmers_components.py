@@ -4,14 +4,16 @@ from server_core.db import Newsession
 from apps.alarms.models import AlamerJobs, Alamers
 from apps.alarms.email_components import EmailSender
 from apps.alarms.qw_components import WeChatMessenger
-
+from server_core.log import logger
 
 class AlarmHandler:
     def __init__(self):
         self.session = Newsession()
+        self.receivers = []
 
-    def handle_alarm(self, wid, subject=None, message_content=None):
-        alamer_jobs_data = self.session.query(AlamerJobs).filter_by(wid=wid).all()
+    async def handle_alarm(self, wid, subject=None, message_content=None):
+        # 筛选出wid符合且状态为开启的监控任务
+        alamer_jobs_data = self.session.query(AlamerJobs).filter_by(wid=wid, delivery=1).all()
 
         for job_data in alamer_jobs_data:
             aid = job_data.aid
@@ -22,15 +24,35 @@ class AlarmHandler:
                 if resource == "电子邮件":
                     email_sender = EmailSender(None, None)
                     email_sender.send_email([alamer_data.email], subject, message_content)
-                    message = job_data.alarm_content or job_data.desc
-                    email_sender.send_email([alamer_data.email], job_data.name, message)
-                elif resource == "企微BOT":
+
+                if resource == '企微bot':
                     wechat_messenger = WeChatMessenger(alamer_data.qw_token)
+                    description = [subject]
+                    if isinstance(message_content, str):
+                        description.append(message_content)
+                    if isinstance(message_content, list):
+                        description += message_content
                     message_data = {
-                        "msgtype": "text",
-                        "text": {"content": job_data.alarm_content or job_data.desc}
+                        "msgtype": "news",
+                        "news": {
+                            "articles": [
+                                {
+                                    "title": f"平台报警信息",
+                                    "description": "\n".join(description),
+                                    "url": "https://www.sinohealth.cn",
+                                    "picurl": "http://www.chinadrugtrials.org.cn/website/img/bodybg3.jpg"
+                                }
+                            ]
+                        }
                     }
-                    asyncio.run(wechat_messenger.send_message(message_data))
+                    task = asyncio.create_task(
+                        wechat_messenger.send_message(message_data)
+                    )
+                    push_response = await task
+                    if 'ok' not in push_response:
+                        logger.error(
+                            f"推送企业微信机器人信息时，发生了错误：{push_response}"
+                        )
 
 
 # 使用示例

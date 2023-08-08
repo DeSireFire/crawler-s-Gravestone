@@ -74,8 +74,10 @@ class CrawlLogUper:
         self.log_file_path = None
         self.jid = self.get_job_token() if self.up_switch else ""
         self._logger = None
-        self.ef = None
         self.logger = self.creat_logger(self.jid)
+        self.ef = None  # 过滤器对象
+        self.pid = None # 所属项目pid
+        self.meta = {}
         # 终止检测
         atexit.register(self.end_point)
 
@@ -148,7 +150,9 @@ class CrawlLogUper:
         assert response.json, "日志监控平台响应是发生错误!"
         temp = response.json()
         jid = temp.get("data", {}).get("jid")
+        self.pid = temp.get("data", {}).get("pid")
         self.log_file_path = temp.get("data", {}).get("log_file_path")
+        self.meta = temp.get("data", {}).get("meta", {}) or {}
         return jid
 
     def items_total(self, items_count=1):
@@ -232,7 +236,7 @@ class ExtraFilter(logging.Filter):
             'ip': self.get_ip(),
             'init_mark': self.init_mark,
             'token': self.token,
-            'jid': self.token,
+            'jid': self.jid,
             'status': status,
             'items_count': items_count,
         }

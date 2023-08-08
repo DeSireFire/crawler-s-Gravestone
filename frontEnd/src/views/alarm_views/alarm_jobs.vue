@@ -12,6 +12,17 @@
         <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
           <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
           <el-table-column prop="name" label="名称" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="delivery" label="开/关" width="80">
+            <template #default="scope">
+              <el-switch
+                  v-model="scope.row.delivery"
+                  :active-value='1'
+                  :inactive-value='0'
+                  @change="handleSwitchChange(scope.row)"
+              >
+              </el-switch>
+            </template>
+          </el-table-column>
           <el-table-column prop="resource" label="类型" width="100" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="desc" width="200" label="描述" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column width="200" label="创建时间">
@@ -104,12 +115,12 @@
 </template>
 
 <script setup lang="ts" name="projects_list">
-import {ref, reactive, onBeforeMount} from 'vue';
+import {reactive, ref, onMounted} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {getAlarmers, getAlarmerJobs, addAlarmerJobs, updateAlarmerJobs, delAlarmerJobs} from '~/api/alarms';
+import {addAlarmerJobs, delAlarmerJobs, getAlarmerJobs, getAlarmers, updateAlarmerJobs} from '~/api/alarms';
+import { Delete, Edit, Plus,Refresh } from '@element-plus/icons-vue';
 import {getWorker} from '~/api/projects';
 import {um_api} from "~/store/user_mange";
-import {Delete, Edit, Plus, Refresh} from '@element-plus/icons-vue';
 
 interface TableItem {
   id: number;
@@ -117,6 +128,7 @@ interface TableItem {
   wid: string,
   aid: string,
   name: string,
+  delivery: number,
   resource: string,
   desc: string,
   alarm_content: string,
@@ -155,7 +167,7 @@ const handleFlush = async (init = true) => {
   }
 };
 // 打开页面就刷新
-handleFlush();
+// handleFlush();
 
 // 分页导航
 const handlePageChange = (val: number) => {
@@ -239,6 +251,32 @@ const handleDelete = (index: number, row: any) => {
 
 };
 
+// 开关切换
+let switchform = reactive({
+  id: 0,
+  name: '',
+  a_jid: '',
+  aid: '',
+  delivery: 0,
+});
+const handleSwitchChange = async (row: any) => {
+  switchform.id = row.id
+  switchform.name = row.name
+  switchform.aid = row.aid
+  switchform.a_jid = row.a_jid
+  switchform.delivery = parseInt(row.delivery);
+  // 获取数据
+  const response = (await updateAlarmerJobs(switchform))
+  if (response.isSuccess) {
+    ElMessage.success('开关切换成功！');
+  } else {
+    ElMessage.error('开关切换失败！');
+  }
+
+  // 在这里可以处理开关状态变化后的逻辑
+  console.log("开关",row.delivery)
+};
+
 // 修改操作,表格编辑时弹窗和保存
 const editVisible = ref(false);
 let idx: number = -1;
@@ -268,6 +306,10 @@ const handleEdit = async (index: number, row: any) => {
   worker_info.受控目标描述 = worker_info.description;
   editVisible.value = true;
 };
+
+onMounted(() => {
+  handleFlush();
+});
 </script>
 
 <style scoped>

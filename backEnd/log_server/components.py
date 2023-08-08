@@ -111,11 +111,11 @@ def count_logs_by_level(log_data_list):
     for log_data in log_data_list:
         # 解析log_data中的extra字段，获取token和level
         extra_data = json.loads(log_data['extra'])
-        token = extra_data.get('token', 'unknown')
+        jid = extra_data.get('jid', 'unknown')
         log_level = log_data['levelname']
 
         # 构建 Redis key，例如：logs:token1:ERROR
-        redis_key = f"crawl_monitor:logging_lv:{token}:{log_level}"
+        redis_key = f"crawl_monitor:logging_lv:{jid}:{log_level}"
 
         # 使用 Redis 的INCR命令对计数器进行原子递增
         redis_client.incr(redis_key)
@@ -137,6 +137,7 @@ def count_logs_by_level(log_data_list):
     # todo 待添加过期时间
 
     return log_count_by_token
+
 
 def log_to_save(redis_log_key, log_file_path, log_level):
     """

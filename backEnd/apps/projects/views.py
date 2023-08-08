@@ -306,7 +306,6 @@ async def get_jobs(request: Request, pid: str = Query(None), wid: str = Query(No
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     content = {}
-    print(f"pid:{pid}")
     if pid:
         jobs_list = get_query_all(model=JobInfos, pid=pid) or []
     else:

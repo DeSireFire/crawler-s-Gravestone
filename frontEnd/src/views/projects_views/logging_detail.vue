@@ -119,7 +119,7 @@ const jid = ref(route.query.jid||'');
 const lv = ref('');
 const level_name = ref([
     "INFO",
-    "WARING",
+    "WARNING",
     "ERROR",
     "DEBUG",
 ]);

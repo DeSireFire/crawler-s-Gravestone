@@ -93,6 +93,8 @@ async def update_logging(request: Request):
     jid = extra_data.get("jid")
     j_status = extra_data.get("status") or 0
     items_count = extra_data.get("items_count") or 0
+    # 预留备用信息传递
+    meta = extra_data.get("meta")
     try:
         # 同步到数据库
         # 获取工作流信息=>
@@ -140,7 +142,7 @@ async def update_logging(request: Request):
         # 告警任务推送
         if log_level == "ERROR":
             alarm_handler = AlarmHandler()
-            alarm_handler.handle_alarm(
+            await alarm_handler.handle_alarm(
                 wid, f'{job_info["name"]}_有关告警信息',
                 f"该任务接收到了一次报错日志！内容如下:"
                 f"{log_data['msg']}"
@@ -162,7 +164,6 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     :param request:
     :return:
     """
-    data = await request.body()
     fdata = await request.form()
     data = dict(fdata)
 
@@ -181,8 +182,8 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     # wid 获取工作流信息
     winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
     # 没获取到直接返回失败
-    # todo 返回时说明错误原因
     if not winfo:
+        callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
         return callbackJson.callBacker(content)
 
     project_name = winfo.get('name')
@@ -194,13 +195,16 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     result = add_job_one(JobInfos, data)
     worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
     if result:
-        # 同步项目下的任务数量
+        # 同步项目下的任务数量，还有各项指标参数
         synchronous_jobs(worker.get("pid"))
         jid = result.get_jid()
         callbackJson.statusCode = 200
+        content["pid"] = pid
         content["jid"] = jid
         content["log_file_path"] = log_file_path
+        # 附加信息，备用传递部分信息到客户端
+        content["meta"] = {}
     return callbackJson.callBacker(content)
 
 if __name__ == "__main__":
-    uvicorn.run("logApi:app", host="0.0.0.0", port=50829)
+    uvicorn.run("logApi:app", host="0.0.0.0", port=50829, workers=5)

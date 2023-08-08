@@ -17,6 +17,7 @@ export type alarm_jobs = Partial<{
     wid: string | undefined,
     aid: string | undefined,
     name: string | undefined,
+    delivery: number | undefined,
     resource: string | undefined,
     desc: string | undefined,
     alarm_content: string | undefined,
