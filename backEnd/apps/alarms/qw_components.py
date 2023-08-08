@@ -3,12 +3,12 @@ import httpx
 
 
 class WeChatMessenger:
-    def __init__(self, webhook_url):
-        self.webhook_url = webhook_url
+    def __init__(self, qw):
+        self.webhook_url = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={qw}"
 
     async def send_message(self, message_data):
         headers = {
-            'Content-Type': 'application/json',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36',
         }
         async with httpx.AsyncClient() as client:
             resp = await client.post(url=self.webhook_url, headers=headers, json=message_data)
@@ -18,7 +18,7 @@ class WeChatMessenger:
 
 if __name__ == '__main__':
     description = [
-        "CTR 全量采集 开发测试",
+        "机器人推送测试",
     ]
     data = {
         "msgtype": "news",
@@ -34,8 +34,9 @@ if __name__ == '__main__':
         }
     }
 
-    webhook_url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=your_webhook_key"
+    qw = "542e14c0-db35-4f3b-9f8b-850ecafb1b8c"
+    # qw = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=542e14c0-db35-4f3b-9f8b-850ecafb1b8c"
 
-    messenger = WeChatMessenger(webhook_url)
+    messenger = WeChatMessenger(qw)
     response = asyncio.run(messenger.send_message(data))
     print(response)

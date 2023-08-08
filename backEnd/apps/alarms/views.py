@@ -16,7 +16,7 @@ from .models import Alamers, AlamerJobs
 from server_core.control import constructResponse
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
 
-from .components import get_query_all, add_job_one, check_id_one, del_data_one
+from .components import get_query_all, add_job_one, check_id_one, del_data_one, update_data
 
 route = APIRouter()
 
@@ -107,7 +107,7 @@ async def add_alarmer_jobs(request: Request):
     callbackJson = constructResponse()
     callbackJson.statusCode = 400
     content = {}
-    if not check_id_one(AlamerJobs, name=data.get("a_jid")):
+    if not check_id_one(AlamerJobs, name=data.get("name")):
         result = add_job_one(AlamerJobs, data)
         if result:
             callbackJson.statusCode = 200
@@ -142,3 +142,28 @@ async def del_alarmer_jobs(request: Request):
     return callbackJson.callBacker(content)
 
 
+@route.post("/update_alarmer_jobs", summary="修改告警任务")
+async def update_alarmer_jobs(request: Request):
+    fdata = await request.form()
+    data = dict(fdata)
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    name = data.get("name")
+    aid = data.get("aid")
+    a_jid = data.get("a_jid")
+    data['delivery'] = int(data.get("delivery", 0))
+    # 检测任务是否存在
+    if check_id_one(Alamers, aid=aid):
+        # 检测工作流是否存在
+        if check_id_one(model=AlamerJobs, a_jid=a_jid):
+            result = update_data(AlamerJobs, [data])
+            if result:
+                callbackJson.statusCode = 200
+            else:
+                callbackJson.resData["errMsg"] = "数据添加错误！"
+        else:
+            callbackJson.resData["errMsg"] = "告警任务不存在！无法修改状态"
+    else:
+        callbackJson.resData["errMsg"] = "所属的告警器！不存在！"
+    return callbackJson.callBacker(content)

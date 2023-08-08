@@ -10,3 +10,4 @@ SQLAlchemy
 uvicorn
 python-jose[cryptography]
 aliyun-log-python-sdk
+httpx

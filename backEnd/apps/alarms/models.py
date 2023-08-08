@@ -74,6 +74,7 @@ class AlamerJobs(db_Base, BaseJson):
     aid = Column(String(64), nullable=False)
     wid = Column(String(64), nullable=False)
     name = Column(String(255), nullable=False)
+    delivery = Column(Integer, nullable=False, default=1)
     resource = Column(String(255), nullable=False)
     desc = Column(String, nullable=True)
     alarm_content = Column(String, nullable=True)
