@@ -9,11 +9,12 @@
           <div class="user-info">
             <p>用于登记注册常用程序，便于日后托管运行使用。</p>
             <p>
-            程序运行支持：
+              程序运行支持：
               Python ✔
             </p>
           </div>
           <el-button type="primary" :icon="Plus" @click="addVisible = true">新增程序</el-button>
+          <el-button type="primary" :icon="Refresh" @click="handleFlush">刷新列表</el-button>
         </el-card>
       </el-col>
     </el-row>
@@ -47,11 +48,17 @@
             </el-form>
           </div>
           <div class="card-footer">
-            <el-button type="primary" text>
+            <el-button type="primary" text @click="handleInfo(program)">
               详情
             </el-button>
-            <el-button type="danger" text>
+            <el-button type="primary" text @click="handleEdit(program)">
+              修改
+            </el-button>
+            <el-button type="danger" text @click="handleDelete(program)">
               删除
+            </el-button>
+            <el-button type="primary" text @click="actionVisible = true">
+              操作
             </el-button>
           </div>
         </el-card>
@@ -75,7 +82,7 @@
           <el-input v-model="addForm.git_repo"></el-input>
         </el-form-item>
         <el-form-item label="执行路径">
-          <el-input v-model="addForm.git_repo" placeholder="./"></el-input>
+          <el-input v-model="addForm.repo_path" placeholder="./"></el-input>
         </el-form-item>
         <el-form-item label="运行文件">
           <el-input type="textarea" v-model="addForm.shell" placeholder="用来启动python程序的文件"></el-input>
@@ -100,14 +107,59 @@
 				</span>
       </template>
     </el-dialog>
+
+    <el-dialog title="详细信息" v-model="infoVisible" width="40%">
+      <el-form label-width="100px">
+        <el-form-item class="el-form-item-compact" v-for="(value, key) in infoForm"
+                      :key="key" :label="keyNames[key]+':'">
+          <el-input v-model="infoForm[key]" disabled/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+				<span class="dialog-footer">
+					<el-button @click="infoVisible = false">关闭</el-button>
+				</span>
+      </template>
+    </el-dialog>
+
+    <el-dialog title="信息编辑" v-model="editVisible" width="40%">
+      <el-form label-width="100px">
+        <!--用来前端渲染的字段-->
+        <el-form-item class="el-form-item-compact" v-for="(value, key) in addForm"
+                      :key="key" :label="keyNames[key]+':'">
+          <el-input v-model="editForm[key]"/>
+        </el-form-item>
+
+      </el-form>
+      <template #footer>
+				<span class="dialog-footer">
+					<el-button @click="editVisible = false">取 消</el-button>
+					<el-button type="primary" @click="editSaveEdit">提 交</el-button>
+				</span>
+      </template>
+    </el-dialog>
+
+    <el-dialog title="程序操作" v-model="actionVisible" width="40%">
+      <el-form label-width="100px">
+        <el-form-item class="el-form-item-compact" v-for="(value, key) in infoForm"
+                      :key="key" :label="keyNames[key]+':'">
+          <el-input v-model="infoForm[key]" disabled/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+				<span class="dialog-footer">
+					<el-button @click="infoVisible = false">关闭</el-button>
+				</span>
+      </template>
+    </el-dialog>
   </div>
 </template>
-
 <script setup lang="ts" name="program_register">
 import {onBeforeMount, reactive, ref} from 'vue';
-import {Delete, Edit, Search, Plus} from '@element-plus/icons-vue';
-import {getPrograms, addPrograms, delPrograms, getProgram} from "~/api/programs";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {getPrograms, addPrograms, delPrograms, getProgram, updatePrograms} from "~/api/programs";
+import {Delete, Edit, Search, Plus, Refresh} from '@element-plus/icons-vue';
+import {ElText} from 'element-plus';
 
 interface TableItem {
   id: string;
@@ -126,6 +178,25 @@ interface TableItem {
   update_time: string;
 }
 
+// 字段名称对照
+const keyNames = reactive({
+  id: '编号',
+  cid: '程序号',
+  name: '程序名',
+  git_repo: 'Git地址',
+  base_path: '程序路径',
+  repo_path: '启动路径',
+  shell: 'Shel命令',
+  requirements: '依赖名单',
+  interpreter: '执行环境',
+  description: '备注',
+  author: '登记方/人',
+  extra: '附加信息',
+  create_time: '创建时间',
+  update_time: '更新时间',
+})
+// 添加更多需要禁止输入的字段名
+const disabledFields = reactive(['id', 'cid', 'name']);
 const programs_body = reactive({
   programs: [],
 })
@@ -145,8 +216,8 @@ const handleFlush = async (init = true) => {
 const addForm = reactive({
   name: '',
   git_repo: '',
-  base_path: '',
   repo_path: '',
+  base_path: '',
   shell: '',
   requirements: '',
   interpreter: '',
@@ -154,9 +225,6 @@ const addForm = reactive({
   author: '',
 })
 const addVisible = ref(false);
-// const handleAdd = () => {
-//   addVisible.value = true;
-// };
 const addSaveEdit = async () => {
   addForm.author = localStorage.getItem('ms_username') as string;
   // 向后端发起操作
@@ -170,6 +238,111 @@ const addSaveEdit = async () => {
   }
 };
 
+// 详细信息查看
+const infoVisible = ref(false);
+const infoForm = reactive({
+  cid: '',
+  name: '',
+  git_repo: '',
+  repo_path: '',
+  base_path: '',
+  shell: '',
+  requirements: '',
+  interpreter: '',
+  description: '',
+  author: '',
+})
+const handleInfo = (program: any) => {
+  console.log("program", program)
+  infoForm.cid = program.cid;
+  infoForm.name = program.name;
+  infoForm.git_repo = program.git_repo;
+  infoForm.repo_path = program.repo_path;
+  infoForm.base_path = program.base_path;
+  infoForm.shell = program.shell;
+  infoForm.requirements = program.requirements;
+  infoForm.interpreter = program.interpreter;
+  infoForm.description = program.description;
+  infoForm.author = program.author;
+  infoVisible.value = true;
+};
+
+// 修改操作,表格编辑时弹窗和保存
+const editVisible = ref(false);
+const editForm = reactive({
+  id: '',
+  cid: '',
+  name: '',
+  git_repo: '',
+  repo_path: '',
+  base_path: '',
+  shell: '',
+  requirements: '',
+  interpreter: '',
+  description: '',
+  author: '',
+});
+const handleEdit = (program: any) => {
+  editForm.id = program.id;
+  editForm.cid = program.cid;
+  editForm.name = program.name;
+  editForm.git_repo = program.git_repo;
+  editForm.repo_path = program.repo_path;
+  editForm.base_path = program.base_path;
+  editForm.shell = program.shell;
+  editForm.requirements = program.requirements;
+  editForm.interpreter = program.interpreter;
+  editForm.description = program.description;
+  editForm.author = program.author;
+  editVisible.value = true;
+};
+const editSaveEdit = async () => {
+  // 向后端发起操作
+  const response = (await updatePrograms(editForm));
+  if (response.isSuccess) {
+    handleFlush();
+    ElMessage.success(`修改 ${editForm.name} 成功！`);
+  } else {
+    ElMessage.error(`修改 ${editForm.name} 失败！`);
+  }
+  editVisible.value = false;
+};
+
+// 删除操作
+const delform = reactive({
+  cid: '',
+  name: '',
+});
+const handleDelete = (program: any) => {
+  // 二次确认删除
+  ElMessageBox.confirm('确定要删除吗？', '提示', {
+    type: 'warning'
+  })
+      .then(async () => { /* 处理正常时 */
+        // 获取当前表行数据
+        delform.cid = program.cid;
+        delform.name = program.name;
+        // 向后端发起删除操作
+        const response = (await delPrograms(delform));
+        if (response.isSuccess) {
+          // 响应删除成功则弹出提示
+          ElMessage.success('删除成功！');
+          // 刷新缓存数据
+          handleFlush();
+        } else {
+          // 响应删除失败则弹出错误
+          throw new Error(response.errMsg);
+        }
+      })
+      .catch((error) => { /* 处理失败时 */
+        ElMessage.error(`删除失败! ${error}`);
+      });
+
+};
+
+// 部署操作
+const actionVisible=ref(false);
+
 onBeforeMount(() => {
   // 打开页面就刷新
   handleFlush();
@@ -181,9 +354,15 @@ onBeforeMount(() => {
   max-height: 300px;
   overflow: hidden;
 }
-.card-content .el-form-item{
+
+.card-content .el-form-item {
   margin-bottom: 5px;
 }
+
+.el-form-item-compact {
+  margin-bottom: 5px;
+}
+
 .card-header {
   background-color: #f0f0f0;
   padding: 10px;
@@ -200,9 +379,9 @@ onBeforeMount(() => {
 
 
 /* 原始样式 */
-.el-row {
-  margin-bottom: 20px;
-}
+/*.el-row {*/
+/*  margin-bottom: 20px;*/
+/*}*/
 
 .grid-content {
   display: flex;

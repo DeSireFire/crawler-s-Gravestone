@@ -96,14 +96,14 @@
         </el-form-item>
       </el-form>
 
-      <el-form label-width="100px">
-        <el-form-item v-for="(value, key) in worker_info" :key="key" :label="key">
-          <el-input
-              v-if="typeof value === 'string'"
-              v-model="worker_info[key]"
-          ></el-input>
-        </el-form-item>
-      </el-form>
+<!--      <el-form label-width="100px">-->
+<!--        <el-form-item v-for="(value, key) in worker_info" :key="key" :label="key">-->
+<!--          <el-input-->
+<!--              v-if="typeof value === 'string'"-->
+<!--              v-model="worker_info[key]"-->
+<!--          ></el-input>-->
+<!--        </el-form-item>-->
+<!--      </el-form>-->
 
       <template #footer>
 				<span class="dialog-footer">

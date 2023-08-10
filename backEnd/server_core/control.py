@@ -12,8 +12,6 @@ import time
 from server_core.log import logger
 from fastapi.responses import JSONResponse
 
-
-
 class constructResponse(object):
     """
     统一响应构建器

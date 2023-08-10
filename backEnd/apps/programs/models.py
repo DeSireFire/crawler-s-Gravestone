@@ -12,7 +12,7 @@ from datetime import datetime
 from utils.other import get_md5
 from sqlalchemy.sql import func
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text
-
+# from server_core
 
 class BaseJson:
     def json(self):
@@ -38,7 +38,7 @@ class ProgramInfos(db_Base, BaseJson):
     """
     __tablename__ = 'program_infos'
     id = Column(Integer, primary_key=True)
-    cid = Column(String(64), unique=True)
+    cid = Column(String(64), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
     git_repo = Column(String(255), nullable=True)
     repo_path = Column(Text)
@@ -55,11 +55,12 @@ class ProgramInfos(db_Base, BaseJson):
     def __init__(self,
                  cid=None, name=None, git_repo=None, repo_path=None, author=None,
                  requirements=None, interpreter=None, description=None, extra=None,
-                 ):
+                 **kwargs):
         self.cid = cid or get_md5(name)
         self.name = name
         self.git_repo = git_repo
         self.repo_path = repo_path
+        self.base_path = kwargs.get("base_path")
         self.requirements = requirements
         self.interpreter = interpreter
         self.author = author

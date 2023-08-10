@@ -92,11 +92,11 @@ const items = [
         title: '程序登记',
         permiss: '61',
       },
-      {
-        index: '/program_list',
-        title: '程序列表',
-        permiss: '62',
-      },
+      // {
+      //   index: '/program_list',
+      //   title: '程序列表',
+      //   permiss: '62',
+      // },
     ],
   },
   {

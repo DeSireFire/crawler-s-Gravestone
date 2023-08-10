@@ -26,6 +26,17 @@ export const addPrograms = (payload:program) => {
     });
 };
 
+// 更新程序
+export const updatePrograms = (payload:program) => {
+    return handlePost({
+        url: API.PROGRAMS.UPDATEPROGRAM,
+        headers: {
+            [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+        },
+        data: payload,
+    });
+};
+
 // 删除程序
 export const delPrograms = (DelData:program) => {
     return handleDelete({

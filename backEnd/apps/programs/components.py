@@ -30,7 +30,7 @@ def check_id_one(model, **kwargs):
         return False
 
 # 创建任务实例
-def add_job_one(model, data):
+def add_data_one(model, data):
     """
     新增某条数据到任务实例表
     :param model: 需要新增的数据表模组
@@ -139,7 +139,7 @@ def del_data_one(model, **kwargs):
         return False
 
 
-# 更新数据
+# 更新批量数据(需要主键)
 def update_data(model, datas):
     """
     批量更新数据
@@ -158,6 +158,7 @@ def update_data(model, datas):
         return False
 
 
+
 __all__ = [
     # 通用性函数
     "get_query_all",
@@ -166,4 +167,5 @@ __all__ = [
     "add_data_one",
     "del_data_one",
     "update_data",
+    "check_id_one",
 ]
