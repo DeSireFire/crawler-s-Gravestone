@@ -74,12 +74,14 @@ class CrawlLogUper:
         now_ts = int(dn.timestamp() * 1000)
         self.init_mark = str(now_ts)
         self.log_file_path = None
-        self.jid = self.get_job_token() if self.up_switch else ""
+        self.jid = ""
+        if self.up_switch:
+            self.jid = self.get_job_token()
         self._logger = None
-        self.logger = self.creat_logger(self.jid)
-        self.ef = None  # 过滤器对象
-        self.pid = None # 所属项目pid
+        self.ef = None      # 过滤器对象
+        self.pid = None     # 所属项目pid
         self.meta = {}
+        self.logger = self.creat_logger(self.jid)
         # 终止检测
         atexit.register(self.end_point)
 
@@ -93,36 +95,32 @@ class CrawlLogUper:
             print("监控信息推流关闭，仅作日志打印..")
             jid = self.log_name
         _logger = logging.getLogger(jid)
+
+        # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
+        _logger.setLevel(logging.NOTSET + 1)
         # print(f"__name__：{__name__}")
 
+        # 控制台输出
+        self.stream_handler = StreamHandler()
+        console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.stream_handler.setFormatter(console_formatter)
+        _logger.addHandler(self.stream_handler)
+        # print("StreamHandler added:", self.stream_handler in _logger.handlers)
 
-
-        # todo 本地日志流
+        # 是否推送日志信息
         if self.up_switch:
             # 用HTTPHandler直接发送日志，而并不是写文件再传文件。
             self.http_handlers = HTTPHandler(host=f'{self.ip_address}:{self.port}', url='/log', method='POST')
-            # 设置日志最低输出级别为无级别，由于logging.NOTSET为0时，日志输出不出去
-            _logger.setLevel(logging.NOTSET + 1)
             # 添加Handler对象给记录器（为logger添加的日志处理器，可以自定义日志处理器让其输出到其他地方）
             _logger.addHandler(self.http_handlers)
-        else:
-            # 控制台输出
-            # console_handler = logging.StreamHandler()
-            self.stream_handler = StreamHandler()
-            console_formatter = logging.Formatter(
-                "%(asctime)s | %(name)s | %(levelname)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-            )
-
-            self.stream_handler.setFormatter(console_formatter)
-            _logger.addHandler(self.stream_handler)
 
         self._logger = _logger
         return self.extra_logger(_logger, jid)
 
     def extra_logger(self, _logger, jid=None):
-        token = jid if jid else self.jid
+        token = self.token
         # 添加统一附加信息
-        self.ef = ExtraFilter(self.init_mark, token, jid)
+        self.ef = ExtraFilter(self.init_mark, token, jid, self.meta, self.pid)
         _logger.addFilter(self.ef)
         return _logger
 
@@ -160,8 +158,8 @@ class CrawlLogUper:
         }
 
         response = requests.post(f'http://{self.ip_address}:{self.port}/add_job', headers=headers, data=data)
-        assert response.status_code == 200, "链接日志监控平台失败！"
-        assert response.json, "日志监控平台响应是发生错误!"
+        assert response.status_code == 200, "链接日志监控平台失败！联系管理员！"
+        assert response.json, "日志监控平台响应时，发生错误!联系管理员"
         temp = response.json()
         jid = temp.get("data", {}).get("jid")
         self.pid = temp.get("data", {}).get("pid")
@@ -180,8 +178,10 @@ class CrawlLogUper:
             'init_mark': self.init_mark,
             'token': self.token,
             'jid': self.jid,
+            'pid': self.pid,
             'status': 2,    # 结束
             'items_count': items_count,    # 数据入库计数
+            'meta': self.meta,    # 数据入库计数
         }
         self.logger.info(
             f"当前新入库数据{items_count}条...",
@@ -215,8 +215,10 @@ class CrawlLogUper:
             'init_mark': self.init_mark,
             'token': self.token,
             'jid': self.jid,
+            'pid': self.pid,
             'status': 2,    # 结束
             'items_count': 0,    # 入库数据计数
+            'meta': self.meta,    # 入库数据计数
         }
         self.logger.info(
             f"程序执行完毕！",
@@ -229,17 +231,21 @@ class CrawlLogUper:
             # self.end_point()
             self.logger.removeHandler(self.http_handlers)
             self.logger.removeHandler(self.stream_handler)
-            self.logger.close()
+            self.http_handlers.close()
+            self.stream_handler.close()
         except Exception as E:
-            print(f"结构销毁是发生了错误：{E}")
+            if self.up_switch:
+                print(f"结构销毁是发生了错误：{E}")
 
 
 class ExtraFilter(logging.Filter):
-    def __init__(self, init_mark, token, jid):
+    def __init__(self, init_mark, token, jid, meta, pid=None):
         super().__init__()
         self.init_mark = init_mark
         self.token = token
         self.jid = jid
+        self.meta = meta
+        self.pid = pid
 
     def filter(self, record):
         temp = record.__dict__
@@ -254,6 +260,7 @@ class ExtraFilter(logging.Filter):
             'jid': self.jid,
             'status': status,
             'items_count': items_count,
+            'meta': self.meta,
         }
         record.extra = json.dumps(extra, ensure_ascii=False)
         return True
@@ -276,19 +283,20 @@ def get_machine_memory_usage_percent():
 if __name__ == '__main__':
     obj = CrawlLogUper(
         token="a158dc3a9d0f71283132f2c1127bc8c0",
+        # ip_address="",
         uper_name="tester",
-        up_switch=True,
-        # up_switch=False
+        up_switch=False
     )
-    print(obj.jid)
     logger = obj.logger
     cpu = get_machine_memory_usage_percent()
     logger.info(f'这是一条 信息 日志，发出来测试一下！！！ cpu占用：{cpu}%')
     # logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：{cpu}%')
     # logger.warning(f'这是一条 警告 日志，发出来测试一下！！！ cpu占用：{cpu}%')
     # logger.debug(f'这是一条 调试 日志，发出来测试一下！！！ cpu占用：{cpu}%')
-    #
-    # logger.error(f'这是一条 错误 日志，发出来测试一下！！！ cpu占用：10%')
+    # for t in range(1, 5):
+    #     logger.error(f'这是一条 定时错误 日志，发出来测试一下！！！ cpu占用：10%')
+    #     time.sleep(t)
 
     # obj.items_total()
     # obj.items_total(0)
+    # obj.get_job_token()

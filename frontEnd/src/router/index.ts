@@ -127,7 +127,7 @@ const routes: RouteRecordRaw[] = [
                     title: '说明文档',
                     permiss: '2',
                 },
-                component: () => import(/* webpackChunkName: "table" */ '../views/base/readme.vue'),
+                component: () => import(/* webpackChunkName: "table" */ '../views/readme/readme.vue'),
             },
 
             // 原始模板
