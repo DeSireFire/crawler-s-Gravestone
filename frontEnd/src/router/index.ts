@@ -120,6 +120,15 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/program_views/program_register.vue'),
             },
+            {
+                path: '/readme',
+                name: 'readme',
+                meta: {
+                    title: '说明文档',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/base/readme.vue'),
+            },
 
             // 原始模板
             {

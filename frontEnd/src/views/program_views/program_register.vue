@@ -7,11 +7,11 @@
             <b>程序登记</b>
           </div>
           <div class="user-info">
-            <p>用于登记注册常用程序，便于日后托管运行使用。</p>
-            <p>
-              程序运行支持：
-              Python ✔
-            </p>
+            <p>用于登记注册常用程序，便于日后托管使用。</p>
+<!--            <p>-->
+<!--              程序运行支持：-->
+<!--              Python ✔-->
+<!--            </p>-->
           </div>
           <el-button type="primary" :icon="Plus" @click="addVisible = true">新增程序</el-button>
           <el-button type="primary" :icon="Refresh" @click="handleFlush">刷新列表</el-button>
@@ -57,9 +57,9 @@
             <el-button type="danger" text @click="handleDelete(program)">
               删除
             </el-button>
-            <el-button type="primary" text @click="actionVisible = true">
-              操作
-            </el-button>
+<!--            <el-button type="primary" text @click="actionVisible = true">-->
+<!--              操作-->
+<!--            </el-button>-->
           </div>
         </el-card>
       </el-col>

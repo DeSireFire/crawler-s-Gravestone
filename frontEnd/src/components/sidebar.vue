@@ -148,7 +148,12 @@ const items = [
       // },
     ],
   },
-
+  {
+    icon: 'Collection',
+    index: '/readme',
+    title: '使用文档',
+    permiss: '9',
+  },
   // {
   //   icon: 'User',
   //   index: '/user',
