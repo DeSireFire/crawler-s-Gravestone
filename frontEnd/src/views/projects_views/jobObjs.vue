@@ -192,8 +192,10 @@ const handleDelete = (index: number, row: any) => {
           ElMessage.success('删除成功！');
           // 刷新缓存数据
           const sub_flush = (await getJobs({}))
+          console.log("sub_flush", sub_flush)
           localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
           let temp = tableData.value.splice(index, 1)[0];
+          tableData.value = sub_flush.data.list
           pageTotal.value -= 1
 
         } else {

@@ -26,13 +26,14 @@ def createapp():
     )
     # app.mount('/static', StaticFiles(directory='apps/static'), name='static')
 
-    # 用户相关
+    # 应用相关
     app.include_router(users.route, tags=["用户管理"])
     app.include_router(workerLogs.route, tags=["日志收集模块"])
     app.include_router(extras.route, tags=["拓展接口"])
     app.include_router(dashboard.route, tags=["系统首页"])
     app.include_router(projects.route, tags=["项目管理"])
-    app.include_router(alarms.route, tags=["告警管理"])
+    app.include_router(alarms.route, tags=["报警管理"])
+    app.include_router(programs.route, tags=["程序管理"])
 
     # @app.get("/")
     # def home():

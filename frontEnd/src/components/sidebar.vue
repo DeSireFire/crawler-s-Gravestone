@@ -81,19 +81,24 @@ const items = [
       },
     ],
   },
-  // {
-  //   icon: 'List',
-  //   index: '3',
-  //   title: '日志管理',
-  //   permiss: '3',
-  //   subs: [
-  //     {
-  //       index: '/worker_logs',
-  //       title: '任务日志',
-  //       permiss: '31',
-  //     },
-  //   ],
-  // },
+  {
+    icon: 'Grid',
+    index: '6',
+    title: '程序管理',
+    permiss: '6',
+    subs: [
+      {
+        index: '/program_register',
+        title: '程序登记',
+        permiss: '61',
+      },
+      {
+        index: '/program_list',
+        title: '程序列表',
+        permiss: '62',
+      },
+    ],
+  },
   {
     icon: 'List',
     index: '4',
@@ -143,6 +148,7 @@ const items = [
       // },
     ],
   },
+
   // {
   //   icon: 'User',
   //   index: '/user',

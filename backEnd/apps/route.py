@@ -6,6 +6,12 @@
 # Blog      : https://blog.raxianch.moe/
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
+"""
+导入所有应用模块，给服务器核心引用
+server_core/server.py
+
+
+"""
 
 from apps import users
 from apps import extras
@@ -13,3 +19,4 @@ from apps import workerLogs
 from apps import dashboard
 from apps import projects
 from apps import alarms
+from apps import programs

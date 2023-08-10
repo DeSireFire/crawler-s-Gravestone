@@ -102,6 +102,24 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "alarm_setting" */ '../views/alarm_views/alarm_jobs.vue'),
             },
+            {
+                path: '/program_list',
+                name: 'program_list',
+                meta: {
+                    title: '程序列表',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/program_views/program_list.vue'),
+            },
+            {
+                path: '/program_register',
+                name: 'program_register',
+                meta: {
+                    title: '程序登记',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/program_views/program_register.vue'),
+            },
 
             // 原始模板
             {

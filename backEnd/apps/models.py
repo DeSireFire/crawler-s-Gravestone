@@ -134,7 +134,28 @@ def inituser():
         session.commit()
         session.flush()
 
-
+    from apps.programs.models import ProgramInfos
+    # 创建一个测试任务实例
+    Program_demo = session.query(ProgramInfos).first()
+    if not Program_demo:
+        Program_demo = ProgramInfos(
+            name="测试程序1",
+            git_repo="https://github.com/DeSireFire/hexo-circle-of-friends",
+            requirements="requirements.txt",
+            author="admin",
+            description="这是一个用来测试的git程序",
+        )
+        Program_demo2 = ProgramInfos(
+            name="测试程序爬虫2",
+            git_repo="https://github.com/kong36088/BaiduImageSpider",
+            requirements="requirements.txt",
+            author="admin",
+            description="这是一个用来测试的git程序",
+        )
+        session.add(Program_demo)
+        session.add(Program_demo2)
+        session.commit()
+        session.flush()
 
 
 def initdb():
@@ -143,5 +164,6 @@ def initdb():
     from apps.users.models import Users
     from apps.workerLogs.models import worker_logs
     from apps.projects.models import ProjectInfos
+    from apps.programs.models import ProgramInfos
     db_Base.metadata.create_all(engine)
     inituser()

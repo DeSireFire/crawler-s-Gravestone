@@ -70,6 +70,16 @@ export enum ALARMS {
   DELALARMERJOBS = "/del_alarmer_jobs",
 }
 
+// 程序管理
+export enum PROGRAMS {
+  // 添加删除程序
+  GETPROGRAMS = "/get_programs",
+  GETPROGRAM = "/get_program",
+  ADDPROGRAM = "/add_program",
+  UPDATEPROGRAM = "/update_program",
+  DELPROGRAM = "/del_program",
+}
+
 // 附加功能接口
 export enum EXTRALS {
   // IPINFO = "https://api.live.bilibili.com/xlive/web-room/v1/index/getIpInfo",
@@ -86,4 +96,5 @@ export const API = {
   EXTRALS,
   PROJECTS,
   ALARMS,
+  PROGRAMS,
 };
