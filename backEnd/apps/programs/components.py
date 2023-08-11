@@ -11,8 +11,16 @@ import os
 from datetime import datetime
 from utils.other import get_md5
 from server_core.log import logger
+from server_core.conf import BASE_DIR
+from utils.other import get_md5
+from utils.shellHelper import ShellCommandExecutor
+from utils.gitHelper import GitRepository
 from server_core.db import engine, Newsession
 
+# 检查并创建业务日志文件夹
+programs_git_path = os.path.join(BASE_DIR, "programs", "git")
+if not os.path.exists(programs_git_path):
+    os.makedirs(programs_git_path)
 
 # 查唯一键是否存在
 def check_id_one(model, **kwargs):
@@ -159,6 +167,16 @@ def update_data(model, datas):
 
 
 
+def git_clone(git_url):
+    """
+    将git仓库的程序克隆到程序管理的位置
+    :param git_url: str, 远程仓库地址
+    :return:
+    """
+    programs_path = os.path.join(programs_git_path, "")
+    # ShellCommandExecutor("")
+
+
 __all__ = [
     # 通用性函数
     "get_query_all",
@@ -168,4 +186,6 @@ __all__ = [
     "del_data_one",
     "update_data",
     "check_id_one",
+    "ShellCommandExecutor",
+    "git_clone",
 ]

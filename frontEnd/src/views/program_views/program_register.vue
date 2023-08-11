@@ -57,6 +57,15 @@
             <el-button type="danger" text @click="handleDelete(program)">
               删除
             </el-button>
+            <el-button type="danger" text >
+              占位
+            </el-button>
+            <el-button type="danger" text >
+              占位
+            </el-button>
+            <el-button type="danger" text >
+              占位
+            </el-button>
 <!--            <el-button type="primary" text @click="actionVisible = true">-->
 <!--              操作-->
 <!--            </el-button>-->

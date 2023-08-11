@@ -139,6 +139,7 @@ async def update_logging(request: Request):
 
         # 获取日志文件路径
         log_file_path = job_info.get("log_file_path")
+        logger.info(f"日志保存路径：{log_file_path}")
         log_to_save(redis_log_key, log_file_path, log_level)
         # asyncio.run(log_to_save2(redis_log_key, log_file_path))
 

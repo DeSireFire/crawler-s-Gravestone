@@ -108,10 +108,11 @@ async def deploy_program(request: Request):
     callbackJson = constructResponse()
     callbackJson.statusCode = 400
     content = {}
+    git_repo = data.get("git_repo")
+
     # 查询是否登记在库
     if not check_id_one(ProgramInfos, cid=data.get("cid")):
         pass
-
         # result = add_data_one(ProgramInfos, data)
         # if result:
         #     callbackJson.statusCode = 200

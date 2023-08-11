@@ -112,7 +112,6 @@ def get_logger(name, project_name: str = "未知"):
     file_path = os.path.join(BASE_DIR, "logs", "worker_logs", f"{project_name}")
     filename = os.path.join(file_path, f"{datetime.now().date()}_{name}.log")
     # pprint(f"日志保存路径: {filename}")
-    # pprint(f"日志文件路径: {filename}")
     # 判断路径是否存在，不存在则创建
     if not os.path.exists(file_path):
         pprint(f"未发现目录，创建目录: {file_path}")

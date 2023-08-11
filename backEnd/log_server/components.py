@@ -14,7 +14,7 @@ import os
 import time
 import logging
 import aiofiles
-from server_core.conf import redisconf
+from server_core.conf import redisconf, logger
 from utils.RedisDBHelper import RedisDBHelper
 
 rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
