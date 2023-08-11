@@ -1,12 +1,18 @@
 <template>
-  <MdEditor v-model="text" />
+  <div class="container">
+    <div class="plugins-tips">
+      使用文档(开发中...)
+    </div>
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts" name="md">
 import { ref } from 'vue';
-import MdPreview from 'md-editor-v3';
-import 'md-editor-v3/lib/style.css';
-// import 'md-editor-v3/lib/preview.css';
+// import MdEditor from 'md-editor-v3';
+// import 'md-editor-v3/lib/style.css';
 
-const text = ref('Hello Editor!');
+// const text = ref('Hello Editor!');
+// const onUploadImg = (files: any) => {
+//   console.log(files);
+// };
 </script>
