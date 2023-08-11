@@ -10,7 +10,7 @@ __author__ = 'RaXianch'
 import asyncio
 import json
 import os
-
+from .log import logger
 import uvicorn
 from pprint import pprint
 from fastapi import FastAPI
@@ -38,7 +38,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+logger.info(
+    "日志接口服务器启动！"
+    f"项目根路径：{BASE_DIR}"
+)
 @app.post("/log2", summary="日志传输接口")
 async def log(data: str):
     rdb.set('log', data)
@@ -155,6 +158,7 @@ async def update_logging(request: Request):
 
         return {"status": "ok", "error": None, "data": data}
     except Exception as err:
+        logger.error(f"日志流处理错误！错误原因：{err}")
         return {"status": "err", "error": err, "data": None}
 
 @app.post("/add_job", summary="新增任务")
@@ -178,33 +182,38 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     # 没有wid传入，直接返回失败
     if not wid:
         return callbackJson.callBacker(content)
+    try:
+        # wid 获取工作流信息
+        winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+        # 没获取到直接返回失败
+        if not winfo:
+            callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
+            return callbackJson.callBacker(content)
 
-    # wid 获取工作流信息
-    winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-    # 没获取到直接返回失败
-    if not winfo:
-        callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
+        project_name = winfo.get('name')
+
+        log_file_name = f"{winfo.get('name')}-{init_mark}"
+        log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
+        data["log_file_path"] = log_file_path
+        del data['init_mark']
+        result = add_job_one(JobInfos, data)
+        worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+        if result:
+            # 同步项目下的任务数量，还有各项指标参数
+            synchronous_jobs(worker.get("pid"))
+            jid = result.get_jid()
+            callbackJson.statusCode = 200
+            content["pid"] = pid
+            content["jid"] = jid
+            content["log_file_path"] = log_file_path
+            # 附加信息，备用传递部分信息到客户端
+            content["meta"] = {}
         return callbackJson.callBacker(content)
-
-    project_name = winfo.get('name')
-
-    log_file_name = f"{winfo.get('name')}-{init_mark}"
-    log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
-    data["log_file_path"] = log_file_path
-    del data['init_mark']
-    result = add_job_one(JobInfos, data)
-    worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-    if result:
-        # 同步项目下的任务数量，还有各项指标参数
-        synchronous_jobs(worker.get("pid"))
-        jid = result.get_jid()
-        callbackJson.statusCode = 200
-        content["pid"] = pid
-        content["jid"] = jid
-        content["log_file_path"] = log_file_path
-        # 附加信息，备用传递部分信息到客户端
-        content["meta"] = {}
-    return callbackJson.callBacker(content)
+    except Exception as e:
+        logger.error(f"构建新任务实例时发生了错误！错误原因：{e}")
+        callbackJson.statusCode = 400
+        callbackJson.message = f"构建新任务实例时发生了错误！错误原因：{e}"
+        return callbackJson.callBacker(content)
 
 if __name__ == "__main__":
     uvicorn.run("logApi:app", host="0.0.0.0", port=50829, workers=5)

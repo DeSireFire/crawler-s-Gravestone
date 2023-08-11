@@ -95,3 +95,24 @@ async def del_program(request: Request):
             if not v:
                 callbackJson.message = k
     return callbackJson.callBacker(content)
+
+@route.post("/deploy_program", summary="部署程序")
+async def deploy_program(request: Request):
+    """
+    用于部署git上的项目
+    :param request:
+    :return:
+    """
+    fdata = await request.form()
+    data = dict(fdata)
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    # 查询是否登记在库
+    if not check_id_one(ProgramInfos, cid=data.get("cid")):
+        pass
+
+        # result = add_data_one(ProgramInfos, data)
+        # if result:
+        #     callbackJson.statusCode = 200
+    return callbackJson.callBacker(content)
