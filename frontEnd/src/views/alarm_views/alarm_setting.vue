@@ -277,8 +277,11 @@ const handleDel = async (index: number, row: TableItem) => {
       await delAlarmers({aid: row.aid}); // 调用删除请求函数
       ElMessage.success('删除成功！');
       // 从表格中移除被删除的数据
-      filterEmail.value.splice(index, 1);
-      filterQW.value.splice(index, 1);
+      if (row.qw_token) {
+        filterQW.value.splice(index, 1);
+      } else {
+        filterEmail.value.splice(index, 1);
+      }
     } catch (error) {
       console.error('删除失败：', error);
       ElMessage.error('删除失败！');
