@@ -55,8 +55,8 @@
 							<div class="grid-content grid-con-2">
 								<el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
 								<div class="grid-cont-right">
-									<div class="grid-num">--</div>
-									<div>程序数量(待开发)</div>
+									<div class="grid-num">{{ board_info.programs_total }}</div>
+									<div>程序数量</div>
 								</div>
 							</div>
 						</el-card>
@@ -170,6 +170,7 @@ const formattedDate = ref('未知');
 const board_info = reactive({
   user_total: '--',
   system_info: '--',
+  programs_total: '--',
   logger_total: '--',
   project_total: '--',
   memory_total: '--',
@@ -199,6 +200,7 @@ const getBoard = async () => {
   const result = (await getDashInfo())
   board_info.user_total = result.data.user_total;
   board_info.system_info = result.data.system_info;
+  board_info.programs_total = result.data.programs_total;
   board_info.logger_total = result.data.logger_total;
   board_info.project_total = result.data.project_total;
   board_info.master_cpu = result.data.master_cpu;

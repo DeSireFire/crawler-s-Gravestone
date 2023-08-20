@@ -9,10 +9,15 @@ __author__ = 'RaXianch'
 
 import os
 import psutil
-
 from apps.projects import get_projects_info
+from apps.programs import get_query_all
+from apps.programs.models import ProgramInfos
 from server_core.conf import BASE_DIR
 
+def get_programs_count():
+    grams_list = get_query_all(ProgramInfos) or []
+    names = [d["name"] for d in grams_list if d["name"]]
+    return len(names)
 
 def list_files(path):
     count = 0
@@ -37,7 +42,7 @@ def get_machine_memory_usage_percent():
 
 def get_projects_count():
     """
-    获取当前机器cpu占用率
+    获取项目数量
     :return:
     """
     pro_list = get_projects_info() or []
