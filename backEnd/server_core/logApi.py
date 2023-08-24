@@ -10,6 +10,10 @@ __author__ = 'RaXianch'
 import asyncio
 import json
 import os
+from datetime import datetime
+
+import pytz
+
 from .log import logger
 import uvicorn
 from pprint import pprint
@@ -133,8 +137,8 @@ async def update_logging(request: Request):
         job_info["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or job_info["log_lv_info"]
         job_info["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or job_info["log_lv_error"]
         job_info["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or job_info["log_lv_warning"]
+        job_info["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
         del job_info["create_time"]
-        del job_info["end_time"]
         job_info_new = update_data(JobInfos, [job_info])
 
         # 获取日志文件路径

@@ -62,8 +62,8 @@ class WorkerInfos(db_Base, BaseJson):
     status = Column(String(64))
     modify_user = Column(String(255))
     extra = Column(JSON, nullable=True)
-    create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
-    update_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
+    create_time = Column(DateTime(timezone=True), default=datetime.now(), server_default=func.now())
+    update_time = Column(DateTime(timezone=True), default=datetime.now(), onupdate=func.now())
 
     def __init__(self, pid, p_nickname=None, wid=None, name=None, modify_user=None, description=None, extra=None,
                  crawl_frequency=None):
@@ -78,6 +78,9 @@ class WorkerInfos(db_Base, BaseJson):
         self.description = description
         self.extra = extra
         self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("nickname")
+        self.create_time = datetime.now(pytz.timezone('Asia/Shanghai'))
+        self.end_time = datetime.now(pytz.timezone('Asia/Shanghai'))
+
 
 
 class JobInfos(db_Base, BaseJson):
@@ -98,8 +101,8 @@ class JobInfos(db_Base, BaseJson):
     log_lv_debug = Column(Integer, default=int(0))
     items_count = Column(Integer, default=int(0))
     extra = Column(JSON, nullable=True)
-    create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
-    end_time = Column(DateTime(), default=datetime.now(), onupdate=func.now())
+    create_time = Column(DateTime(timezone=True), default=datetime.now(), server_default=func.now())
+    end_time = Column(DateTime(timezone=True), default=datetime.now())
 
     def __init__(self, wid, pid=None, p_nickname=None, w_nickname=None, jid=None, run_user=None,  name=None,
                  log_file_path=None, log_lv_warning=0, log_lv_error=0, log_lv_debug=0, log_lv_info=0, extra=None):
@@ -123,6 +126,8 @@ class JobInfos(db_Base, BaseJson):
         self.log_lv_info = log_lv_info
         self.log_lv_debug = log_lv_debug
         self.extra = extra
+        self.create_time = datetime.now(pytz.timezone('Asia/Shanghai'))
+        self.end_time = datetime.now(pytz.timezone('Asia/Shanghai'))
 
     def get_jid(self):
         return self.jid
