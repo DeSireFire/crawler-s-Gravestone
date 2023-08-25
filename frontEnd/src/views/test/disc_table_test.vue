@@ -6,7 +6,7 @@
     <el-row ref="chartsDatas" :gutter="20" v-for="(item,index) in chartsDatas" :key="index">
       <el-col :span="16">
         <el-card shadow="hover">
-          <div :id="`chart${index}`" class="echart" :options="schartOption"></div>
+          <div :id="`chart${index}`" class="echart" :options="item">{{item}}</div>
         </el-card>
       </el-col>
     </el-row>
@@ -14,49 +14,33 @@
 </template>
 
 <script setup lang="ts"  name="basecharts">
-import { onBeforeMount, reactive, ref, onMounted, onUpdated } from 'vue'
+import { nextTick, reactive, ref, onBeforeMount, onMounted, onUpdated} from 'vue'
 import * as echarts from 'echarts'
-import {fetchCharts,fetchChartss} from '../../src/api';
-import { defineComponent } from 'vue'
+import {fetchCharts,fetchChartss} from '~/api';
+// const chartList = [1,2,3,4,5]
+// const chartsDatas = (await fetchChartss()).data
 const chartsDatas = ref(null)
-interface schartOption {
-  schartOption: any;
-}
 
-const schartOption: schartOption = {
-  schartOption: {}
-};
-
-
-// 获取数据
 const getDatas = async () => {
   chartsDatas.value = (await fetchChartss()).data
-  return chartsDatas.value
 }
 
-// 渲染图表
-const initEcharts = async () => {
-  const temps = (await fetchChartss()).data
-  console.log("temps.value",temps)
-  temps.forEach((item: any, index: string | number) => {
-    let schartOption  = temps[index]
-    let element = document.getElementById(`chart${index}`)
-    if (element){
-      let mainEchart = echarts.init(element)
-      mainEchart.setOption(schartOption,{notMerge:true})
-    }
-  });
-}
+// const initEcharts = async () => {
+//   const temps = chartsDatas.value
+//   temps.forEach((item, index) => {
+//     let option = temps[index]
+//     let mainEchart = echarts.init(document.getElementById(`chart${index}`))
+//     mainEchart.setOption(option)
+//   });
+// }
 
 onBeforeMount(() => {
   getDatas()
+  console.log(chartsDatas.value)
+  // initEcharts()
 })
-
 onMounted(() => {
-  // console.log("chartsDatas",chartsDatas)
-  initEcharts()
 })
-
 </script>
 
 <style scoped>
@@ -71,6 +55,10 @@ onMounted(() => {
 .echart {
   width: auto;
   height: 400px;
+}
+.container {
+  min-height: 100%;
+  min-width: auto;
 }
 .content-title {
   clear: both;

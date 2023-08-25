@@ -37,7 +37,7 @@ const routes: RouteRecordRaw[] = [
                     title: 'ResfulAPI响应文档',
                     permiss: '2',
                 },
-                component: () => import(/* webpackChunkName: "api_docs" */ '../views/api_docs.vue'),
+                component: () => import(/* webpackChunkName: "api_docs" */ '../views/other/api_docs.vue'),
             },
             {
                 path: '/users',
@@ -129,89 +129,6 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/readme/readme.vue'),
             },
-
-            // 原始模板
-            {
-                path: '/table',
-                name: 'basetable',
-                meta: {
-                    title: '表格',
-                    permiss: '2',
-                },
-                component: () => import(/* webpackChunkName: "table" */ '../views/table.vue'),
-            },
-            {
-                path: '/redis_table',
-                name: 'redis_table',
-                meta: {
-                    title: 'redis_demo表格',
-                    permiss: '2',
-                },
-                component: () => import(/* webpackChunkName: "table" */ '../views/redis_table.vue'),
-            },
-            {
-                path: '/echart',
-                name: 'echart测试',
-                meta: {
-                    title: 'echart测试',
-                    permiss: '2',
-                },
-                component: () => import(/* webpackChunkName: "table" */ '../views/disc_table.vue'),
-            },
-            {
-                path: '/charts',
-                name: 'basecharts',
-                meta: {
-                    title: '图表',
-                    permiss: '11',
-                },
-                component: () => import(/* webpackChunkName: "charts" */ '../views/charts.vue'),
-            },
-            {
-                path: '/form',
-                name: 'baseform',
-                meta: {
-                    title: '表单',
-                    permiss: '5',
-                },
-                component: () => import(/* webpackChunkName: "form" */ '../views/form.vue'),
-            },
-            {
-                path: '/tabs',
-                name: 'tabs',
-                meta: {
-                    title: 'tab标签',
-                    permiss: '3',
-                },
-                component: () => import(/* webpackChunkName: "tabs" */ '../views/tabs.vue'),
-            },
-            {
-                path: '/permission',
-                name: 'permission',
-                meta: {
-                    title: '权限管理',
-                    permiss: '13',
-                },
-                component: () => import(/* webpackChunkName: "permission" */ '../views/users/permission.vue'),
-            },
-            {
-                path: '/upload',
-                name: 'upload',
-                meta: {
-                    title: '上传插件',
-                    permiss: '6',
-                },
-                component: () => import(/* webpackChunkName: "upload" */ '../views/upload.vue'),
-            },
-            {
-                path: '/icon',
-                name: 'icon',
-                meta: {
-                    title: '自定义图标',
-                    permiss: '10',
-                },
-                component: () => import(/* webpackChunkName: "icon" */ '../views/icon.vue'),
-            },
             {
                 path: '/user',
                 name: 'user',
@@ -221,40 +138,13 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "user" */ '../views/users/user.vue'),
             },
             {
-                path: '/editor',
-                name: 'editor',
+                path: '/permission',
+                name: 'permission',
                 meta: {
-                    title: '富文本编辑器',
-                    permiss: '8',
+                    title: '权限管理',
+                    permiss: '13',
                 },
-                component: () => import(/* webpackChunkName: "editor" */ '../views/editor.vue'),
-            },
-            {
-                path: '/markdown',
-                name: 'markdown',
-                meta: {
-                    title: 'markdown编辑器',
-                    permiss: '9',
-                },
-                component: () => import(/* webpackChunkName: "markdown" */ '../views/markdown.vue'),
-            },
-            {
-                path: '/export',
-                name: 'export',
-                meta: {
-                    title: '导出Excel',
-                    permiss: '2',
-                },
-                component: () => import(/* webpackChunkName: "export" */ '../views/export.vue'),
-            },
-            {
-                path: '/import',
-                name: 'import',
-                meta: {
-                    title: '导入Excel',
-                    permiss: '2',
-                },
-                component: () => import(/* webpackChunkName: "import" */ '../views/import.vue'),
+                component: () => import(/* webpackChunkName: "permission" */ '../views/users/permission.vue'),
             },
         ],
     },
@@ -272,7 +162,133 @@ const routes: RouteRecordRaw[] = [
         meta: {
             title: '没有权限',
         },
-        component: () => import(/* webpackChunkName: "403" */ '../views/403.vue'),
+        component: () => import(/* webpackChunkName: "403" */ '../views/base/403.vue'),
+    },
+    {
+        path: '/404',
+        name: '404',
+        meta: {
+            title: '页面不存在',
+        },
+        component: () => import(/* webpackChunkName: "403" */ '../views/base/404.vue'),
+    },
+
+    // 开发留档的demo测试页面
+    {
+        path: '/',
+        name: 'old_home',
+        component: Home,
+        children: [
+            // 原始模板
+            {
+                path: '/table',
+                name: 'basetable',
+                meta: {
+                    title: '表格',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/old/table.vue'),
+            },
+            {
+                path: '/echart',
+                name: 'echart测试',
+                meta: {
+                    title: 'echart测试',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/test/disc_table.vue'),
+            },
+            {
+                path: '/echart2',
+                name: 'echart测试2',
+                meta: {
+                    title: 'echart测试2',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/test/disc_table_test.vue'),
+            },
+            {
+                path: '/charts',
+                name: 'basecharts',
+                meta: {
+                    title: '图表',
+                    permiss: '11',
+                },
+                component: () => import(/* webpackChunkName: "charts" */ '../views/old/charts.vue'),
+            },
+            {
+                path: '/form',
+                name: 'baseform',
+                meta: {
+                    title: '表单',
+                    permiss: '5',
+                },
+                component: () => import(/* webpackChunkName: "form" */ '../views/old/form.vue'),
+            },
+            {
+                path: '/tabs',
+                name: 'tabs',
+                meta: {
+                    title: 'tab标签',
+                    permiss: '3',
+                },
+                component: () => import(/* webpackChunkName: "tabs" */ '../views/old/tabs.vue'),
+            },
+            {
+                path: '/upload',
+                name: 'upload',
+                meta: {
+                    title: '上传插件',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "upload" */ '../views/old/upload.vue'),
+            },
+            {
+                path: '/icon',
+                name: 'icon',
+                meta: {
+                    title: '自定义图标',
+                    permiss: '10',
+                },
+                component: () => import(/* webpackChunkName: "icon" */ '../views/old/icon.vue'),
+            },
+            {
+                path: '/editor',
+                name: 'editor',
+                meta: {
+                    title: '富文本编辑器',
+                    permiss: '8',
+                },
+                component: () => import(/* webpackChunkName: "editor" */ '../views/old/editor.vue'),
+            },
+            {
+                path: '/markdown',
+                name: 'markdown',
+                meta: {
+                    title: 'markdown编辑器',
+                    permiss: '9',
+                },
+                component: () => import(/* webpackChunkName: "markdown" */ '../views/old/markdown.vue'),
+            },
+            {
+                path: '/export',
+                name: 'export',
+                meta: {
+                    title: '导出Excel',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "export" */ '../views/old/export.vue'),
+            },
+            {
+                path: '/import',
+                name: 'import',
+                meta: {
+                    title: '导入Excel',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "import" */ '../views/old/import.vue'),
+            },
+        ],
     },
 ];
 
@@ -284,16 +300,26 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     document.title = `${to.meta.title} | crawlRaXi`;
     // console.log('to',to)
+    // console.log('from',from)
+    // console.log('next',next)
     const role = localStorage.getItem('ms_username');
     const permiss = usePermissStore();
     if (!role && to.path !== '/login') {
+        // 如果没有登录则跳转
         next('/login');
     } else if (!!to.meta.permiss && !permiss.key.includes(to.meta.permiss as string)) {
         // 如果没有权限，则进入403
         next('/403');
+    } else if (!routeExists(to.path, routes)) {
+        // 如果路径不存在于路由配置中，则进入404
+        next('/404');
     } else {
         next();
     }
 });
 
+// 检测路径是否存在于路由器
+function routeExists(path: string, routes: RouteRecordRaw[]): boolean {
+    return routes.some(route => route.path === path || (route.children && routeExists(path, route.children)));
+}
 export default router;
