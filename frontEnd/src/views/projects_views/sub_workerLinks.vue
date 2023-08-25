@@ -61,6 +61,7 @@
           <el-option key="2" label="季更" value="季更"></el-option>
           <el-option key="3" label="年更" value="年更"></el-option>
           <el-option key="4" label="临时" value="临时"></el-option>
+          <el-option key="3" label="常驻" value="常驻"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="背景描述">
@@ -156,7 +157,7 @@ const props = defineProps<{
 const pid = ref(props.pid||'');
 
 interface TableItem {
-  id: number;
+  id: string;
   wid: string;
   pid: string;
   p_nickname: string;
@@ -190,7 +191,7 @@ const project_info = reactive({
 const handleFlush = async (init = true) => {
   // 获取pid
   pid.value = props.pid
-  project_info.name = props.pname||''
+  project_info.name = props.pname as string || ''
 
   if (pid.value != '') {
     // 获取数据
@@ -230,7 +231,7 @@ watch(() => props.pid, (newPid, oldPid) => {
 const addVisible = ref(false);
 let addForm = reactive({
   name: '',
-  pid: pid.value,
+  pid: '',
   modify_user: '',
   crawl_frequency: '',
   description: '',
@@ -240,6 +241,7 @@ const handleAdd = () => {
 };
 const addSaveEdit = async () => {
   addForm.modify_user = localStorage.getItem('ms_username') as string;
+  addForm.pid = pid.value as string;
   // 向后端发起操作
   const response = (await addWorkers(addForm));
   if (response.isSuccess) {
@@ -294,7 +296,7 @@ let idx: number = -1;
 const editForm = reactive({
   id: '',
   wid: '',
-  pid: pid.value,
+  pid: pid.value as string,
   p_nickname: '',
   name: '',
   nickname: '',
@@ -306,13 +308,13 @@ const editForm = reactive({
 });
 const handleEdit = (index: number, row: any) => {
   idx = index;
-  editForm.id = row.id;
-  editForm.wid = row.wid;
-  editForm.p_nickname = row.p_nickname;
-  editForm.name = row.name;
-  editForm.nickname = row.nickname;
-  editForm.crawl_frequency = row.crawl_frequency;
-  editForm.description = row.description;
+  editForm.id = row.id as string;
+  editForm.wid = row.wid as string;
+  editForm.p_nickname = row.p_nickname as string;
+  editForm.name = row.name as string;
+  editForm.nickname = row.nickname as string;
+  editForm.crawl_frequency = row.crawl_frequency as string;
+  editForm.description = row.description as string;
   // editForm.status = row.status;
   editForm.modify_user = localStorage.getItem('ms_username') as string;
   // editForm.extra = row.extra;
@@ -321,8 +323,8 @@ const handleEdit = (index: number, row: any) => {
 const editSaveEdit = async () => {
   if (editForm.nickname) {
     // ElMessage.success(`修改第 ${idx + 1} 行成功`);
-    tableData.value[idx].nickname = editForm.nickname;
-    tableData.value[idx].description = editForm.description;
+    tableData.value[idx].nickname = editForm.nickname as string;
+    tableData.value[idx].description = editForm.description as string;
     // 向后端发起操作
     const response = (await updateWorkers(editForm));
     if (response.isSuccess) {

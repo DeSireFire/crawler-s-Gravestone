@@ -28,6 +28,7 @@
                   <el-form-item>
                     <el-button type="primary" @click="submitEmailForm">表单提交</el-button>
                     <el-button @click="resetEmailForm">重置表单</el-button>
+                    <el-button type="primary" @click="handleFlush">列表刷新</el-button>
                   </el-form-item>
                 </el-form>
               </div>
@@ -53,6 +54,7 @@
                   <el-form-item>
                     <el-button type="primary" @click="submitQWForm">表单提交</el-button>
                     <el-button @click="resetQWForm">重置表单</el-button>
+                    <el-button type="primary" @click="handleFlush">列表刷新</el-button>
                   </el-form-item>
                 </el-form>
               </div>

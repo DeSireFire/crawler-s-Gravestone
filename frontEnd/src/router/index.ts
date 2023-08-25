@@ -19,7 +19,7 @@ const routes: RouteRecordRaw[] = [
                     title: '系统首页',
                     permiss: '1',
                 },
-                component: () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard.vue'),
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard/dashboard.vue'),
             },
             {
                 path: '/worker_logs',

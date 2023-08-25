@@ -138,8 +138,8 @@ const handleFlush = async (init = true) => {
     query.keyword = ""
     query.filterWord = ""
     query.log_projects = res.data.log_projects
-    console.log("res.data.log_projects",res.data.log_projects)
-    console.log("query.log_projects",query.log_projects)
+    // console.log("res.data.log_projects",res.data.log_projects)
+    // console.log("query.log_projects",query.log_projects)
   }
 };
 // 打开页面就刷新

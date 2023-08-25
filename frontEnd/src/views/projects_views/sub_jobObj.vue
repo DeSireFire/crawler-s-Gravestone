@@ -46,6 +46,8 @@
              pid: scope.row.pid,
              wid: scope.row.wid,
              jid: scope.row.jid,
+             title: scope.row.name,
+             back: route.path,
            }
            })"
            v-permiss="15">
@@ -89,13 +91,13 @@ interface TableItem {
   create_time: string;
   end_time: string;
 }
+
 // 声明 props
 const props = defineProps<{
   pid: String,
   pname: String,
 }>();
 const pid = ref(props.pid||'');
-
 const query = um_api.query
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
@@ -115,7 +117,7 @@ let project_info = reactive({
 const handleFlush = async (init = true) => {
   // 获取pid
   pid.value = props.pid
-  project_info.name = props.pname||''
+  project_info.name = props.pname as string ||''
 
   if (pid.value != '') {
     // 获取数据
@@ -149,6 +151,10 @@ watch(() => props.pid, (newPid, oldPid) => {
   pid.value = newPid;
   handleFlush();
 });
+
+// todo 通过日志详情页返回时会携带jid,似乎可以增加额外的处理。
+// const jid = ref(route.query.jid||'');
+
 
 // 删除操作
 let delform = reactive({

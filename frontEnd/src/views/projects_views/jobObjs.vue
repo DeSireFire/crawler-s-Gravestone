@@ -14,12 +14,12 @@
     </div>
     <div class="handle-box">
 <!--      <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>-->
-<!--      <el-button type="primary" :icon="Search" @click="handleSearch">搜索列表</el-button>-->
+<!--      <el-button type="primary" :icon="Search" @click="filteredData">搜索列表</el-button>-->
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
     </div>
     <el-scrollbar>
       <el-table
-        :data="tableData"
+        :data="filteredData"
         :border="true"
         class="table"
         ref="multipleTable"
@@ -66,6 +66,8 @@
                pid: scope.row.pid,
                wid: scope.row.wid,
                jid: scope.row.jid,
+               title: scope.row.name,
+               back: route.path,
              }
              })"
              v-permiss="15">
@@ -83,10 +85,11 @@
 </template>
 
 <script setup lang="ts" name="sub_jobObj">
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getJobs, delJobs, getLogContent, getProjectsNames} from '~/api/projects';
-import { um_api } from "~/store/user_mange";
+// import { um_api } from "~/store/user_mange";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 
 interface TableItem {
@@ -109,7 +112,8 @@ interface TableItem {
   create_time: string;
   end_time: string;
 }
-
+// 获取路由对象
+const route = useRoute();
 const query = reactive({
   filterWord: '',
   keyword: '',
@@ -119,9 +123,7 @@ const query = reactive({
 });
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
-const filter = reactive({
-
-})
+const filter = reactive({})
 // 刷新数据
 const handleFlush = async (init = true) => {
   // 获取数据
@@ -141,6 +143,19 @@ const handleFlush = async (init = true) => {
 };
 // 打开页面就刷新
 handleFlush();
+
+// 计算属性，根据搜索关键字筛选数据
+const filteredData = computed(() => {
+  if (!query.keyword) {
+    return tableData.value;
+  }
+
+  const keyword = query.keyword;
+  console.log("query", query)
+  return   tableData.value.filter(item =>
+      item.name.toLowerCase().includes(keyword) || String(item.p_nickname).includes(keyword)
+  );
+});
 
 // 排序相关
 const sortKey = ref('create_time');

@@ -13,7 +13,13 @@
           <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
           <el-table-column label="项目名称" width="300" :show-overflow-tooltip="true">
             <template #default="scope">
-              <router-link :to="{ path: '/projects_tabs', query: { pid: scope.row.pid, name:scope.row.name} }">{{ scope.row.name }}</router-link>
+              <router-link :to="
+              { path: '/projects_tabs', query: {
+                pid: scope.row.pid,
+                name:scope.row.name,
+                title:scope.row.name
+              }}">{{ scope.row.name }}
+              </router-link>
             </template>
           </el-table-column>
           <el-table-column label="工作流数量" width="100" :show-overflow-tooltip="true">

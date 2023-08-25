@@ -2,9 +2,18 @@
 	<div class="container">
     <div class="plugins-tips">日志详情</div>
     <div class="handle-row">
-      <el-button type="primary" @click="$router.go(-1)">
+      <el-button :icon="Back" type="primary" @click="router.go(-1)">
         返回项目列表
       </el-button>
+<!--      <el-button :icon="Back" type="primary" @click="goToParentPage()">-->
+<!--        返回上级-->
+<!--      </el-button>-->
+<!--      <el-button :icon="Expand" type="primary" @click="goToParentPage('/projects_tabs')">-->
+<!--        相关项目-->
+<!--      </el-button>-->
+<!--      <el-button v-if="logTextarea.length !== 0" type="primary" :icon="RefreshRight" @click="handleLogContent">-->
+<!--        刷新日志-->
+<!--      </el-button>-->
       <el-button v-if="logTextarea.length !== 0" type="primary" :icon="Download" @click="downloadLog">
         下载日志
       </el-button>
@@ -88,7 +97,8 @@
 <script setup lang="ts" name="logging_detail">
 import {computed, reactive, ref, watch, watchEffect} from 'vue';
 import {useRoute} from "vue-router";
-import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Download} from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
+import {Delete, Edit, Search, FullScreen, Close, RefreshRight, Download, Back, Expand} from '@element-plus/icons-vue';
 import {getLogContent} from "~/api/projects";
 interface TableItem {
   id: string;
@@ -111,12 +121,39 @@ interface TableItem {
   end_time: string;
 }
 
+// 获取路由对象
 const route = useRoute();
+const router = useRouter();
+// 返回父级页面的名称
+const back = ref(route.query.back||'');
+// 定义返回到父级页面的方法
+const goToParentPage = (back_path?: string) => {
+  back_path = back_path || ""; // 默认为空字符串
+  console.log("back_path1:",back_path)
+  if (!back_path) {
+    back_path = back.value as string || ""
+  }
+  console.log("back_path2:",back_path)
+  if ("/jobObjs" === back_path) {
+    // 使用 $router.push() 导航到父级页面
+    router.push({
+      path: back_path,
+    });
+  } else if ("/projects_tabs" === back_path) {
+    router.push({
+      path: back_path,
+      query: route.query,
+    });
+  } else {
+    router.go(-1)
+  }
+};
 
 const pid = ref(route.query.pid||'');
 const wid = ref(route.query.wid||'');
 const jid = ref(route.query.jid||'');
 const lv = ref('');
+
 const level_name = ref([
     "INFO",
     "WARNING",
@@ -129,11 +166,13 @@ const handleProjectInfo = () => {
   pid.value = urlParams.get('pid') as string;
   wid.value = urlParams.get('wid') as string;
   jid.value = urlParams.get('jid') as string;
+  back.value = urlParams.get('back') as string;
   // params_info = Object.fromEntries(urlParams.entries());
 };
+// el-collapse 下拉展开的编号
 const activeNames = ref(['1'])
 const handleChange = (val: string[]) => {
-  console.log(val)
+  console.log("handleChange,val", val)
 }
 const keyword = ref('');
 const logLines = computed(() => {
@@ -186,10 +225,10 @@ function downloadLog() {
 const logArray = ref<Array<string>>([]);
 const handleLogContent = async () => {
   handleProjectInfo();
-  logMointForm.pid = pid.value
-  logMointForm.wid = wid.value
-  logMointForm.jid = jid.value
-  logMointForm.lv = lv.value
+  logMointForm.pid = pid.value as string;
+  logMointForm.wid = wid.value as string;
+  logMointForm.jid = jid.value as string;
+  logMointForm.lv = lv.value;
   let watiGetInfo:any = logMointForm;
   const response = (await getLogContent(watiGetInfo))
   logTextarea.value = response.data.content

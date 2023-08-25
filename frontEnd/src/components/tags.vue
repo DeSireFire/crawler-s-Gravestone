@@ -7,7 +7,14 @@
 				:class="{ active: isActive(item.path) }"
 				:key="index"
 			>
-				<router-link :to="item.path" class="tags-li-title">{{ item.title }}</router-link>
+				<router-link :to="item.path" class="tags-li-title">
+          <el-tooltip>
+            <template #content>
+              <p>{{ handleUrlParams(item,item.title) }}</p>
+            </template>
+            <p>{{ handleUrlParams(item,item.title) }}</p>
+          </el-tooltip>
+        </router-link>
 				<el-icon @click="closeTags(index)"><Close /></el-icon>
 			</li>
 		</ul>
@@ -31,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import {reactive, ref, watch} from 'vue'
 import { useTagsStore } from '../store/tags';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 
@@ -41,6 +49,21 @@ const isActive = (path: string) => {
 };
 
 const tags = useTagsStore();
+// 搜索url中的参数
+const handleUrlParams = (item:any=null, title:string='') => {
+  // todo 放开注释开启tags特殊名称
+  // if (item && item.hasOwnProperty('path')) {
+  //   if (item.hasOwnProperty('path')) {
+  //     // item 包含键为 'path'
+  //     const urlParams = new URLSearchParams(item.path.split('?')[1]);
+  //     if (urlParams.get('title')) {
+  //       return [`【${urlParams.get('title')}】`,title].join("| ")
+  //     }
+  //   }
+  // }
+  return title
+};
+
 // 关闭单个标签
 const closeTags = (index: number) => {
 	const delItem = tags.list[index];
@@ -75,7 +98,6 @@ onBeforeRouteUpdate(to => {
 // 关闭全部标签
 const closeAll = () => {
 	tags.clearTags();
-	router.push('/');
 };
 // 关闭其他标签
 const closeOther = () => {
