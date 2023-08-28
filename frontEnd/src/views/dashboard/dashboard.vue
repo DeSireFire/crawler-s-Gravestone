@@ -19,23 +19,19 @@
 						<span>{{ local_name }}</span>
 					</div>
 				</el-card>
-<!--				<el-card shadow="hover" style="height: auto">-->
-<!--					<template #header>-->
-<!--						<div class="clearfix">-->
-<!--							<span>日志比例Top5</span>-->
-<!--						</div>-->
-<!--					</template>-->
-<!--					高德地图-->
-<!--					<el-progress :percentage="69.4" color="#42b983"></el-progress>-->
-<!--					企查查-->
-<!--					<el-progress :percentage="14" color="#f1e05a"></el-progress>-->
-<!--					美团-->
-<!--					<el-progress :percentage="5.6"></el-progress>-->
-<!--					药监局-->
-<!--					<el-progress :percentage="9" color="#f56c6c"></el-progress>-->
-<!--          饿了么-->
-<!--          <el-progress :percentage="1" color="#f56c6c"></el-progress>-->
-<!--				</el-card>-->
+        <el-card shadow="hover" style="height: auto">
+          <template #header>
+            <div class="clearfix">
+              <span>日志比例Top5</span>
+              <el-button style="float: right; padding: 6px 0" text @click="getDJobs()"> 刷新 </el-button>
+            </div>
+          </template>
+          <div v-for="(item, key) in dlogs">
+            {{ item.folder_name }}
+            <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="getRandomColor()"></el-progress>
+<!--            <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="(generateBrightColors(item.size_ratio+key))"></el-progress>-->
+          </div>
+        </el-card>
 			</el-col>
 			<el-col :span="16">
 				<el-row :gutter="20" class="mgb20">
@@ -124,28 +120,37 @@
 					<template #header>
 						<div class="clearfix">
 							<span>任务概览</span>
-              <!--<el-button style="float: right; padding: 3px 0" text>添加</el-button>-->
+              <el-button style="float: right; padding: 6px 0" text @click="getDJobs()"> 刷新 </el-button>
 						</div>
 					</template>
 
 					<el-table :show-header="false" :data="todoList" style="width: 100%">
-						<el-table-column width="40">
-							<template #default="scope">
-								<el-checkbox v-model="scope.row.status"></el-checkbox>
-							</template>
-						</el-table-column>
 						<el-table-column>
 							<template #default="scope">
-								<div
-									class="todo-item"
-									:class="{
-										'todo-item-del': scope.row.status
-									}"
-								>
-									{{ scope.row.title }}
+								<div class="todo-item">
+                  {{ scope.row.title }}
+                  <router-link :to="
+                  { path: '/jobObjs', query: {
+                    name:scope.row.name,
+                  }}"> ...(更多)
+                  </router-link>
 								</div>
 							</template>
 						</el-table-column>
+            <el-table-column prop="datetime" width="250">
+              <template #default="scope">
+                <div class="todo-item">
+                  结束时间: {{ scope.row.datetime }}
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="datetime" width="150">
+              <template #default="scope">
+                <div class="todo-item">
+                  耗时: {{ scope.row.duration }}
+                </div>
+              </template>
+            </el-table-column>
 					</el-table>
 				</el-card>
 			</el-col>
@@ -157,10 +162,10 @@
 import Schart from 'vue-schart';
 import {onBeforeMount, reactive, ref} from 'vue';
 // import imgurl from '../assets/img/img.jpg';
-// import {get_ip_info} from '../../src/api';
+// import {get_ip_info} from '~/api';
 import { ipInfo } from '~/api/extras';
 import {fetchChartss} from "~/api";
-import {getDashInfo} from "~/api/dashboard";
+import {getDashInfo, getDashJobs, getDashLogs} from "~/api/dashboard";
 const imgurl = 'https://avatars.githubusercontent.com/u/64947085?v=4'
 
 const name = localStorage.getItem('ms_username');
@@ -208,22 +213,52 @@ const getBoard = async () => {
 };
 getBoard()
 
+// 获取仪表盘任务概览信息
+interface djobsItem {
+  id: string;
+  name: string;
+  status: string;
+  datetime: string;
+  title: string;
+  duration: string;
+}
+const todoList = ref<djobsItem[]>([]);
+const getDJobs = async () => {
+  const result = (await getDashJobs())
+  todoList.value = result.data.list;
+};
+getDJobs()
 
+// 日志比例信息
+interface dlogsItem {
+  folder_name: string;
+  size_bytes: string;
+  size_human_readable: string;
+  size_ratio: number;
+}
+const dlogs = ref<dlogsItem[]>([]);
+const getLogs = async () => {
+  const result = (await getDashLogs())
+  dlogs.value = result.data.list;
+};
+getLogs()
+// 浮点数转为百分比
+function floatToPercentage(value: number): string {
+  // 将浮点数转换为百分比形式，保留两位小数并四舍五入
+  const percentage: string = (value * 100).toFixed(2);
+  return `${percentage}`;
+}
 
-const todoList = reactive([
-	{
-		title: '模拟数据3...',
-		status: false
-	},
-	{
-		title: '模拟数据2...',
-		status: true
-	},
-	{
-		title: '模拟数据1...',
-		status: true
-	}
-]);
+// 为数据项选择颜色
+function getRandomColor(): string {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 
 onBeforeMount(() => {
   // getLocal()

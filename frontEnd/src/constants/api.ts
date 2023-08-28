@@ -24,6 +24,8 @@ export enum ACCOUNT {
 // 系统首页
 export enum DASHBOARD {
   DBOARDINFO = "/dboard_info",
+  DBOARDJOBS = "/dboard_jobs",
+  DBOARDLOGPROPORTION = "/dboard_log_proportion",
 }
 
 // 任务日志

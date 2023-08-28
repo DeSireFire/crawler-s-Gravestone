@@ -12,3 +12,19 @@ export const getDashInfo = () => {
         headers: {},
     });
 };
+
+export const getDashJobs = () => {
+    return handleGet({
+        url: API.DASHBOARD.DBOARDJOBS,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};
+
+export const getDashLogs = () => {
+    return handleGet({
+        url: API.DASHBOARD.DBOARDLOGPROPORTION,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};

@@ -14,7 +14,9 @@ from utils.other import get_md5
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.sql import func
 import pytz
+
 local_tz = pytz.timezone('Asia/Shanghai')  # 设置所需的时区
+
 
 class BaseJson:
     def json(self):
@@ -31,7 +33,7 @@ class ProjectInfos(db_Base, BaseJson):
     name = Column(String(255))
     nickname = Column(String(255))  # 用于展示的名称，由于存在项目名称重命名的情况
     author = Column(String(64))
-    customer = Column(String(64))   # 委任方/人
+    customer = Column(String(64))  # 委任方/人
     workers_count = Column(Integer, default=int(0))
     runing_count = Column(Integer, default=int(0))
     description = Column(String, nullable=False)
@@ -82,7 +84,6 @@ class WorkerInfos(db_Base, BaseJson):
         self.end_time = datetime.now(pytz.timezone('Asia/Shanghai'))
 
 
-
 class JobInfos(db_Base, BaseJson):
     __tablename__ = 'job_infos'
     id = Column(Integer, primary_key=True)
@@ -92,7 +93,7 @@ class JobInfos(db_Base, BaseJson):
     p_nickname = Column(String(255))
     w_nickname = Column(String(255))
     name = Column(String(255), nullable=False, unique=True)
-    status = Column(Integer, default=0)   # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
+    status = Column(Integer, default=0)  # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
     run_user = Column(String(255))
     log_file_path = Column(Text)
     log_lv_warning = Column(Integer, default=int(0))
@@ -104,7 +105,7 @@ class JobInfos(db_Base, BaseJson):
     create_time = Column(DateTime(timezone=True), default=datetime.now(), server_default=func.now())
     end_time = Column(DateTime(timezone=True), default=datetime.now())
 
-    def __init__(self, wid, pid=None, p_nickname=None, w_nickname=None, jid=None, run_user=None,  name=None,
+    def __init__(self, wid, pid=None, p_nickname=None, w_nickname=None, jid=None, run_user=None, name=None,
                  log_file_path=None, log_lv_warning=0, log_lv_error=0, log_lv_debug=0, log_lv_info=0, extra=None):
         from apps.projects.components import get_fetch_one
         dn = datetime.now()
@@ -131,6 +132,7 @@ class JobInfos(db_Base, BaseJson):
 
     def get_jid(self):
         return self.jid
+
 
 __all__ = [
     "ProjectInfos",
