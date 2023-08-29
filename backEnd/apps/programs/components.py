@@ -33,8 +33,10 @@ def check_id_one(model, **kwargs):
     session = Newsession()
     model_data = session.query(model).filter_by(**kwargs).first()
     if model_data:
+        session.close()
         return True
     else:
+        session.close()
         return False
 
 # 创建任务实例
@@ -49,9 +51,11 @@ def add_data_one(model, data):
     model_data = session.add(model(**data))
     try:
         session.commit()
+        session.close()
         return model(**data)
     except Exception as e:
         session.rollback()
+        session.close()
         return False
 
 
@@ -70,8 +74,10 @@ def get_query_all(model, **kwargs):
             for k, v in u.items():
                 if isinstance(v, datetime):
                     u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
+        session.close()
         return temps
     else:
+        session.close()
         return None
 
 
@@ -84,6 +90,7 @@ def get_query_count(model, **kwargs):
     """
     session = Newsession()
     result = session.query(model).filter_by(**kwargs).count() or 0
+    session.close()
     return result
 
 
@@ -104,8 +111,10 @@ def get_fetch_one(model, **kwargs):
                 data[k] = temps[k].strftime('%Y-%m-%d %H:%M:%S')
             else:
                 data[k] = v
+        session.close()
         return data
     else:
+        session.close()
         return None
 
 

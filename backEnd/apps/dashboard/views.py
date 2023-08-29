@@ -13,7 +13,8 @@ import random
 from fastapi import requests
 import requests
 # 统一响应的数据结构
-from .components import list_files, get_machine_memory_usage_percent, get_memory_usage, get_projects_count, get_programs_count
+from .components import list_files, get_machine_memory_usage_percent, \
+    get_memory_usage, get_projects_count, get_programs_count, get_completed_jobs, get_folder_sizes
 from apps.users.models import get_user_count
 from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
@@ -21,6 +22,8 @@ from server_core.control import constructResponse
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
 
 route = APIRouter()
+
+
 @route.get("/ipInfo")
 async def ipInfo():
     headers = {
@@ -32,8 +35,15 @@ async def ipInfo():
     temp = response.json()
     return temp
 
-import psutil
-
+@route.get("/dboard_log_proportion")
+async def dboard_log_proportion():
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    dboard_log_proportion = {}
+    log_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
+    dboard_log_proportion['list'] = get_folder_sizes(log_path)
+    print(dboard_log_proportion['list'])
+    return callbackJson.callBacker(dboard_log_proportion)
 
 @route.get("/dboard_info")
 async def dboard_info():
@@ -54,28 +64,10 @@ async def dboard_info():
     return callbackJson.callBacker(board_info)
 
 
-# @route.delete("/del_logs")  # todo 属于危险操作需要鉴权
-# async def del_logs(request: Request, name: str = Query(None)):
-#     """
-#     接收要删除的日志文件数据
-#     参数以url传参的方式接收，数据结构为
-#     {'id': '52', 'name': 'ip_89_demo_local.log', 'log_project': '美团药店', 'remarks': '12月-月度采集日志', 'address': 'localhost'}
-#     :param request: 请求对象
-#     :param name: 请求传输过来的name参数
-#     :return:
-#     """
-#     callbackJson = constructResponse()
-#     callbackJson.statusCode = 200
-#     callbackJson.url = request.url
-#     content = {}
-#     cache_list = cache_datas.get("list", [])
-#     del_data = dict(request.query_params)
-#     del_index = [i for i, x in enumerate(cache_list) if x == del_data]
-#     if del_index:
-#         content = cache_list.pop(del_index[0])
-#         cache_datas["list"] = cache_list
-#         cache_datas["pageTotal"] = len(cache_list)
-#     else:
-#         callbackJson.statusCode = 404
-#         callbackJson.message = "服务器找不到请求的资源"
-#     return callbackJson.callBacker(content)
+@route.get("/dboard_jobs")
+async def dboard_jobs():
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    dboard_jobs = {}
+    dboard_jobs["list"] = get_completed_jobs()
+    return callbackJson.callBacker(dboard_jobs)
