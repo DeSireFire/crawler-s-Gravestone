@@ -125,9 +125,8 @@
               <el-button style="float: right; padding: 6px 0" text @click="getDJobs()"> 刷新 </el-button>
 						</div>
 					</template>
-
 					<el-table :show-header="false" :data="todoList" style="width: 100%">
-						<el-table-column>
+						<el-table-column :show-overflow-tooltip="true">
 							<template #default="scope">
 								<div class="todo-item">
                   {{ scope.row.title }}
@@ -146,7 +145,7 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="datetime" width="150">
+            <el-table-column prop="datetime" width="250" :show-overflow-tooltip="true">
               <template #default="scope">
                 <div class="todo-item">
                   耗时: {{ scope.row.duration }}
