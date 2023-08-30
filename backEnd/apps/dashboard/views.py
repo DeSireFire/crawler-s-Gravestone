@@ -40,7 +40,7 @@ async def dboard_log_proportion():
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     dboard_log_proportion = {}
-    log_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
+    log_path = os.path.join(BASE_DIR, 'logs_back', 'worker_logs')
     dboard_log_proportion['list'] = get_folder_sizes(log_path)
     print(dboard_log_proportion['list'])
     return callbackJson.callBacker(dboard_log_proportion)

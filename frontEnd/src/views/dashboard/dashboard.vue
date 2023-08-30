@@ -19,18 +19,20 @@
 						<span>{{ local_name }}</span>
 					</div>
 				</el-card>
-        <el-card shadow="hover" style="height: auto">
+        <el-card shadow="hover" style="height: 373px">
           <template #header>
             <div class="clearfix">
-              <span>日志比例Top5</span>
-              <el-button style="float: right; padding: 6px 0" text @click="getDJobs()"> 刷新 </el-button>
+              <span>日志比例Top</span>
+              <el-button style="float: right; padding: 6px 0" text @click="getLogs()"> 刷新 </el-button>
             </div>
           </template>
-          <div v-for="(item, key) in dlogs">
-            {{ item.folder_name }}
-            <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="getRandomColor()"></el-progress>
-<!--            <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="(generateBrightColors(item.size_ratio+key))"></el-progress>-->
+          <div v-if="dlogs.length">
+            <div  v-for="(item, key) in dlogs" v-if="dlogs.length">
+              <span class="folder-name">{{ item.folder_name }}</span>
+              <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="getRandomColor()"></el-progress>
+            </div>
           </div>
+          <div v-else class="no-data">暂无数据</div>
         </el-card>
 			</el-col>
 			<el-col :span="16">
@@ -241,13 +243,22 @@ const getLogs = async () => {
   const result = (await getDashLogs())
   dlogs.value = result.data.list;
 };
-getLogs()
+// getLogs()
+
+// // 浮点数转为百分比
+// function floatToPercentage(value: number): string {
+//   // 将浮点数转换为百分比形式，保留两位小数并四舍五入
+//   const percentage: string = (value * 100).toFixed(2);
+//   return `${percentage}`;
+// }
+
 // 浮点数转为百分比
-function floatToPercentage(value: number): string {
+function floatToPercentage(value: number): number {
   // 将浮点数转换为百分比形式，保留两位小数并四舍五入
-  const percentage: string = (value * 100).toFixed(2);
-  return `${percentage}`;
+  const percentage: number = parseFloat((value * 100).toFixed(2));
+  return percentage;
 }
+
 
 // 为数据项选择颜色
 function getRandomColor(): string {
@@ -266,6 +277,25 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.folder-name {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.no-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
 .el-row {
 	margin-bottom: 20px;
 }
