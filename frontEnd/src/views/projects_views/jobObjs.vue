@@ -13,8 +13,8 @@
       </el-tooltip>
     </div>
     <div class="handle-box">
-<!--      <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>-->
-<!--      <el-button type="primary" :icon="Search" @click="filteredData">搜索列表</el-button>-->
+      <el-input v-model="query.keyword" placeholder="搜索词" class="handle-input mr10"></el-input>
+      <el-button type="primary" :icon="Search" @click="filteredData">搜索列表</el-button>
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
     </div>
     <el-scrollbar>

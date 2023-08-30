@@ -43,8 +43,8 @@ async def dboard_log_proportion():
     log_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
     if not os.path.exists(log_path):
         os.makedirs(log_path)
-    dboard_log_proportion['list'] = get_folder_sizes(log_path)
-    print(dboard_log_proportion['list'])
+    dboard_log_proportion['list'] = get_folder_sizes(log_path)[:8]
+    # print(dboard_log_proportion['list'])
     return callbackJson.callBacker(dboard_log_proportion)
 
 @route.get("/dboard_info")

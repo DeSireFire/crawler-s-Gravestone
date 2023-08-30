@@ -242,20 +242,13 @@ const getLogs = async () => {
   const result = (await getDashLogs())
   dlogs.value = result.data.list;
 };
-// getLogs()
+getLogs()
 
-// // 浮点数转为百分比
-// function floatToPercentage(value: number): string {
-//   // 将浮点数转换为百分比形式，保留两位小数并四舍五入
-//   const percentage: string = (value * 100).toFixed(2);
-//   return `${percentage}`;
-// }
 
 // 浮点数转为百分比
 function floatToPercentage(value: number): number {
   // 将浮点数转换为百分比形式，保留两位小数并四舍五入
-  const percentage: number = parseFloat((value * 100).toFixed(2));
-  return percentage;
+  return parseFloat((value * 100).toFixed(2));
 }
 
 
@@ -276,13 +269,6 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
-.log-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
 .folder-name {
   flex: 1;
   margin-right: 10px;
