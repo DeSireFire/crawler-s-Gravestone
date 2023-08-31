@@ -40,18 +40,23 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
+                <el-icon class="grid-con-icon"><CreditCard /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.project_total }}</div>
                   <div>项目数量</div>
                 </div>
+<!--                <div class="grid-cont-info">-->
+<!--                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>-->
+<!--                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>-->
+<!--                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>-->
+<!--                </div>-->
               </div>
             </el-card>
           </el-col>
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
 							<div class="grid-content grid-con-2">
-								<el-icon class="grid-con-icon"><ChatDotRound /></el-icon>
+								<el-icon class="grid-con-icon"><Postcard /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">{{ board_info.programs_total }}</div>
 									<div>程序数量</div>
@@ -276,9 +281,11 @@ onBeforeMount(() => {
 
 .no-data {
   display: flex;
+  height: 200px;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  /*height: 100%;*/
+  color: #999;
 }
 
 .el-row {
@@ -291,6 +298,17 @@ onBeforeMount(() => {
 	height: 100px;
 }
 
+.grid-cont-info {
+  font-size: 20px;
+  color: #999;
+  padding: 5px 5px 5px 20px;
+}
+
+.grid-info-num {
+	font-size: 20px;
+	font-weight: bold;
+}
+
 .grid-cont-right {
 	flex: 1;
 	text-align: center;
@@ -299,7 +317,7 @@ onBeforeMount(() => {
 }
 
 .grid-num {
-	font-size: 30px;
+	font-size: 25px;
 	font-weight: bold;
 }
 
@@ -313,27 +331,40 @@ onBeforeMount(() => {
 }
 
 .grid-con-1 .grid-con-icon {
-	background: rgb(45, 140, 240);
+	background: #409eff;
 }
 
 .grid-con-1 .grid-num {
-	color: rgb(45, 140, 240);
+	color: #409eff;
 }
 
+.grid-con-1 .grid-info-num {
+  color: #409eff;
+}
+
+
 .grid-con-2 .grid-con-icon {
-	background: rgb(100, 213, 114);
+	background: #33CC99;
 }
 
 .grid-con-2 .grid-num {
-	color: rgb(100, 213, 114);
+	color: #33CC99;
+}
+
+.grid-con-2 .grid-info-num {
+	color: #33CC99;
 }
 
 .grid-con-3 .grid-con-icon {
-	background: rgb(242, 94, 67);
+	background: #FF6666;
+}
+
+.grid-con-3 .grid-info-num {
+	color: #FF6666;
 }
 
 .grid-con-3 .grid-num {
-	color: rgb(242, 94, 67);
+	color: #FF6666;
 }
 
 .user-info {

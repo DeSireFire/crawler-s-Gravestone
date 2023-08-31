@@ -122,6 +122,15 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "table" */ '../views/program_views/program_register.vue'),
             },
             {
+                path: '/readme2',
+                name: 'readme',
+                meta: {
+                    title: '说明文档',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/help/readme.vue'),
+            },
+            {
                 path: '/readme',
                 name: 'readme',
                 meta: {
@@ -129,6 +138,24 @@ const routes: RouteRecordRaw[] = [
                     permiss: '2',
                 },
                 component: () => import(/* webpackChunkName: "table" */ '../views/readme/readme.vue'),
+            },
+            {
+                path: '/version',
+                name: 'version',
+                meta: {
+                    title: '版本历史',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/help/version_history.vue'),
+            },
+            {
+                path: '/about',
+                name: 'about',
+                meta: {
+                    title: '关于',
+                    permiss: '2',
+                },
+                component: () => import(/* webpackChunkName: "table" */ '../views/help/about.vue'),
             },
             {
                 path: '/user',

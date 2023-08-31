@@ -140,14 +140,34 @@ const items = [
         permiss: '52',
 
       },
-      // {
-      //   index: '/markdown',
-      //   title: '任务监控markdown.vue',
-      //   permiss: '52',
-      //
-      // },
     ],
   },
+  // {
+  //   icon: 'Collection',
+  //   index: '9',
+  //   title: '帮助',
+  //   permiss: '9',
+  //   subs: [
+  //     {
+  //       index: '/readme',
+  //       title: '使用文档',
+  //       permiss: '91',
+  //
+  //     },
+  //     {
+  //       index: '/version',
+  //       title: '版本历史',
+  //       permiss: '92',
+  //
+  //     },
+  //     {
+  //       index: '/about',
+  //       title: '关于',
+  //       permiss: '93',
+  //
+  //     },
+  //   ],
+  // },
   {
     icon: 'Collection',
     index: '/readme',
