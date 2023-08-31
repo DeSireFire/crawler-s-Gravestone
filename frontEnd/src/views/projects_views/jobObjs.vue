@@ -45,6 +45,7 @@
         </el-table-column>
         <el-table-column prop="p_nickname" width="200" label="所属项目" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="w_nickname" width="200" label="工作流" :show-overflow-tooltip="true"></el-table-column>
+
         <el-table-column class-name="log-num" width="50" label="错误" :show-overflow-tooltip="true">
           <template #default="scope"><span class="error-color">{{ scope.row.log_lv_error }}</span></template>
         </el-table-column>
@@ -57,6 +58,7 @@
         <el-table-column class-name="log-num" width="100" label="数据计数" :show-overflow-tooltip="true">
           <template #default="scope"><span class="ok-color">{{ scope.row.items_count }}</span></template>
         </el-table-column>
+
         <el-table-column width="100" label="执行用户" :show-overflow-tooltip="true">
           <template #default="scope">{{ scope.row.run_user }}</template>
         </el-table-column>
