@@ -134,7 +134,8 @@ def add_data_one(model, data):
     except Exception as e:
         session.rollback()
         return False
-
+    finally:
+        session.close()
 
 # 删除数据
 def del_data_one(model, **kwargs):
@@ -154,7 +155,8 @@ def del_data_one(model, **kwargs):
         session.rollback()
         logger.error(e)
         return False
-
+    finally:
+        session.close()
 
 # 更新批量数据(需要主键)
 def update_data(model, datas):
@@ -173,6 +175,8 @@ def update_data(model, datas):
         session.rollback()
         logger.error(e)
         return False
+    finally:
+        session.close()
 
 
 

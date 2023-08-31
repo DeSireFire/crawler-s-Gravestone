@@ -21,9 +21,18 @@ if redisconf.host:
     rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
 
 if conf.db == 'mysql':
+    # 构建数据库连接字符串
+    db_url = f"mysql://{mysqlconf.username}:{mysqlconf.password}@{mysqlconf.host}:{mysqlconf.port}/{mysqlconf.dbname}?charset=utf8mb4"
+
+    # 创建数据库引擎
     engine = create_engine(
-        f"mysql://{mysqlconf.username}:{mysqlconf.password}@{mysqlconf.host}:{mysqlconf.port}/{mysqlconf.dbname}?charset=utf8",
-        echo=conf.debug, pool_recycle=60 * 5)
+        db_url,  # 数据库连接字符串
+        echo=conf.debug,  # 是否输出SQL语句的调试信息
+        pool_recycle=60 * 5,  # 连接池回收时间，避免连接过久
+        pool_pre_ping=True,  # 启用连接池健康检查
+        pool_size=450       # max_connections = 500
+    )
+
 elif conf.db == 'postgresql':
     engine = create_engine(
         f'postgresql+psycopg2://{pgdbconf.username}:{pgdbconf.password}@{pgdbconf.host}:{pgdbconf.port}/{pgdbconf.dbname}')

@@ -24,10 +24,20 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="log_lv_error" width="50" label="错误"></el-table-column>
-      <el-table-column prop="log_lv_warning" width="50" label="警告"></el-table-column>
-      <el-table-column prop="log_lv_info" width="50" label="常规"></el-table-column>
-      <el-table-column prop="items_count" width="100" label="数据计数"></el-table-column>
+
+      <el-table-column class-name="log-num" width="100" label="错误" :show-overflow-tooltip="true">
+        <template #default="scope"><span class="error-color">{{ scope.row.log_lv_error }}</span></template>
+      </el-table-column>
+      <el-table-column class-name="log-num" width="100" label="警告" :show-overflow-tooltip="true">
+        <template #default="scope"><span class="warning-color">{{ scope.row.log_lv_warning }}</span></template>
+      </el-table-column>
+      <el-table-column class-name="log-num" width="100" label="常规" :show-overflow-tooltip="true">
+        <template #default="scope"><span class="info-color">{{ scope.row.log_lv_info }}</span></template>
+      </el-table-column>
+      <el-table-column class-name="log-num" width="200" label="数据计数" :show-overflow-tooltip="true">
+        <template #default="scope"><span class="ok-color">{{ scope.row.items_count }}</span></template>
+      </el-table-column>
+
       <el-table-column width="100" label="执行用户">
         <template #default="scope">{{ scope.row.run_user }}</template>
       </el-table-column>
@@ -241,6 +251,27 @@ const handleDelete = (index: number, row: any) => {
   margin: auto;
   width: 40px;
   height: 40px;
+}
+
+.log-num span {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.log-num .error-color {
+  color: rgb(245, 108, 108);
+}
+
+.log-num .warning-color {
+  color: #e6a23c;
+}
+
+.log-num .info-color {
+  color: #409eff;
+}
+
+.log-num .ok-color {
+  color: rgb(99, 214, 211);
 }
 </style>
 
