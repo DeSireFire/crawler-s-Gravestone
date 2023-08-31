@@ -41,7 +41,7 @@ class Alamers(db_Base, BaseJson):
     email = Column(String(255), nullable=True)
     qw_token = Column(String(255), nullable=True)
     resource = Column(String(255), nullable=False)
-    desc = Column(String, nullable=True)
+    desc = Column(Text, nullable=True)
     extra = Column(JSON, nullable=True)
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
 
@@ -76,8 +76,8 @@ class AlamerJobs(db_Base, BaseJson):
     name = Column(String(255), nullable=False)
     delivery = Column(Integer, nullable=False, default=1)
     resource = Column(String(255), nullable=False)
-    desc = Column(String, nullable=True)
-    alarm_content = Column(String, nullable=True)
+    desc = Column(Text, nullable=True)
+    alarm_content = Column(Text, nullable=True)
     extra = Column(JSON, nullable=True)
     create_time = Column(DateTime(), default=datetime.now(), server_default=func.now())
 
