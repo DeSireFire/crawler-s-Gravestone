@@ -51,16 +51,17 @@ const isActive = (path: string) => {
 const tags = useTagsStore();
 // 搜索url中的参数
 const handleUrlParams = (item:any=null, title:string='') => {
-  // todo 放开注释开启tags特殊名称
-  // if (item && item.hasOwnProperty('path')) {
-  //   if (item.hasOwnProperty('path')) {
-  //     // item 包含键为 'path'
-  //     const urlParams = new URLSearchParams(item.path.split('?')[1]);
-  //     if (urlParams.get('title')) {
-  //       return [`【${urlParams.get('title')}】`,title].join("| ")
-  //     }
-  //   }
-  // }
+  // todo 放开注释开启tags特殊名称 start
+  if (item && item.hasOwnProperty('path')) {
+    if (item.hasOwnProperty('path')) {
+      // item 包含键为 'path'
+      const urlParams = new URLSearchParams(item.path.split('?')[1]);
+      if (urlParams.get('title')) {
+        return [`【${urlParams.get('title')}】`,title].join("| ")
+      }
+    }
+  }
+  // todo 放开注释开启tags特殊名称 end
   return title
 };
 
