@@ -108,7 +108,12 @@ const props = defineProps<{
   pname: String,
 }>();
 const pid = ref(props.pid||'');
-const query = um_api.query
+const query = reactive({
+  filterWord: '',
+  keyword: '',
+  pageIndex: 1,
+  pageSize: 100
+});
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 let project_info = reactive({

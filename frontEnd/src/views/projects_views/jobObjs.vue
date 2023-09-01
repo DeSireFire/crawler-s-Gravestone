@@ -129,7 +129,7 @@ const query = reactive({
   filterWord: '',
   keyword: '',
   pageIndex: 1,
-  pageSize: 10,
+  pageSize: 100,
   log_projects: [],
 });
 const tableData = ref<TableItem[]>([]);

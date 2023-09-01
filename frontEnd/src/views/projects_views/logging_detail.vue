@@ -2,10 +2,7 @@
 	<div class="container">
     <div class="plugins-tips">日志详情</div>
     <div class="handle-row">
-<!--      <el-button :icon="Back" type="primary" @click="router.go(-1)">-->
-<!--        返回项目列表-->
-<!--      </el-button>-->
-      <el-button :icon="Back" type="primary" @click="goToParentPage()">
+      <el-button :icon="Back" type="primary" @click="router.go(-1)">
         后退
       </el-button>
       <el-button :icon="Expand" type="primary" @click="goToParentPage('/projects_tabs')">
