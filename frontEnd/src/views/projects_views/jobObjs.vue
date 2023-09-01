@@ -46,16 +46,16 @@
         <el-table-column prop="p_nickname" width="200" label="所属项目" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="w_nickname" width="200" label="工作流" :show-overflow-tooltip="true"></el-table-column>
 
-        <el-table-column class-name="log-num" width="50" label="错误" :show-overflow-tooltip="true">
+        <el-table-column class-name="log-num" width="100" label="错误" :show-overflow-tooltip="true">
           <template #default="scope"><span class="error-color">{{ scope.row.log_lv_error }}</span></template>
         </el-table-column>
-        <el-table-column class-name="log-num" width="50" label="警告" :show-overflow-tooltip="true">
+        <el-table-column class-name="log-num" width="100" label="警告" :show-overflow-tooltip="true">
           <template #default="scope"><span class="warning-color">{{ scope.row.log_lv_warning }}</span></template>
         </el-table-column>
-        <el-table-column class-name="log-num" width="50" label="常规" :show-overflow-tooltip="true">
+        <el-table-column class-name="log-num" width="100" label="常规" :show-overflow-tooltip="true">
           <template #default="scope"><span class="info-color">{{ scope.row.log_lv_info }}</span></template>
         </el-table-column>
-        <el-table-column class-name="log-num" width="100" label="数据计数" :show-overflow-tooltip="true">
+        <el-table-column class-name="log-num" width="200" label="数据计数" :show-overflow-tooltip="true">
           <template #default="scope"><span class="ok-color">{{ scope.row.items_count }}</span></template>
         </el-table-column>
 
