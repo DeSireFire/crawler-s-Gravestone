@@ -160,10 +160,8 @@ const filteredData = computed(() => {
   if (!query.keyword) {
     return tableData.value;
   }
-
   const keyword = query.keyword;
-  console.log("query", query)
-  return   tableData.value.filter(item =>
+  return tableData.value.filter(item =>
       item.name.toLowerCase().includes(keyword) || String(item.p_nickname).includes(keyword)
   );
 });
@@ -183,7 +181,7 @@ const sortTime = (a: string, b: string) => {
   }
 };
 
-
+// 排序
 const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
   sortOrder.value = order;

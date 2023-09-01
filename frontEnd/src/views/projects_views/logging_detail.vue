@@ -2,18 +2,18 @@
 	<div class="container">
     <div class="plugins-tips">日志详情</div>
     <div class="handle-row">
-      <el-button :icon="Back" type="primary" @click="router.go(-1)">
-        返回项目列表
+<!--      <el-button :icon="Back" type="primary" @click="router.go(-1)">-->
+<!--        返回项目列表-->
+<!--      </el-button>-->
+      <el-button :icon="Back" type="primary" @click="goToParentPage()">
+        后退
       </el-button>
-<!--      <el-button :icon="Back" type="primary" @click="goToParentPage()">-->
-<!--        返回上级-->
-<!--      </el-button>-->
-<!--      <el-button :icon="Expand" type="primary" @click="goToParentPage('/projects_tabs')">-->
-<!--        相关项目-->
-<!--      </el-button>-->
-<!--      <el-button v-if="logTextarea.length !== 0" type="primary" :icon="RefreshRight" @click="handleLogContent">-->
-<!--        刷新日志-->
-<!--      </el-button>-->
+      <el-button :icon="Expand" type="primary" @click="goToParentPage('/projects_tabs')">
+        相关项目
+      </el-button>
+      <el-button v-if="logTextarea.length !== 0" type="primary" :icon="RefreshRight" @click="handleLogContent">
+        刷新日志
+      </el-button>
       <el-button v-if="logTextarea.length !== 0" type="primary" :icon="Download" @click="downloadLog">
         下载日志
       </el-button>
