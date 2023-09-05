@@ -13,19 +13,23 @@
       </el-tooltip>
     </div>
     <div class="handle-box">
-      <el-input v-model="query.keyword" placeholder="关键词搜索" class="handle-input mr10"></el-input>
-<!--      <el-button type="primary" :icon="Search" @click="filteredData">搜索列表</el-button>-->
+      <el-input v-model="query.keyword" placeholder="搜索列表" class="handle-input mr10">
+        <template #append>
+          <el-button :icon="Search" @click="filterEdit()"/>
+        </template>
+      </el-input>
+      <el-button type="primary" :icon="Search" @click="filterVisible = true;">高级筛选</el-button>
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
     </div>
     <el-scrollbar>
       <el-table
-        :data="filteredData"
+        :data="tableResData"
         :border="true"
         stripe
         class="table"
         ref="multipleTable"
         @sort-change="handleSortChange"
-        :default-sort="{ prop: 'create_time', order: 'descending' }"
+        :default-sort="{ prop: 'end_time', order: 'descending' }"
         header-cell-class-name="table-header"
       >
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
@@ -58,7 +62,6 @@
         <el-table-column class-name="log-num" width="200" label="数据计数" :show-overflow-tooltip="true">
           <template #default="scope"><span class="ok-color">{{ scope.row.items_count }}</span></template>
         </el-table-column>
-
         <el-table-column width="100" label="执行用户" :show-overflow-tooltip="true">
           <template #default="scope">{{ scope.row.run_user }}</template>
         </el-table-column>
@@ -92,6 +95,42 @@
         </el-table-column>
       </el-table>
     </el-scrollbar>
+    <el-dialog title="高级搜索" v-model="filterVisible" width="30%">
+      <el-form label-width="80px">
+        <el-form-item label="筛选词:">
+          <el-input v-model="query.filterValue"
+                    placeholder="匹配的筛选值"
+                    class="input-with-select"
+                    style="width: 400px"
+                    clearable
+          >
+            <template #prepend>
+              <el-select v-model="query.filterKey" style="width: 150px" placeholder="选择列名">
+                <el-option
+                    v-for="(option, columnName) in columnOptions"
+                    :key="columnName"
+                    :label="option.value"
+                    :value="option.label"
+                    @click="query.filterKey = option.label"
+                />
+                <el-option key="0" label="无" value=""></el-option>
+              </el-select>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item label="搜索词:">
+          <el-input v-model="query.keyword" style="width: 400px"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+				<span class="dialog-footer">
+          <el-button @click="clearQuery">重 置</el-button>
+					<el-button @click="filterVisible = false">取 消</el-button>
+					<el-button type="primary" @click="filterEdit();">确 定</el-button>
+				</span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -99,7 +138,7 @@
 import { ref, reactive, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import {getJobs, delJobs, getLogContent, getProjectsNames} from '~/api/projects';
+import {getJobs, delJobs, getLogContent, getProjectsNames, addProjects} from '~/api/projects';
 // import { um_api } from "~/store/user_mange";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 
@@ -126,15 +165,28 @@ interface TableItem {
 // 获取路由对象
 const route = useRoute();
 const query = reactive({
-  filterWord: '',
+  filterKey: '',
+  filterValue: '',
   keyword: '',
   pageIndex: 1,
   pageSize: 100,
-  log_projects: [],
 });
-const tableData = ref<TableItem[]>([]);
+// 表格原始数据
+const tableRawData = ref<TableItem[]>([]);
+// 表格整合数据
+const tableResData = ref<TableItem[]>([]);
+
 const pageTotal = ref(0);
-const filter = reactive({})
+
+// 初始化query数据
+const clearQuery = () => {
+  query.filterKey = ''
+  query.filterValue = ''
+  query.keyword = ''
+  query.pageIndex = 1
+  query.pageSize = 100
+};
+
 // 刷新数据
 const handleFlush = async (init = true) => {
   // 获取数据
@@ -146,8 +198,17 @@ const handleFlush = async (init = true) => {
   // 是否初始化
   if (init && res.data.pageTotal !== 0) {
     // 载入数据
-    tableData.value = res.data.list.slice(0, query.pageSize);
+    tableRawData.value = res.data.list.slice(0, query.pageSize);
+    if (tableRawData.value) {
+      tableResData.value = tableRawData.value
+    }
     pageTotal.value = res.data.pageTotal || 1;
+
+    // 清空筛选器
+    query.filterKey = '';
+    query.filterValue = '';
+    query.keyword = '';
+
     // 缓存数据
     localStorage.setItem('jobs_list', JSON.stringify(res.data));
   }
@@ -155,18 +216,142 @@ const handleFlush = async (init = true) => {
 // 打开页面就刷新
 handleFlush();
 
-// 计算属性，根据搜索关键字筛选数据
-const filteredData = computed(() => {
-  if (!query.keyword) {
-    return tableData.value;
-  }
-  const keyword = query.keyword;
-  return tableData.value.filter(item =>
-      item.name.toLowerCase().includes(keyword) || String(item.p_nickname).includes(keyword)
-  );
-});
+// 声明 jobsList 和 keyword 的类型
+let jobsList: { list: TableItem[] };
+// 高级筛选处理
+const handleTableDataResult = () => {
+  // 初始化中间变量
+  let temp:any = null;
 
-// 排序相关
+  // 数据来源：后台获取、缓存读取
+  // 从localStorage中获取缓存数据
+  jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
+
+  // 如果缓存数据不存在，运行handleFlush函数并重新获取
+  if (!jobsList) {
+    console.log("刷新步骤")
+    handleFlush();
+    jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
+  }
+  temp = jobsList.list;
+
+  // 筛选数据：根据特定条件，对数据筛选
+  if (query.filterValue && query.filterKey) {
+    console.log("筛选数据...")
+    temp = handleFilter(temp);
+  }
+
+  // 搜索数据：根据给出的关键词，对数据包含筛选
+  if (query.keyword) {
+    temp = handleSearch(temp);
+    console.log("进入关键词..2", temp)
+  }
+
+  // 数据排序：根据生成的数据进行排序
+
+
+  // 翻页处理：获取当前页数，计算经过过滤以后列表数据的分页，没超过总页数，直接翻页，超过直接返回第一页。
+  console.log("temp", temp)
+  tableResData.value = temp.slice(0, query.pageSize);
+  console.log("tableResData",tableResData.value)
+}
+
+// 条件过滤
+// 定义筛选数据的函数
+const columnMapping = {
+  // 'id': '编号',
+  // 'name': '实例名称',
+  'status': '状态',
+  'p_nickname': '所属项目',
+  // 'w_nickname': '工作流',
+  // 'log_lv_error': '错误',
+  // 'log_lv_warning': '警告',
+  // 'log_lv_info': '常规',
+  // 'items_count': '数据计数',
+  'run_user': '执行用户',
+  // 'create_time': '记录开始时间',
+  // 'end_time': '记录结束时间',
+};
+// 计算属性，提取表格列名并创建选项
+const columnOptions = computed(() => {
+  const options = [];
+  if (tableResData.value.length > 0) {
+    const firstRow = tableResData.value[0];
+    for (const columnName in firstRow) {
+      // 检查是否存在于映射中
+      if (columnMapping[columnName as keyof typeof columnMapping]) {
+        const variableName = columnMapping[columnName as keyof typeof columnMapping];
+        options.push({ label: columnName, value: variableName });
+      }
+    }
+  }
+  return options;
+});
+// 响应式数据，用于存储用户选择的列名
+const handleFilter = (temp: TableItem[] = []) => {
+  // 传入需要筛选的值和被查询的字段名称
+  if (!query.filterKey || !query.filterValue) {
+    return temp;
+  }
+
+  let temp_fk = ""
+  let temp_fv:any = ""
+
+  console.log("query.filterKey",query.filterKey)
+  console.log("query.filterValue",query.filterValue)
+  // 检查 query.filterKey 是否存在于 TableItem 的键名列表中
+  const validKeys: (keyof TableItem)[] = Object.keys(temp[0]) as (keyof TableItem)[];
+  if (!validKeys.includes(query.filterKey as keyof TableItem)) {
+    console.error(`Invalid filterKey: ${query.filterKey}`);
+    return temp;
+  }
+
+  temp_fk = query.filterKey
+  temp_fv = query.filterValue
+
+  // 状态 列 参数的转换 特化代码
+  if (query.filterKey && query.filterKey=="status") {
+    let qfv = ['未知', '执行中', '结束', '中断', '失败'].findIndex(status => status === query.filterValue)
+    temp_fv = qfv as number;
+  }
+  console.log(temp_fk, temp_fv)
+  console.log(temp)
+  const filteredData = temp.filter(item => item[temp_fk as keyof TableItem] === temp_fv);
+  console.log(`筛选结果：`, filteredData);
+  // 清空
+  temp_fk = "";
+  temp_fv = "";
+  return filteredData;
+};
+
+// 关键词搜索
+let keyword: string = '';
+// 处理搜索逻辑
+const handleSearch = (temp:TableItem[]=[]) => {
+  if (!temp.length) {
+    // 从localStorage中获取缓存数据
+    jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
+
+    // 如果缓存数据不存在，运行handleFlush函数并重新获取
+    if (!jobsList) {
+      handleFlush();
+      jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
+    }
+
+    temp = jobsList.list;
+  }
+
+  // 从列表数据中根据关键词搜索匹配项
+  if (temp && query.keyword) {
+    keyword = query.keyword.trim();
+    temp = temp.filter(item => item.name.includes(keyword));
+  }
+
+  console.log("kw_temp",temp)
+  return temp
+};
+
+// 数据排序
 const sortKey = ref('create_time');
 const sortOrder = ref('descending');
 
@@ -193,6 +378,7 @@ const formatDate = (time: string) => {
   return date.toLocaleString(); // 根据需要格式化时间显示
 };
 
+
 // 删除操作
 let delform = reactive({
   pid: '',
@@ -218,8 +404,8 @@ const handleDelete = (index: number, row: any) => {
           const sub_flush = (await getJobs({}))
           console.log("sub_flush", sub_flush)
           localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
-          let temp = tableData.value.splice(index, 1)[0];
-          tableData.value = sub_flush.data.list
+          let temp = tableResData.value.splice(index, 1)[0];
+          tableResData.value = sub_flush.data.list
           pageTotal.value -= 1
 
         } else {
@@ -231,9 +417,19 @@ const handleDelete = (index: number, row: any) => {
         ElMessage.error(`删除失败! ${error}`);
       });
 };
+
+const filterVisible = ref(false);
+const filterEdit = async () => {
+  console.log("filterEdit 执行...")
+  handleTableDataResult();
+  filterVisible.value = false;
+};
 </script>
 
 <style scoped>
+.input-with-select .el-input-group__prepend {
+  background-color: var(--el-fill-color-blank);
+}
 .handle-box {
   margin-bottom: 20px;
 }
