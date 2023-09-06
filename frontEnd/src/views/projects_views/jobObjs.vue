@@ -28,7 +28,7 @@
         stripe
         class="table"
         @sort-change="handleSortChange"
-        :default-sort="{ prop: 'create_time', order: 'descending' }"
+        :default-sort="{ prop: 'end_time', order: 'null' }"
         header-cell-class-name="table-header"
       >
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
@@ -49,18 +49,34 @@
         <el-table-column prop="p_nickname" width="200" label="所属项目" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="w_nickname" width="200" label="工作流" :show-overflow-tooltip="true"></el-table-column>
 
-        <el-table-column class-name="log-num" width="100" label="错误" :show-overflow-tooltip="true">
-          <template #default="scope"><span class="error-color">{{ scope.row.log_lv_error }}</span></template>
+        <!-- 错误列添加排序功能 -->
+        <el-table-column class-name="log-num" width="100" label="错误" :show-overflow-tooltip="true" prop="log_lv_error" sortable :sort-method="customSortMethod">
+          <template #default="scope">
+            <span class="error-color">{{ scope.row.log_lv_error }}</span>
+          </template>
         </el-table-column>
-        <el-table-column class-name="log-num" width="100" label="警告" :show-overflow-tooltip="true">
-          <template #default="scope"><span class="warning-color">{{ scope.row.log_lv_warning }}</span></template>
+
+        <!-- 警告列添加排序功能 -->
+        <el-table-column class-name="log-num" width="100" label="警告" :show-overflow-tooltip="true" prop="log_lv_warning" sortable :sort-method="customSortMethod">
+          <template #default="scope">
+            <span class="warning-color">{{ scope.row.log_lv_warning }}</span>
+          </template>
         </el-table-column>
-        <el-table-column class-name="log-num" width="100" label="常规" :show-overflow-tooltip="true">
-          <template #default="scope"><span class="info-color">{{ scope.row.log_lv_info }}</span></template>
+
+        <!-- 常规列添加排序功能 -->
+        <el-table-column class-name="log-num" width="100" label="常规" :show-overflow-tooltip="true" prop="log_lv_info" sortable :sort-method="customSortMethod">
+          <template #default="scope">
+            <span class="info-color">{{ scope.row.log_lv_info }}</span>
+          </template>
         </el-table-column>
-        <el-table-column class-name="log-num" width="200" label="数据计数" :show-overflow-tooltip="true">
-          <template #default="scope"><span class="ok-color">{{ scope.row.items_count }}</span></template>
+
+        <!-- 数据计数列添加排序功能 -->
+        <el-table-column class-name="log-num" width="200" label="数据计数" :show-overflow-tooltip="true" prop="items_count" sortable :sort-method="customSortMethod">
+          <template #default="scope">
+            <span class="ok-color">{{ scope.row.items_count }}</span>
+          </template>
         </el-table-column>
+
         <el-table-column width="100" label="执行用户" :show-overflow-tooltip="true">
           <template #default="scope">{{ scope.row.run_user }}</template>
         </el-table-column>
@@ -350,9 +366,9 @@ const handleSearch = (temp:TableItem[]=[]) => {
 };
 
 // 数据排序
+// 时间排序
 const sortKey = ref('create_time');
 const sortOrder = ref('descending');
-
 const sortTime = (a: string, b: string) => {
   const dateA = new Date(a);
   const dateB = new Date(b);
@@ -363,11 +379,30 @@ const sortTime = (a: string, b: string) => {
     return dateB.getTime() - dateA.getTime();
   }
 };
+// 各项计数排序
+const customSortMethod = (a: any, b: any) => {
+  // 将字符串数字转换为数字并比较
+  const numA = parseFloat(a);
+  const numB = parseFloat(b);
 
-// 排序
-const handleSortChange = ({ prop, order }: any) => {
+  // 如果其中一个值为0，则按 end_time 列的时间戳字符串降序排序
+  if (numA === 0) {
+    return 1; // 1 表示降序
+  } else if (numB === 0) {
+    return -1; // -1 表示降序
+  }
+
+  // 否则，按数字大小升序排序
+  return numA - numB;
+};
+
+// 排序处理
+const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
   sortOrder.value = order;
+  console.log("column",column)
+  console.log("prop",prop)
+  console.log("order",order)
 };
 
 // 时间戳转date格式进行展示
