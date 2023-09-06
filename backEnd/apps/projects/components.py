@@ -112,14 +112,25 @@ def add_job_one(model, data):
 
 
 # 获取所有数据
-def get_query_all(model, **kwargs):
+def get_query_all(model, sort_field="", descending=False, **kwargs):
     """
     获取某表的所有数据
+    :param descending: 是否按降序排序，默认为 False（正序）
+    :param sort_field: str,需要排序的字段
     :param model: 需要查询的数据表模组
     :return:
     """
     session = Newsession()
-    result = session.query(model).filter_by(**kwargs).all()
+    if sort_field:
+
+        if descending:
+            result = session.query(model).filter_by(**kwargs).order_by(getattr(model, sort_field).desc()).all()
+        else:
+            result = session.query(model).filter_by(**kwargs).order_by(getattr(model, sort_field).asc()).all()
+
+    else:
+        result = session.query(model).filter_by(**kwargs).all()
+
     if result:
         temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
         for u in temps:

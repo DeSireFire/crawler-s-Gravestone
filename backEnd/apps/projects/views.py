@@ -307,11 +307,11 @@ async def get_jobs(request: Request, pid: str = Query(None), wid: str = Query(No
     callbackJson.statusCode = 200
     content = {}
     if pid:
-        jobs_list = get_query_all(model=JobInfos, pid=pid) or []
+        jobs_list = get_query_all(model=JobInfos, sort_field="end_time", descending=True, pid=pid) or []
     else:
-        jobs_list = get_query_all(model=JobInfos) or []
+        jobs_list = get_query_all(model=JobInfos, sort_field="end_time", descending=True) or []
 
-    # pprint(jobs_list)
+    # pprint(jobs_list[0])
     # 转换为业务响应数据
     content["list"] = jobs_list or None
     content["pageTotal"] = len(jobs_list)
