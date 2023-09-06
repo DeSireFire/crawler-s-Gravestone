@@ -27,9 +27,8 @@
         :border="true"
         stripe
         class="table"
-        ref="multipleTable"
         @sort-change="handleSortChange"
-        :default-sort="{ prop: 'end_time', order: 'descending' }"
+        :default-sort="{ prop: 'create_time', order: 'descending' }"
         header-cell-class-name="table-header"
       >
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
@@ -135,11 +134,10 @@
 </template>
 
 <script setup lang="ts" name="sub_jobObj">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getJobs, delJobs, getLogContent, getProjectsNames, addProjects} from '~/api/projects';
-// import { um_api } from "~/store/user_mange";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 
 interface TableItem {
@@ -219,9 +217,9 @@ handleFlush();
 // 声明 jobsList 和 keyword 的类型
 let jobsList: { list: TableItem[] };
 // 高级筛选处理
-const handleTableDataResult = () => {
+const handleTableDataResult = async () => {
   // 初始化中间变量
-  let temp:any = null;
+  let temp:TableItem[] = [];
 
   // 数据来源：后台获取、缓存读取
   // 从localStorage中获取缓存数据
@@ -237,18 +235,18 @@ const handleTableDataResult = () => {
 
   // 筛选数据：根据特定条件，对数据筛选
   if (query.filterValue && query.filterKey) {
-    console.log("筛选数据...")
     temp = handleFilter(temp);
   }
 
   // 搜索数据：根据给出的关键词，对数据包含筛选
   if (query.keyword) {
     temp = handleSearch(temp);
-    console.log("进入关键词..2", temp)
   }
 
+  console.log("temp", temp)
   // 数据排序：根据生成的数据进行排序
-
+  // temp.sort("end_time", "descending")
+  // temp.sort((a:TableItem, b:TableItem) => parseInt(a.end_time.toString()) - parseInt(b.end_time.toString()));
 
   // 翻页处理：获取当前页数，计算经过过滤以后列表数据的分页，没超过总页数，直接翻页，超过直接返回第一页。
   console.log("temp", temp)
@@ -367,17 +365,16 @@ const sortTime = (a: string, b: string) => {
 };
 
 // 排序
-const handleSortChange = ({ column, prop, order }: any) => {
+const handleSortChange = ({ prop, order }: any) => {
   sortKey.value = prop;
   sortOrder.value = order;
 };
 
-// 定义 formatDate 函数
+// 时间戳转date格式进行展示
 const formatDate = (time: string) => {
   const date = new Date(time);
   return date.toLocaleString(); // 根据需要格式化时间显示
 };
-
 
 // 删除操作
 let delform = reactive({
@@ -418,12 +415,13 @@ const handleDelete = (index: number, row: any) => {
       });
 };
 
+// 高级搜索 弹窗
 const filterVisible = ref(false);
 const filterEdit = async () => {
-  console.log("filterEdit 执行...")
   handleTableDataResult();
   filterVisible.value = false;
 };
+
 </script>
 
 <style scoped>
