@@ -30,6 +30,7 @@
         @sort-change="handleSortChange"
         :default-sort="{ prop: 'end_time', order: 'null' }"
         header-cell-class-name="table-header"
+        height="550"
       >
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
         <el-table-column width="300" label="实例名称" :show-overflow-tooltip="true">
@@ -110,6 +111,23 @@
         </el-table-column>
       </el-table>
     </el-scrollbar>
+    <!-- 分页组件 -->
+    <div class="pagination">
+      <el-pagination
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          v-model="query.pageIndex"
+          v-model:page-size="query.pageSize"
+          :page-sizes="[10, 20, 30, 40, 50, 100]"
+          :pager-count="5"
+          :page-size="query.pageSize"
+          :total="pageTotal"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+      />
+    </div>
+
+    <!--  功能弹窗  -->
     <el-dialog title="高级搜索" v-model="filterVisible" width="30%">
       <el-form label-width="80px">
         <el-form-item label="筛选词:">
@@ -183,7 +201,7 @@ const query = reactive({
   filterValue: '',
   keyword: '',
   pageIndex: 1,
-  pageSize: 100,
+  pageSize: 10,
 });
 // 表格原始数据
 const tableRawData = ref<TableItem[]>([]);
@@ -198,7 +216,7 @@ const clearQuery = () => {
   query.filterValue = ''
   query.keyword = ''
   query.pageIndex = 1
-  query.pageSize = 100
+  query.pageSize = 10
 };
 
 // 刷新数据
@@ -232,7 +250,7 @@ handleFlush();
 
 // 声明 jobsList 和 keyword 的类型
 let jobsList: { list: TableItem[] };
-// 高级筛选处理
+// 表格数据处理
 const handleTableDataResult = async () => {
   // 初始化中间变量
   let temp:TableItem[] = [];
@@ -243,7 +261,6 @@ const handleTableDataResult = async () => {
 
   // 如果缓存数据不存在，运行handleFlush函数并重新获取
   if (!jobsList) {
-    console.log("刷新步骤")
     handleFlush();
     jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
   }
@@ -259,14 +276,26 @@ const handleTableDataResult = async () => {
     temp = handleSearch(temp);
   }
 
-  console.log("temp", temp)
   // 数据排序：根据生成的数据进行排序
   // temp.sort("end_time", "descending")
   // temp.sort((a:TableItem, b:TableItem) => parseInt(a.end_time.toString()) - parseInt(b.end_time.toString()));
 
+  // 统计数据：筛选完后对数据总数进行记录，为之后的分页做准备
+  console.log("temp.length",temp.length)
+  pageTotal.value = temp.length || 1;
+
   // 翻页处理：获取当前页数，计算经过过滤以后列表数据的分页，没超过总页数，直接翻页，超过直接返回第一页。
-  console.log("temp", temp)
-  tableResData.value = temp.slice(0, query.pageSize);
+  console.log("当前页数", query.pageIndex)
+  if (query.pageIndex >= 1) {
+    let cursor_start = (parseInt(query.pageIndex) - 1) * parseInt(query.pageSize)
+    let cursor_end = cursor_start + parseInt(query.pageSize)
+    temp = temp.slice(cursor_start, cursor_end);
+  } else {
+    temp = temp.slice(0, query.pageSize);
+  }
+
+  // 装载数据：将多重处理后的数据交给表格渲染
+  tableResData.value = temp;
   console.log("tableResData",tableResData.value)
 }
 
@@ -395,7 +424,6 @@ const customSortMethod = (a: any, b: any) => {
   // 否则，按数字大小升序排序
   return numA - numB;
 };
-
 // 排序处理
 const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
@@ -404,6 +432,16 @@ const handleSortChange = ({ column, prop, order }: any) => {
   console.log("prop",prop)
   console.log("order",order)
 };
+
+// 分页操作
+const handlePageChange = (pageNumber: number) => {
+  query.pageIndex = pageNumber
+  handleTableDataResult();
+};
+const handleSizeChange = (pageSize: number) => {
+  query.pageSize = pageSize
+  handleTableDataResult();
+}
 
 // 时间戳转date格式进行展示
 const formatDate = (time: string) => {
