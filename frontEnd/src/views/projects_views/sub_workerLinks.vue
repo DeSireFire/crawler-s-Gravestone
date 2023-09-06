@@ -10,7 +10,7 @@
   </div>
 
   <el-scrollbar>
-    <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+    <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="480">
       <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
       <el-table-column label="工作流名称">
         <template #default="scope">

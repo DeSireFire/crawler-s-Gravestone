@@ -17,7 +17,7 @@ const query = reactive({
     filterWord: '',
     keyword: '',
     pageIndex: 1,
-    pageSize: 10
+    pageSize: 100
 });
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);

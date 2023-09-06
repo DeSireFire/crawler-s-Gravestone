@@ -8,7 +8,7 @@
     <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
   </div>
   <el-scrollbar>
-    <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+    <el-table :data="tableResData" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="480">
       <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
       <el-table-column label="实例名称">
         <template #default="scope">
@@ -71,14 +71,27 @@
       </el-table-column>
     </el-table>
   </el-scrollbar>
-
+  <!-- 分页组件 -->
+  <div class="pagination">
+    <el-pagination
+        background
+        layout="total, sizes, prev, pager, next, jumper"
+        v-model="query.pageIndex"
+        v-model:page-size="query.pageSize"
+        :page-sizes="[10, 20, 30, 40, 50, 100]"
+        :pager-count="5"
+        :page-size="query.pageSize"
+        :total="pageTotal"
+        @size-change="handleSizeChange"
+        @current-change="handlePageChange"
+    />
+  </div>
 </template>
 
 <script setup lang="ts" name="sub_jobObj">
 import {ref, reactive, watch} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getJobs, delJobs, getLogContent} from '~/api/projects';
-import { um_api } from "~/store/user_mange";
 import {useRoute} from "vue-router";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 interface TableItem {
@@ -112,9 +125,12 @@ const query = reactive({
   filterWord: '',
   keyword: '',
   pageIndex: 1,
-  pageSize: 100
+  pageSize: 10
 });
-const tableData = ref<TableItem[]>([]);
+// const tableData = ref<TableItem[]>([]);
+// 表格整合数据
+const tableResData = ref<TableItem[]>([]);
+
 const pageTotal = ref(0);
 let project_info = reactive({
   pid: '',
@@ -142,16 +158,16 @@ const handleFlush = async (init = true) => {
 
     if (res.data.pageTotal == 0) {
       ElMessage.warning(`该项目没有任务实例，无法获取有关信息！`);
-      tableData.value = [];
+      tableResData.value = [];
     }
 
     // 是否初始化
     if (init && res.data.pageTotal !== 0) {
       // 载入数据
-      tableData.value = res.data.list.slice(0, query.pageSize);
+      tableResData.value = res.data.list.slice(0, query.pageSize);
       pageTotal.value = res.data.pageTotal || 1;
       // 缓存数据
-      // localStorage.setItem('sub_jobs_list', JSON.stringify(res.data));
+      localStorage.setItem('sub_jobs_list', JSON.stringify(res.data));
     }
   } else {
     ElMessage.error(`未找到项目ID，无法获取项目相关工作流信息！`);
@@ -210,6 +226,43 @@ const handleDelete = (index: number, row: any) => {
       });
 };
 
+// 渲染数据处理
+// 声明 jobsList 和 keyword 的类型
+let jobsList: { list: TableItem[] };
+const handleResTable = () => {
+  // 初始化中间变量
+  let temp:TableItem[] = [];
+
+  // 数据来源：后台获取、缓存读取
+  // 从localStorage中获取缓存数据
+  jobsList = JSON.parse(localStorage.getItem('sub_jobs_list') as string);
+
+  // 如果缓存数据不存在，运行handleFlush函数并重新获取
+  if (!jobsList) {
+    handleFlush();
+    jobsList = JSON.parse(localStorage.getItem('sub_jobs_list') as string);
+  }
+  temp = jobsList.list;
+
+  if (query.pageIndex >= 1) {
+    let cursor_start = (parseInt(query.pageIndex) - 1) * parseInt(query.pageSize)
+    let cursor_end = cursor_start + parseInt(query.pageSize)
+    temp = temp.slice(cursor_start, cursor_end);
+  } else {
+    temp = temp.slice(0, query.pageSize);
+  }
+  tableResData.value = temp;
+};
+
+// 分页操作
+const handlePageChange = (pageNumber: number) => {
+  query.pageIndex = pageNumber
+  handleResTable()
+};
+const handleSizeChange = (pageSize: number) => {
+  query.pageSize = pageSize
+  handleResTable()
+};
 
 </script>
 

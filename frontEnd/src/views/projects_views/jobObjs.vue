@@ -111,6 +111,7 @@
         </el-table-column>
       </el-table>
     </el-scrollbar>
+
     <!-- 分页组件 -->
     <div class="pagination">
       <el-pagination
@@ -281,11 +282,11 @@ const handleTableDataResult = async () => {
   // temp.sort((a:TableItem, b:TableItem) => parseInt(a.end_time.toString()) - parseInt(b.end_time.toString()));
 
   // 统计数据：筛选完后对数据总数进行记录，为之后的分页做准备
-  console.log("temp.length",temp.length)
+  // console.log("temp.length",temp.length)
   pageTotal.value = temp.length || 1;
 
   // 翻页处理：获取当前页数，计算经过过滤以后列表数据的分页，没超过总页数，直接翻页，超过直接返回第一页。
-  console.log("当前页数", query.pageIndex)
+  // console.log("当前页数", query.pageIndex)
   if (query.pageIndex >= 1) {
     let cursor_start = (parseInt(query.pageIndex) - 1) * parseInt(query.pageSize)
     let cursor_end = cursor_start + parseInt(query.pageSize)
@@ -296,7 +297,7 @@ const handleTableDataResult = async () => {
 
   // 装载数据：将多重处理后的数据交给表格渲染
   tableResData.value = temp;
-  console.log("tableResData",tableResData.value)
+  // console.log("tableResData",tableResData.value)
 }
 
 // 条件过滤
@@ -390,7 +391,6 @@ const handleSearch = (temp:TableItem[]=[]) => {
     temp = temp.filter(item => item.name.includes(keyword));
   }
 
-  console.log("kw_temp",temp)
   return temp
 };
 
@@ -428,9 +428,9 @@ const customSortMethod = (a: any, b: any) => {
 const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
   sortOrder.value = order;
-  console.log("column",column)
-  console.log("prop",prop)
-  console.log("order",order)
+  // console.log("column",column)
+  // console.log("prop",prop)
+  // console.log("order",order)
 };
 
 // 分页操作

@@ -9,7 +9,7 @@
 				<el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
 			</div>
       <el-scrollbar>
-        <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
+        <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="550">
           <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
           <el-table-column label="项目名称" width="300" :show-overflow-tooltip="true">
             <template #default="scope">
