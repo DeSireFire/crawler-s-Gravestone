@@ -358,7 +358,6 @@ async def handleLevelTotal(model_data, log_data):
     # 入库计数日志不放在日志等级统计里
     if log_details.get("log_record") != "当前新入库数据1条...":
         logger.info(f"检测到为数据入库计数..pass, items_count:{items_count},msg: {log_details.get('log_record')}")
-        return None
     else:
         redis_log_key = f"crawl_monitor:logging:{jid}"
         sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
