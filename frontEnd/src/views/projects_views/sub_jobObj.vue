@@ -122,7 +122,8 @@ const props = defineProps<{
 }>();
 const pid = ref(props.pid||'');
 const query = reactive({
-  filterWord: '',
+  filterKey: '',
+  filterValue: '',
   keyword: '',
   pageIndex: 1,
   pageSize: 10
@@ -166,6 +167,11 @@ const handleFlush = async (init = true) => {
       // 载入数据
       tableResData.value = res.data.list.slice(0, query.pageSize);
       pageTotal.value = res.data.pageTotal || 1;
+      // 清空筛选器
+      query.filterKey = '';
+      query.filterValue = '';
+      query.keyword = '';
+
       // 缓存数据
       localStorage.setItem('sub_jobs_list', JSON.stringify(res.data));
     }

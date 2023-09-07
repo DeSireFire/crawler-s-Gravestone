@@ -18,16 +18,22 @@ from server_core.db import engine, Newsession
 # 检查项目的PID是否存在
 def check_pid(name=None, pid=None):
     session = Newsession()
-    if name or pid:
-        if not pid:
-            pid = get_md5(name)
-    else:
+    try:
+        if name or pid:
+            if not pid:
+                pid = get_md5(name)
+        else:
+            return False
+        data = session.query(ProjectInfos).filter_by(pid=pid).first()
+        if pid and data:
+            return True
+        else:
+            return False
+    except Exception as e:
+        logger.error(f"{check_pid.__name__} 发生错误：{e}")
         return False
-    data = session.query(ProjectInfos).filter_by(pid=pid).first()
-    if pid and data:
-        return True
-    else:
-        return False
+    finally:
+        session.close()
 
 
 # 新增项目数据
@@ -39,7 +45,10 @@ def add_project_info(data):
         return True
     except Exception as e:
         session.rollback()
+        logger.error(f"{add_project_info.__name__} 发生错误：{e}")
         return False
+    finally:
+        session.close()
 
 
 # 删除项目数据
@@ -52,9 +61,10 @@ def del_project_info(data):
         return True
     except Exception as e:
         session.rollback()
-        logger.error(e)
+        logger.error(f"{del_project_info.__name__} 发生错误：{e}")
         return False
-
+    finally:
+        session.close()
 
 # 更新项目数据
 def update_project_infos(data):
@@ -74,23 +84,31 @@ def update_project_infos(data):
         return True
     except Exception as e:
         session.rollback()
-        logger.error(e)
+        logger.error(f"{update_project_infos.__name__} 发生错误：{e}")
         return False
-
+    finally:
+        session.close()
 
 # 获取所有项目数据
 def get_projects_info():
     session = Newsession()
-    result = session.query(ProjectInfos).all()
-    if result:
-        temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
-        for u in temps:
-            for k, v in u.items():
-                if isinstance(v, datetime):
-                    u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
-        return temps
-    else:
-        return None
+    try:
+        result = session.query(ProjectInfos).all()
+        if result:
+            temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
+            for u in temps:
+                for k, v in u.items():
+                    if isinstance(v, datetime):
+                        u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
+            return temps
+        else:
+            return None
+    except Exception as e:
+        session.rollback()
+        logger.error(f"{get_projects_info.__name__} 发生错误：{e}")
+        return False
+    finally:
+        session.close()
 
 
 # 创建任务实例
@@ -108,7 +126,10 @@ def add_job_one(model, data):
         return model(**data)
     except Exception as e:
         session.rollback()
+        logger.error(f"{add_job_one.__name__} 发生错误：{e}")
         return False
+    finally:
+        session.close()
 
 
 # 获取所有数据
@@ -121,25 +142,31 @@ def get_query_all(model, sort_field="", descending=False, **kwargs):
     :return:
     """
     session = Newsession()
-    if sort_field:
+    try:
+        if sort_field:
 
-        if descending:
-            result = session.query(model).filter_by(**kwargs).order_by(getattr(model, sort_field).desc()).all()
+            if descending:
+                result = session.query(model).filter_by(**kwargs).order_by(getattr(model, sort_field).desc()).all()
+            else:
+                result = session.query(model).filter_by(**kwargs).order_by(getattr(model, sort_field).asc()).all()
+
         else:
-            result = session.query(model).filter_by(**kwargs).order_by(getattr(model, sort_field).asc()).all()
+            result = session.query(model).filter_by(**kwargs).all()
 
-    else:
-        result = session.query(model).filter_by(**kwargs).all()
-
-    if result:
-        temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
-        for u in temps:
-            for k, v in u.items():
-                if isinstance(v, datetime):
-                    u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
-        return temps
-    else:
+        if result:
+            temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
+            for u in temps:
+                for k, v in u.items():
+                    if isinstance(v, datetime):
+                        u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
+            return temps
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"{get_query_all.__name__} 发生错误：{e}")
         return None
+    finally:
+        session.close()
 
 
 # 获取指定表数据量
@@ -150,8 +177,15 @@ def get_query_count(model, **kwargs):
     :return:
     """
     session = Newsession()
-    result = session.query(model).filter_by(**kwargs).count() or 0
-    return result
+    try:
+        result = session.query(model).filter_by(**kwargs).count() or 0
+        return result
+    except Exception as e:
+        logger.error(f"{get_query_count.__name__} 发生错误：{e}")
+        return 0
+    finally:
+        session.close()
+
 
 
 # 获取单条数据
@@ -162,18 +196,25 @@ def get_fetch_one(model, **kwargs):
     :return:
     """
     session = Newsession()
-    result = session.query(model).filter_by(**kwargs).first()
-    data = {}
-    if result:
-        temps = {k: v for k, v in result.__dict__.items() if not str(k).startswith("_")}
-        for k, v in temps.items():
-            if isinstance(v, datetime):
-                data[k] = temps[k].strftime('%Y-%m-%d %H:%M:%S')
-            else:
-                data[k] = v
-        return data
-    else:
+    try:
+        result = session.query(model).filter_by(**kwargs).first()
+        data = {}
+        if result:
+            temps = {k: v for k, v in result.__dict__.items() if not str(k).startswith("_")}
+            for k, v in temps.items():
+                if isinstance(v, datetime):
+                    data[k] = temps[k].strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    data[k] = v
+            return data
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"{get_fetch_one.__name__} 发生错误：{e}")
         return None
+    finally:
+        session.close()
+
 
 
 # 新增数据
@@ -191,8 +232,10 @@ def add_data_one(model, data):
         return True
     except Exception as e:
         session.rollback()
+        logger.error(f"{add_data_one.__name__} 发生错误：{e}")
         return False
-
+    finally:
+        session.close()
 
 # 删除数据
 def del_data_one(model, **kwargs):
@@ -210,9 +253,10 @@ def del_data_one(model, **kwargs):
         return True
     except Exception as e:
         session.rollback()
-        logger.error(e)
+        logger.error(f"{del_data_one.__name__} 发生错误：{e}")
         return False
-
+    finally:
+        session.close()
 
 # 更新数据
 def update_data(model, datas):
@@ -229,18 +273,26 @@ def update_data(model, datas):
         return True
     except Exception as e:
         session.rollback()
-        logger.error(e)
+        logger.error(f"{update_data.__name__} 发生错误：{e}")
         return False
+    finally:
+        session.close()
 
 
 # 检查项目的ID是否存在
 def check_id(model, temp_id=None):
     session = Newsession()
-    data = session.query(model).filter_by(pid=temp_id).first()
-    if temp_id and data:
-        return True
-    else:
+    try:
+        data = session.query(model).filter_by(pid=temp_id).first()
+        if temp_id and data:
+            return True
+        else:
+            return False
+    except Exception as e:
+        logger.error(f"{check_id.__name__} 发生错误：{e}")
         return False
+    finally:
+        session.close()
 
 
 # 根据日志等级修改文件名

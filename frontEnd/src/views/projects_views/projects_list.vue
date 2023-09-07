@@ -60,6 +60,7 @@
           </el-table-column>
         </el-table>
       </el-scrollbar>
+
 			<div class="pagination">
 				<el-pagination
 					background
@@ -68,7 +69,7 @@
 					:page-size="query.pageSize"
 					:total="pageTotal"
 					@current-change="handlePageChange"
-				></el-pagination>
+				/>
 			</div>
 		</div>
 
@@ -133,7 +134,6 @@
 import {ref, reactive, onBeforeMount} from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {getProjects, addProjects, delProjects, updateProjects} from '~/api/projects';
-import { um_api } from "~/store/user_mange";
 import { Delete, Edit, Plus,Refresh } from '@element-plus/icons-vue';
 interface TableItem {
 	id: number;
@@ -149,7 +149,13 @@ interface TableItem {
   update_time: string;
 }
 
-const query = um_api.query
+const query = reactive({
+  filterKey: '',
+  filterValue: '',
+  keyword: '',
+  pageIndex: 1,
+  pageSize: 10
+});
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 
@@ -186,9 +192,29 @@ const handlePageChange = (val: number) => {
   // 对新的搜索结果做分页处理
   query.pageIndex = val;
   pageTotal.value = temp.length || 1;
-  console.log("翻页搜索结果datas", temp)
+  // console.log("翻页搜索结果datas", temp)
   // 缓存数据
-  tableData.value = um_api.updateView(val, temp);
+  tableData.value = updateView(val, temp);
+};
+const updateView = (page_num: number, datas: [] = []) => {
+  if (!datas) {
+    datas = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  }
+  // const datas = JSON.parse(localStorage.getItem('workerLogs') as string).list;
+  // 传递页码
+  query.pageIndex = page_num;
+  // 获取每个分页得大小
+  let page_size = query.pageSize
+  // 计算本页需要展示得片段
+  let index_start = 0
+  let index_end = query.pageSize
+  if (page_num == 1 /* 第1页和第0页，内容一致 */) {
+    index_start = 0
+  } else {
+    index_start = (page_num - 1) * page_size
+    index_end = (page_num - 1) * page_size + page_size
+  }
+  return datas.slice(index_start, index_end)
 };
 
 // 增删改

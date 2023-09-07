@@ -11,7 +11,8 @@ __author__ = 'RaXianch'
 from loguru import logger
 
 from .conf import BASE_DIR, conf, LogLevel
-import os, sys
+import os
+import sys
 
 # 后端日志对象
 log_path = os.path.join(BASE_DIR, 'logs')

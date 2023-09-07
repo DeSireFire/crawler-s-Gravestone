@@ -23,8 +23,6 @@ const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 
 // 获取表格数据
-
-//翻页表格数据
 const updateView = (page_num: number, datas: [] = []) => {
     if (!datas) {
         datas = JSON.parse(localStorage.getItem('workerLogs') as string).list;

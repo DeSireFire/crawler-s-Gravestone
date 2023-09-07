@@ -30,7 +30,7 @@
         @sort-change="handleSortChange"
         :default-sort="{ prop: 'end_time', order: 'null' }"
         header-cell-class-name="table-header"
-        height="550"
+        height="540"
       >
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
         <el-table-column width="300" label="实例名称" :show-overflow-tooltip="true">
