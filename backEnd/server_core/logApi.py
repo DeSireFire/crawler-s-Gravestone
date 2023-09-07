@@ -356,8 +356,8 @@ async def handleLevelTotal(model_data, log_data):
     items_count = extra_data.get("items_count") or 0
     log_details = create_log_message(log_data)
     # 入库计数日志不放在日志等级统计里
-    if items_count == 0 or log_details.get("log_record") != "当前新入库数据1条...":
-        logger.info("检测到为数据入库计数..pass")
+    if log_details.get("log_record") != "当前新入库数据1条...":
+        logger.info(f"检测到为数据入库计数..pass, items_count:{items_count},msg: {log_details.get('log_record')}")
         return None
     else:
         redis_log_key = f"crawl_monitor:logging:{jid}"
