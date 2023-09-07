@@ -220,21 +220,26 @@ async def update_logging(request: Request):
 
         # 同步监控数据到数据库
         job_info = get_fetch_one(JobInfos, jid=jid)
+        # 检测任务是否存在
+        if not job_info:
+            err = f"{jid} 未查询到该任务实例。日志信息明细：{log_data}。 可能是任务被删除。"
+            logger.error(err)
+            return {"status": "err", "error": err, "data": None}
 
         # 调用函数并打印结果
-        await handlLevelTotal(job_info, log_data)
+        await handleLevelTotal(job_info, log_data)
 
         # 状态
-        await handlStatus(job_info, log_data)
+        await handleStatus(job_info, log_data)
 
         # 入库数据计数
-        await handlItemsCount(job_info, log_data)
+        await handleItemsCount(job_info, log_data)
 
         # 获取日志文件路径
-        await handlLogTextSave(job_info, log_data)
+        await handleLogTextSave(job_info, log_data)
 
         # 告警任务推送
-        await handlAlarm(job_info, log_data)
+        await handleAlarm(job_info, log_data)
 
         # 状态的控制，销毁前发送状态，推送时修改状态，atexit 模块的尝试
 
@@ -269,6 +274,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
         winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
         # 没获取到直接返回失败
         if not winfo:
+            logger.error(f"所属工作流信息获取失败! 日志创建信息：{data}")
             callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
             return callbackJson.callBacker(content)
 
@@ -278,9 +284,10 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
         log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
         data["log_file_path"] = log_file_path
         del data['init_mark']
-        result = add_job_one(JobInfos, data)
+        # result = add_job_one(JobInfos, data)
+        result = handleAddJobOne(JobInfos, data)
         worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-        if result and check_id(JobInfos, temp_id=result.jid):
+        if result:
             # 同步项目下的任务数量，还有各项指标参数
             synchronous_jobs(worker.get("pid"))
             jid = result.get_jid()
@@ -290,6 +297,11 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             content["log_file_path"] = log_file_path
             # 附加信息，备用传递部分信息到客户端
             content["meta"] = {}
+        else:
+            err = f"构建新任务实例时失败了，数据明细：{data}"
+            logger.error(err)
+            callbackJson.message = err
+            callbackJson.resData["errMsg"] = err
         return callbackJson.callBacker(content)
     except Exception as e:
         logger.error(f"构建新任务实例时发生了错误！错误原因：{e}")
@@ -299,7 +311,36 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
 
 
 # 工具函数
-async def handlLevelTotal(model_data, log_data):
+async def handleAddJobOne(JobInfos, data):
+    """
+    新建任务
+    :param JobInfos:
+    :param data:
+    :return:
+    """
+    try:
+        result = add_job_one(JobInfos, data)
+        if not check_id(JobInfos, temp_id=result.jid):
+            raise ValueError
+        return result
+    except Exception as e:
+        logger.error(f"构建新任务实例时发生了错误！将进行创建重试，错误原因：{e}")
+        count = 0
+        for i in range(3):
+            try:
+                count += 1
+                result = add_job_one(JobInfos, data)
+                if check_id(JobInfos, temp_id=result.jid):
+                    return result
+            except Exception as ee:
+                logger.error(f"构建新任务实例时发生了错误！当前重试次数 ({count})，错误原因：{ee}")
+
+        logger.error(f"构建新任务实例时发生了错误！！重试失败！！！数据明细：{data} 错误原因：{e}")
+        return False
+
+
+
+async def handleLevelTotal(model_data, log_data):
     """
     处理日志信息等级数量统计
     :param model_data: 需要进行操作的模组查询结果对象
@@ -312,24 +353,33 @@ async def handlLevelTotal(model_data, log_data):
     log_level = log_data['levelname']
     # 任务id
     jid = extra_data.get("jid")
+    # 入库计数
+    items_count = extra_data.get("items_count") or 0
     log_details = create_log_message(log_data)
     redis_log_key = f"crawl_monitor:logging:{jid}"
     sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
     rdb.lpush(redis_log_key, log_details.get("log_record"))
     rdb.lpush(sub_redis_log_key, log_details.get("log_record"))
+    # 设置过期时间（以秒为单位，例如，以下设置为 3600 秒，即 1 小时）
+    # 避免日志信息在redis中堆积导致溢出
+    expire_time = 60 * 60 * 24
+    rdb.server.expire(redis_log_key, expire_time)
+    rdb.server.expire(sub_redis_log_key, expire_time)
 
-    # 使用 Redis 的INCR命令对计数器进行原子递增
-    lv_total = count_logs_by_level([log_data])
+    # 入库计数日志不放在日志等级统计里
+    if items_count == 0 or log_details.get("log_record") != "当前新入库数据1条...":
+        # 使用 Redis 的INCR命令对计数器进行原子递增
+        lv_total = count_logs_by_level([log_data])
 
-    model_data["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or model_data["log_lv_info"]
-    model_data["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or model_data["log_lv_error"]
-    model_data["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or model_data["log_lv_warning"]
-    model_data["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
-    del model_data["create_time"]
-    model_data_new = update_data(JobInfos, [model_data])
+        model_data["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or model_data["log_lv_info"]
+        model_data["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or model_data["log_lv_error"]
+        model_data["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or model_data["log_lv_warning"]
+        model_data["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
+        del model_data["create_time"]
+        model_data_new = update_data(JobInfos, [model_data])
 
 
-async def handlStatus(model_data, log_data):
+async def handleStatus(model_data, log_data):
     """
     处理任务状态
     :param model_data: 需要进行操作的模组
@@ -346,7 +396,7 @@ async def handlStatus(model_data, log_data):
         model_data["status"] = model_data["status"] if model_data["status"] else 3
 
 
-async def handlItemsCount(model_data, log_data):
+async def handleItemsCount(model_data, log_data):
     """
     处理数据入库计数
     :param model: 需要进行操作的模组
@@ -363,7 +413,7 @@ async def handlItemsCount(model_data, log_data):
         model_data["items_count"] += items_count or 0
 
 
-async def handlLogTextSave(model_data, log_data):
+async def handleLogTextSave(model_data, log_data):
     """
     处理日志文本保存
     :param model: 需要进行操作的模组
@@ -384,7 +434,7 @@ async def handlLogTextSave(model_data, log_data):
     # asyncio.run(log_to_save2(redis_log_key, log_file_path))
 
 
-async def handlAlarm(model_data, log_data):
+async def handleAlarm(model_data, log_data):
     """
     处理告警业务
     :param model: 需要进行操作的模组
@@ -407,28 +457,28 @@ async def handlAlarm(model_data, log_data):
         )
 
 
-# def 测试函数():
-#     dn = datetime.now()
-#     now_ts = int(dn.timestamp() * 1000)
-#     init_mark = str(now_ts)
-#     data = {
-#         'wid': 'a158dc3a9d0f71283132f2c1127bc8c0',
-#         'run_user': "wyx",
-#         # 初始化标记
-#         'init_mark': init_mark,
-#     }
-#
-#     # wid 获取工作流信息
-#     winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-#     project_name = winfo.get('name')
-#     log_file_name = f"{winfo.get('name')}-{init_mark}"
-#     log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
-#     data["log_file_path"] = log_file_path
-#     del data['init_mark']
-#     result = add_job_one(JobInfos, data)
-#     worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-#     print(result)
-#     print(worker)
+def 测试函数():
+    dn = datetime.now()
+    now_ts = int(dn.timestamp() * 1000)
+    init_mark = str(now_ts)
+    data = {
+        'wid': 'a158dc3a9d0f71283132f2c1127bc8c0',
+        'run_user': "wyx",
+        # 初始化标记
+        'init_mark': init_mark,
+    }
+
+    # wid 获取工作流信息
+    winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+    project_name = winfo.get('name')
+    log_file_name = f"{winfo.get('name')}-{init_mark}"
+    log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
+    data["log_file_path"] = log_file_path
+    del data['init_mark']
+    result = add_job_one(JobInfos, data)
+    worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+    print(result)
+    print(worker)
 
 
 if __name__ == "__main__":

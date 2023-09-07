@@ -73,7 +73,7 @@ def create_log_message(log_data):
         'log_time': log_time,
         'level_name': str(log_data['levelname']),
         'extra': json.loads(log_data['extra']),
-        'log_record': log_record.strip()  # Remove trailing newline
+        'log_record': log_record.strip()
     }
     return log_details
 
