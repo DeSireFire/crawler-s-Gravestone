@@ -226,14 +226,14 @@ async def update_logging(request: Request):
             logger.error(err)
             return {"status": "err", "error": err, "data": None}
 
-        # 调用函数并打印结果
-        await handleLevelTotal(job_info, log_data)
-
         # 状态
         await handleStatus(job_info, log_data)
 
         # 入库数据计数
         await handleItemsCount(job_info, log_data)
+
+        # 日志内容缓存&日志等级统计
+        await handleLevelTotal(job_info, log_data)
 
         # 获取日志文件路径
         await handleLogTextSave(job_info, log_data)
@@ -357,24 +357,25 @@ async def handleLevelTotal(model_data, log_data):
     log_details = create_log_message(log_data)
     # 入库计数日志不放在日志等级统计里
     if items_count == 0 or log_details.get("log_record") != "当前新入库数据1条...":
+        logger.info("检测到为数据入库计数..pass")
         return None
+    else:
+        redis_log_key = f"crawl_monitor:logging:{jid}"
+        sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
+        rdb.lpush(redis_log_key, log_details.get("log_record"))
+        rdb.lpush(sub_redis_log_key, log_details.get("log_record"))
+        # 设置过期时间（以秒为单位，例如，以下设置为 3600 秒，即 1 小时）
+        # 避免日志信息在redis中堆积导致溢出
+        expire_time = 60 * 60 * 24
+        rdb.server.expire(redis_log_key, expire_time)
+        rdb.server.expire(sub_redis_log_key, expire_time)
 
-    redis_log_key = f"crawl_monitor:logging:{jid}"
-    sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
-    rdb.lpush(redis_log_key, log_details.get("log_record"))
-    rdb.lpush(sub_redis_log_key, log_details.get("log_record"))
-    # 设置过期时间（以秒为单位，例如，以下设置为 3600 秒，即 1 小时）
-    # 避免日志信息在redis中堆积导致溢出
-    expire_time = 60 * 60 * 24
-    rdb.server.expire(redis_log_key, expire_time)
-    rdb.server.expire(sub_redis_log_key, expire_time)
-
-    # 使用 Redis 的INCR命令对计数器进行原子递增
-    lv_total = count_logs_by_level([log_data])
-    model_data["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or model_data["log_lv_info"]
-    model_data["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or model_data["log_lv_error"]
-    model_data["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or model_data["log_lv_warning"]
-    model_data["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
+        # 使用 Redis 的INCR命令对计数器进行原子递增
+        lv_total = count_logs_by_level([log_data])
+        model_data["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or model_data["log_lv_info"]
+        model_data["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or model_data["log_lv_error"]
+        model_data["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or model_data["log_lv_warning"]
+        model_data["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
     del model_data["create_time"]
     model_data_new = update_data(JobInfos, [model_data])
 
