@@ -154,12 +154,25 @@ def log_to_save(redis_log_key, log_file_path, log_level):
 
     # 读取redis
     # elements_to_pop = rdb.server.rpop(redis_log_key)
+    # 使用 llen 命令获取列表长度
+    list_length = rdb.server.llen(redis_log_key)
+    pop_step = -5
+    # 存储速度跟不上时动态提高日志内容弹出量
+    if list_length > 100:
+        pop_step = (list_length//2 + 1) * -1
+
     # 使用 LRANGE 获取列表中的多个元素（例如，从右端弹出前5个元素）
-    elements_to_pop = rdb.server.lrange(redis_log_key, -5, -1)
+    elements_to_pop = rdb.server.lrange(redis_log_key, pop_step, -1)
     # 一次性删除多个元素
     rdb.server.ltrim(redis_log_key, 0, -len(elements_to_pop) - 1)
 
-    sub_elements_to_pop = rdb.server.lrange(f"{redis_log_key}:{log_level}", -5, -1)
+    sub_rkey = f"{redis_log_key}:{log_level}"
+    sub_list_length = rdb.server.llen(sub_rkey)
+    sub_pop_step = -5
+    # 存储速度跟不上时动态提高日志内容弹出量
+    if sub_list_length > 100:
+        sub_pop_step = (sub_list_length//2 - 1) * -1
+    sub_elements_to_pop = rdb.server.lrange(sub_rkey, sub_pop_step, -1)
     # 一次性删除多个元素
     rdb.server.ltrim(redis_log_key, 0, -len(sub_elements_to_pop) - 1)
 

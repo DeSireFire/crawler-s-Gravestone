@@ -339,7 +339,6 @@ async def handleAddJobOne(JobInfos, data):
         return False
 
 
-
 async def handleLevelTotal(model_data, log_data):
     """
     处理日志信息等级数量统计
@@ -356,6 +355,10 @@ async def handleLevelTotal(model_data, log_data):
     # 入库计数
     items_count = extra_data.get("items_count") or 0
     log_details = create_log_message(log_data)
+    # 入库计数日志不放在日志等级统计里
+    if items_count == 0 or log_details.get("log_record") != "当前新入库数据1条...":
+        return None
+
     redis_log_key = f"crawl_monitor:logging:{jid}"
     sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
     rdb.lpush(redis_log_key, log_details.get("log_record"))
@@ -366,17 +369,14 @@ async def handleLevelTotal(model_data, log_data):
     rdb.server.expire(redis_log_key, expire_time)
     rdb.server.expire(sub_redis_log_key, expire_time)
 
-    # 入库计数日志不放在日志等级统计里
-    if items_count == 0 or log_details.get("log_record") != "当前新入库数据1条...":
-        # 使用 Redis 的INCR命令对计数器进行原子递增
-        lv_total = count_logs_by_level([log_data])
-
-        model_data["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or model_data["log_lv_info"]
-        model_data["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or model_data["log_lv_error"]
-        model_data["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or model_data["log_lv_warning"]
-        model_data["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
-        del model_data["create_time"]
-        model_data_new = update_data(JobInfos, [model_data])
+    # 使用 Redis 的INCR命令对计数器进行原子递增
+    lv_total = count_logs_by_level([log_data])
+    model_data["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or model_data["log_lv_info"]
+    model_data["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or model_data["log_lv_error"]
+    model_data["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or model_data["log_lv_warning"]
+    model_data["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
+    del model_data["create_time"]
+    model_data_new = update_data(JobInfos, [model_data])
 
 
 async def handleStatus(model_data, log_data):
