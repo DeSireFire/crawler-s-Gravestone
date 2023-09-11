@@ -212,19 +212,19 @@ const handleDelete = (index: number, row: any) => {
         // 向后端发起删除操作
         const response = (await delJobs(delform));
         if (response.isSuccess) {
-          // 响应删除成功则弹出提示
-          ElMessage.success('删除成功！');
           // 刷新缓存数据
           const sub_flush = (await getJobs({
             pid: pid.value
           }))
           localStorage.setItem('sub_jobs_list', JSON.stringify(sub_flush.data));
-          let temp = tableData.value.splice(index, 1)[0];
+          let temp = tableResData.value.splice(index, 1)[0];
           pageTotal.value -= 1
-
+          // 响应删除成功则弹出提示
+          ElMessage.success('删除成功！');
         } else {
           // 响应删除失败则弹出错误
-          throw new Error(response.errMsg);
+          // throw new Error(response.errMsg);
+          ElMessage.error(`业务处理时发生错误! ${response.errMsg}`);
         }
       })
       .catch((error) => { /* 处理失败时 */

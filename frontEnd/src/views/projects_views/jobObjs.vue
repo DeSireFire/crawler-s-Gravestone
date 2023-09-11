@@ -438,6 +438,7 @@ const handlePageChange = (pageNumber: number) => {
   query.pageIndex = pageNumber
   handleTableDataResult();
 };
+// 单页展示数量设置
 const handleSizeChange = (pageSize: number) => {
   query.pageSize = pageSize
   handleTableDataResult();
@@ -468,15 +469,21 @@ const handleDelete = (index: number, row: any) => {
         // 向后端发起删除操作
         const response = (await delJobs(delform));
         if (response.isSuccess) {
-          // 响应删除成功则弹出提示
-          ElMessage.success('删除成功！');
           // 刷新缓存数据
           const sub_flush = (await getJobs({}))
           console.log("sub_flush", sub_flush)
           localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
+
+          // todo 旧版bug待修复
           let temp = tableResData.value.splice(index, 1)[0];
           tableResData.value = sub_flush.data.list
           pageTotal.value -= 1
+
+          // // todo 根据刷新的数据处理筛选条件
+          // handleTableDataResult();
+
+          // 响应删除成功则弹出提示
+          ElMessage.success('删除成功！');
 
         } else {
           // 响应删除失败则弹出错误
