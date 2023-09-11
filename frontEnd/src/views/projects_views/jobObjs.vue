@@ -28,10 +28,11 @@
         stripe
         class="table"
         @sort-change="handleSortChange"
-        :default-sort="{ prop: 'end_time', order: 'null' }"
+
         header-cell-class-name="table-header"
         height="540"
       >
+      <!--:default-sort="{ prop: 'end_time', order: 'null' }"-->
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
         <el-table-column width="300" label="实例名称" :show-overflow-tooltip="true">
           <template #default="scope">
@@ -51,28 +52,37 @@
         <el-table-column prop="w_nickname" width="200" label="工作流" :show-overflow-tooltip="true"></el-table-column>
 
         <!-- 错误列添加排序功能 -->
-        <el-table-column class-name="log-num" width="100" label="错误" :show-overflow-tooltip="true" prop="log_lv_error" sortable :sort-method="customSortMethod">
+        <el-table-column class-name="log-num" width="100" label="错误"
+                         :show-overflow-tooltip="true" prop="log_lv_error"
+                         sortable :sort-method="customSortMethod('log_lv_error')">
           <template #default="scope">
             <span class="error-color">{{ scope.row.log_lv_error }}</span>
           </template>
         </el-table-column>
 
         <!-- 警告列添加排序功能 -->
-        <el-table-column class-name="log-num" width="100" label="警告" :show-overflow-tooltip="true" prop="log_lv_warning" sortable :sort-method="customSortMethod">
+        <el-table-column class-name="log-num" width="100" label="警告"
+                         :show-overflow-tooltip="true" prop="log_lv_warning"
+                         sortable :sort-method="customSortMethod('log_lv_warning')">
           <template #default="scope">
             <span class="warning-color">{{ scope.row.log_lv_warning }}</span>
           </template>
         </el-table-column>
 
         <!-- 常规列添加排序功能 -->
-        <el-table-column class-name="log-num" width="100" label="常规" :show-overflow-tooltip="true" prop="log_lv_info" sortable :sort-method="customSortMethod">
+        <el-table-column class-name="log-num" width="100" label="常规"
+                         :show-overflow-tooltip="true" prop="log_lv_info"
+                         sortable :sort-method="customSortMethod('log_lv_info')">
           <template #default="scope">
             <span class="info-color">{{ scope.row.log_lv_info }}</span>
           </template>
         </el-table-column>
 
         <!-- 数据计数列添加排序功能 -->
-        <el-table-column class-name="log-num" width="200" label="数据计数" :show-overflow-tooltip="true" prop="items_count" sortable :sort-method="customSortMethod">
+        <el-table-column class-name="log-num" width="200" label="数据计数"
+                         :show-overflow-tooltip="true"
+                         prop="items_count"
+                         sortable :sort-method="customSortMethod('items_count')">
           <template #default="scope">
             <span class="ok-color">{{ scope.row.items_count }}</span>
           </template>
@@ -319,8 +329,8 @@ const columnMapping = {
 // 计算属性，提取表格列名并创建选项
 const columnOptions = computed(() => {
   const options = [];
-  if (tableResData.value.length > 0) {
-    const firstRow = tableResData.value[0];
+  if (tableRawData.value.length > 0) {
+    const firstRow = tableRawData.value[0];
     for (const columnName in firstRow) {
       // 检查是否存在于映射中
       if (columnMapping[columnName as keyof typeof columnMapping]) {
@@ -398,9 +408,12 @@ const handleSearch = (temp:TableItem[]=[]) => {
 // 时间排序
 const sortKey = ref('create_time');
 const sortOrder = ref('descending');
+// todo 存在对象错误bug
 const sortTime = (a: string, b: string) => {
   const dateA = new Date(a);
   const dateB = new Date(b);
+  console.log("sortTime 排序比较 dateA:",dateA)
+  console.log("sortTime 排序比较 dateB:",dateB)
   const order = sortOrder.value as 'ascending' | 'descending'; // 明确类型
   if (order === 'ascending') {
     return dateA.getTime() - dateB.getTime();
@@ -409,28 +422,25 @@ const sortTime = (a: string, b: string) => {
   }
 };
 // 各项计数排序
-const customSortMethod = (a: any, b: any) => {
-  // 将字符串数字转换为数字并比较
-  const numA = parseFloat(a);
-  const numB = parseFloat(b);
+const customSortMethod = (propName: string) => {
+  return (a: any, b: any) => {
+    // 从 a 和 b 中获取指定字段的值进行比较
+    const valA = parseFloat(a[propName]);
+    const valB = parseFloat(b[propName]);
 
-  // 如果其中一个值为0，则按 end_time 列的时间戳字符串降序排序
-  if (numA === 0) {
-    return 1; // 1 表示降序
-  } else if (numB === 0) {
-    return -1; // -1 表示降序
-  }
-
-  // 否则，按数字大小升序排序
-  return numA - numB;
+    // 否则，按数字大小升序排序
+    return valA - valB;
+  };
 };
+
+
 // 排序处理
 const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
   sortOrder.value = order;
-  // console.log("column",column)
-  // console.log("prop",prop)
-  // console.log("order",order)
+  console.log("column",column)
+  console.log("prop",prop)
+  console.log("order",order)
 };
 
 // 分页操作
