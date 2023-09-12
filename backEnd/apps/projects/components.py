@@ -8,12 +8,12 @@
 __author__ = 'RaXianch'
 
 import os
-from datetime import datetime
-from utils.other import get_md5
-from .models import ProjectInfos, WorkerInfos, JobInfos
-from server_core.log import logger
-from server_core.db import engine, Newsession
 from sqlalchemy import func
+from utils.other import get_md5
+from server_core.log import logger
+from datetime import datetime, timedelta
+from server_core.db import engine, Newsession
+from .models import ProjectInfos, WorkerInfos, JobInfos
 
 # 检查项目的PID是否存在
 def check_pid(name=None, pid=None):
@@ -125,6 +125,41 @@ def get_today_job_infos_by_wid(wid):
     except Exception as e:
         logger.error(f"get_today_job_infos_by_wid 发生错误：{e}")
         return []
+    finally:
+        session.close()
+
+
+def update_status_to_2_for_old_jobs(wid):
+    """
+    获取指定wid下昨天和昨天以前且status为0或1的数据，将它们的status转换为对应的新状态，并保存到数据库中
+    :param wid: 工作流ID
+    """
+
+    session = Newsession()
+    try:
+        # 计算昨天的日期
+        yesterday = datetime.now() - timedelta(days=1)
+
+        # 查询指定wid下昨天和昨天以前的数据，status为0或1
+        old_jobs = session.query(JobInfos)\
+            .filter(JobInfos.wid == wid)\
+            .filter(JobInfos.end_time <= yesterday)\
+            .filter(JobInfos.status.in_([0, 1]))\
+            .all()
+
+        # 更新这些数据的status为2
+        for job in old_jobs:
+            if job.status == 1:
+                job.status = 2
+            else:
+                job.status = 3
+
+        # 提交更改
+        session.commit()
+        logger.info(f"成功更新 {len(old_jobs)} 条数据的 status 为 2")
+    except Exception as e:
+        session.rollback()  # 回滚事务以防出现错误
+        logger.error(f"update_status_to_2_for_old_jobs 发生错误：{e}")
     finally:
         session.close()
 
@@ -391,6 +426,7 @@ __all__ = [
     "synchronous_workers",
     "synchronous_jobs",
     "get_today_job_infos_by_wid",
+    "update_status_to_2_for_old_jobs",
 
     # 通用性函数
     "get_query_all",

@@ -20,9 +20,8 @@ from pprint import pprint
 from fastapi import FastAPI
 
 from apps.alarms.alarmers_components import AlarmHandler
-from apps.projects.components import get_today_job_infos_by_wid
 from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
-    synchronous_jobs, check_id
+    synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_to_2_for_old_jobs
 from server_core.conf import redisconf
 from utils.RedisDBHelper import RedisDBHelper
 from fastapi.middleware.cors import CORSMiddleware
@@ -353,6 +352,8 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             content = await handleAddKeepJob(winfo, data, content)
             if not content.get("jid"):  # 当日没有同个工作流任务，则创建新任务
                 content = await handleAddNormalJob(winfo, data, content)
+                # 查找前一天相关常驻任务，将其任务状态设为关闭
+                update_status_to_2_for_old_jobs(wid)
         else:
             # 不是常驻任务，创建新任务
             content = await handleAddNormalJob(winfo, data, content)
@@ -383,8 +384,8 @@ async def handleAddKeepJob(worker_info, data, content):
     """
     wid = data.get("wid")
     today_jobs = get_today_job_infos_by_wid(wid=wid)
-    for job in today_jobs:
-        print(f"job.name: {job.name}")
+    # for job in today_jobs:
+    #     print(f"job.name: {job.name}")
 
     if not today_jobs:
         return content

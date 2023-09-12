@@ -30,7 +30,7 @@ from .components import \
     get_projects_info, check_pid, \
     add_project_info, del_project_info, \
     update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, add_job_one, \
-    get_query_count, synchronous_workers, synchronous_jobs
+    get_query_count, synchronous_workers, synchronous_jobs, get_today_job_infos_by_wid, update_status_to_2_for_old_jobs
 from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
