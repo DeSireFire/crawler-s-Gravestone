@@ -91,10 +91,12 @@
         <el-table-column width="100" label="执行用户" :show-overflow-tooltip="true">
           <template #default="scope">{{ scope.row.run_user }}</template>
         </el-table-column>
-        <el-table-column width="140" label="记录开始时间" prop="create_time" sortable :sort-method="sortTime">
+        <el-table-column width="140" label="记录开始时间" prop="create_time"
+                         sortable :sort-method="sortTime('create_time')">
           <template #default="{ row }">{{ formatDate(row.create_time) }}</template>
         </el-table-column>
-        <el-table-column width="140" label="记录结束时间" prop="end_time" sortable :sort-method="sortTime">
+        <el-table-column width="140" label="记录结束时间" prop="end_time"
+                         sortable :sort-method="sortTime('end_time')">
           <template #default="{ row }">{{ formatDate(row.end_time) }}</template>
         </el-table-column>
         <el-table-column label="操作" width="300" align="center" fixed="right">
@@ -408,17 +410,13 @@ const handleSearch = (temp:TableItem[]=[]) => {
 // 时间排序
 const sortKey = ref('create_time');
 const sortOrder = ref('descending');
-// todo 存在对象错误bug
-const sortTime = (a: string, b: string) => {
-  const dateA = new Date(a);
-  const dateB = new Date(b);
-  console.log("sortTime 排序比较 dateA:",dateA)
-  console.log("sortTime 排序比较 dateB:",dateB)
-  const order = sortOrder.value as 'ascending' | 'descending'; // 明确类型
-  if (order === 'ascending') {
+// 时间日期排序
+const sortTime = (propName: string) => {
+  // console.log("propName:",propName)
+  return (a: any, b: any) => {
+    const dateA = new Date(a[propName]);
+    const dateB = new Date(a[propName]);
     return dateA.getTime() - dateB.getTime();
-  } else {
-    return dateB.getTime() - dateA.getTime();
   }
 };
 // 各项计数排序
@@ -438,9 +436,9 @@ const customSortMethod = (propName: string) => {
 const handleSortChange = ({ column, prop, order }: any) => {
   sortKey.value = prop;
   sortOrder.value = order;
-  console.log("column",column)
-  console.log("prop",prop)
-  console.log("order",order)
+  // console.log("column",column)
+  // console.log("prop",prop)
+  // console.log("order",order)
 };
 
 // 分页操作

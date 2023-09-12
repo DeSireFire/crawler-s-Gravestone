@@ -20,6 +20,7 @@ from pprint import pprint
 from fastapi import FastAPI
 
 from apps.alarms.alarmers_components import AlarmHandler
+from apps.projects.components import get_today_job_infos_by_wid
 from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
     synchronous_jobs, check_id
 from server_core.conf import redisconf
@@ -252,6 +253,67 @@ async def update_logging(request: Request):
         return {"status": "err", "error": err, "data": None}
 
 
+# @app.post("/add_job", summary="新增任务")
+# async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
+#     """
+#     通过传入工作流实例wid等信息创建实际的任务实例记录
+#     :param request:
+#     :return:
+#     """
+#     fdata = await request.form()
+#     data = dict(fdata)
+#
+#     callbackJson = constructResponse()
+#     callbackJson.statusCode = 400
+#     content = {}
+#
+#     wid = data.get("wid", None)
+#     init_mark = data.get("init_mark", None)
+#
+#     # 没有wid传入，直接返回失败
+#     if not wid:
+#         return callbackJson.callBacker(content)
+#     try:
+#         # wid 获取工作流信息
+#         winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+#         # 没获取到直接返回失败
+#         if not winfo:
+#             logger.error(f"所属工作流信息获取失败! 日志创建信息：{data}")
+#             callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
+#             return callbackJson.callBacker(content)
+#
+#         project_name = winfo.get('name')
+#
+#         log_file_name = f"{winfo.get('name')}-{init_mark}"
+#         log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
+#         data["log_file_path"] = log_file_path
+#         del data['init_mark']
+#         result = add_job_one(JobInfos, data)
+#         # result = handleAddJobOne(JobInfos, data)
+#         worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
+#         if result:
+#             # 同步项目下的任务数量，还有各项指标参数
+#             synchronous_jobs(worker.get("pid"))
+#             jid = result.get_jid()
+#             callbackJson.statusCode = 200
+#             content["pid"] = pid
+#             content["jid"] = jid
+#             content["log_file_path"] = log_file_path
+#             # 附加信息，备用传递部分信息到客户端
+#             content["meta"] = {}
+#         else:
+#             err = f"构建新任务实例时失败了，数据明细：{data}"
+#             logger.error(err)
+#             callbackJson.message = err
+#             callbackJson.resData["errMsg"] = err
+#         return callbackJson.callBacker(content)
+#     except Exception as e:
+#         logger.error(f"构建新任务实例时发生了错误！错误原因：{e}")
+#         callbackJson.statusCode = 400
+#         callbackJson.message = f"构建新任务实例时发生了错误！错误原因：{e}"
+#         return callbackJson.callBacker(content)
+
+# todo 常驻任务，每日仅生成一个密钥了。
 @app.post("/add_job", summary="新增任务")
 async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """
@@ -265,6 +327,8 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     callbackJson = constructResponse()
     callbackJson.statusCode = 400
     content = {}
+    # 附加信息，备用传递部分信息到客户端
+    content["meta"] = {}
 
     wid = data.get("wid", None)
     init_mark = data.get("init_mark", None)
@@ -272,6 +336,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     # 没有wid传入，直接返回失败
     if not wid:
         return callbackJson.callBacker(content)
+
     try:
         # wid 获取工作流信息
         winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
@@ -281,30 +346,27 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
             return callbackJson.callBacker(content)
 
-        project_name = winfo.get('name')
+        # wid工作流如果为常驻任务
+        # 则判断当日内是否已经创建过同个工作流任务
+        # 无则创建，有则直接获取该任务信息，并返回该任务的有关jid
+        if winfo.get("crawl_frequency") == "常驻":
+            content = await handleAddKeepJob(winfo, data, content)
+            if not content.get("jid"):  # 当日没有同个工作流任务，则创建新任务
+                content = await handleAddNormalJob(winfo, data, content)
+        else:
+            # 不是常驻任务，创建新任务
+            content = await handleAddNormalJob(winfo, data, content)
 
-        log_file_name = f"{winfo.get('name')}-{init_mark}"
-        log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
-        data["log_file_path"] = log_file_path
-        del data['init_mark']
-        result = add_job_one(JobInfos, data)
-        # result = handleAddJobOne(JobInfos, data)
-        worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-        if result:
-            # 同步项目下的任务数量，还有各项指标参数
-            synchronous_jobs(worker.get("pid"))
-            jid = result.get_jid()
+        # 错误判断
+        # 创建or接续成功，则有jid,没有则任务创建or接续失败！
+        if content.get("jid"):
             callbackJson.statusCode = 200
-            content["pid"] = pid
-            content["jid"] = jid
-            content["log_file_path"] = log_file_path
-            # 附加信息，备用传递部分信息到客户端
-            content["meta"] = {}
         else:
             err = f"构建新任务实例时失败了，数据明细：{data}"
             logger.error(err)
             callbackJson.message = err
             callbackJson.resData["errMsg"] = err
+
         return callbackJson.callBacker(content)
     except Exception as e:
         logger.error(f"构建新任务实例时发生了错误！错误原因：{e}")
@@ -314,6 +376,56 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
 
 
 # 工具函数
+async def handleAddKeepJob(worker_info, data, content):
+    """
+    添加常驻任务的处理
+    :return:
+    """
+    wid = data.get("wid")
+    today_jobs = get_today_job_infos_by_wid(wid=wid)
+    for job in today_jobs:
+        print(f"job.name: {job.name}")
+
+    if not today_jobs:
+        return content
+
+    now_job = today_jobs[0]
+    jid = now_job.jid
+    pid = now_job.pid
+    log_file_path = now_job.log_file_path
+    content["pid"] = pid
+    content["jid"] = jid
+    content["log_file_path"] = log_file_path
+    return content
+
+
+async def handleAddNormalJob(worker_info, data, content):
+    """
+    添加常规任务的处理
+    :return:
+    """
+    wid = data.get("wid", None)
+    init_mark = data.get("init_mark", None)
+    project_name = worker_info.get('name')
+    log_file_name = f"{worker_info.get('name')}-{init_mark}"
+    log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
+    data["log_file_path"] = log_file_path
+    del data['init_mark']
+    result = add_job_one(JobInfos, data)
+    # result = handleAddJobOne(JobInfos, data)
+    if result:
+        # 同步项目下的任务数量，还有各项指标参数
+        synchronous_jobs(worker_info.get("pid"))
+        jid = result.get_jid()
+        pid = worker_info.get("pid")
+        content["pid"] = pid
+        content["jid"] = jid
+        content["log_file_path"] = log_file_path
+        # 附加信息，备用传递部分信息到客户端
+        content["meta"] = {}
+
+    return content
+
 async def handleAddJobOne(JobInfos, data):
     """
     新建任务

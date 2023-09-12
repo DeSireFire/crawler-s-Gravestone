@@ -13,7 +13,7 @@ from utils.other import get_md5
 from .models import ProjectInfos, WorkerInfos, JobInfos
 from server_core.log import logger
 from server_core.db import engine, Newsession
-
+from sqlalchemy import func
 
 # 检查项目的PID是否存在
 def check_pid(name=None, pid=None):
@@ -107,6 +107,24 @@ def get_projects_info():
         session.rollback()
         logger.error(f"{get_projects_info.__name__} 发生错误：{e}")
         return False
+    finally:
+        session.close()
+
+
+def get_today_job_infos_by_wid(wid):
+    """
+    查询指定wid下，create_time日期为今天的数据
+    :param wid: 工作流ID
+    :return: 查询结果的列表，如果找不到则返回空列表
+    """
+    session = Newsession()
+    try:
+        today = datetime.now().date()  # 获取今天的日期
+        result = session.query(JobInfos).filter_by(wid=wid).filter(func.DATE(JobInfos.create_time) == today).all()
+        return result
+    except Exception as e:
+        logger.error(f"get_today_job_infos_by_wid 发生错误：{e}")
+        return []
     finally:
         session.close()
 
@@ -372,6 +390,7 @@ __all__ = [
     "add_job_one",
     "synchronous_workers",
     "synchronous_jobs",
+    "get_today_job_infos_by_wid",
 
     # 通用性函数
     "get_query_all",

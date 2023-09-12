@@ -18,6 +18,8 @@ from server_core.conf import redisconf, logger
 from utils.RedisDBHelper import RedisDBHelper
 
 rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
+
+
 def create_log_message(log_data):
     """
     将客户端发送的日志信息，转化成可读的
@@ -180,16 +182,17 @@ def log_to_save(redis_log_key, log_file_path, log_level):
 
     # 总日志
     if elements_to_pop:
-        with open(log_file_path, "a+", encoding="utf-8",) as log:
+        with open(log_file_path, "a+", encoding="utf-8", ) as log:
             elements_to_pop = [f"{i}\n" for i in elements_to_pop]
             log.writelines(elements_to_pop)
 
     # 等级分流日志
     if elements_to_pop:
         sub_path = rename_log_file(log_file_path, log_level)
-        with open(sub_path, "a+", encoding="utf-8",) as log:
+        with open(sub_path, "a+", encoding="utf-8", ) as log:
             sub_elements_to_pop = [f"{i}\n" for i in sub_elements_to_pop]
             log.writelines(sub_elements_to_pop)
+
 
 def rename_log_file(log_file_path, log_level):
     # 获取原始文件名和扩展名
@@ -201,6 +204,7 @@ def rename_log_file(log_file_path, log_level):
     # 构建新的文件路径：文件夹路径 + "/" + 新的文件名
     new_file_path = os.path.join(directory, new_filename)
     return new_file_path
+
 
 async def save_redis_list_to_log(redis_list_key, log_file_path):
     # Create a Redis client
@@ -226,6 +230,7 @@ async def save_redis_list_to_log(redis_list_key, log_file_path):
     except Exception as e:
         print("发生错误:", str(e))
 
+
 async def log_to_save2(redis_list_key, log_file_path):
     log_directory = os.path.dirname(log_file_path)
     if not os.path.exists(log_directory):
@@ -239,6 +244,7 @@ async def log_to_save2(redis_list_key, log_file_path):
         # Cancel the task if the user interrupts the process
         task.cancel()
         await task
+
 
 # if __name__ == "__main__":
 #     # 替换为你的 Redis 连接信息和 log 文件路径
