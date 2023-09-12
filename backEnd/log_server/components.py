@@ -182,16 +182,37 @@ def log_to_save(redis_log_key, log_file_path, log_level):
 
     # 总日志
     if elements_to_pop:
-        with open(log_file_path, "a+", encoding="utf-8", ) as log:
+        with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
             elements_to_pop = [f"{i}\n" for i in elements_to_pop]
-            log.writelines(elements_to_pop)
+            main_log.writelines(elements_to_pop)
 
     # 等级分流日志
-    if elements_to_pop:
+    if sub_elements_to_pop:
         sub_path = rename_log_file(log_file_path, log_level)
-        with open(sub_path, "a+", encoding="utf-8", ) as log:
+        with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
             sub_elements_to_pop = [f"{i}\n" for i in sub_elements_to_pop]
-            log.writelines(sub_elements_to_pop)
+            sub_log.writelines(sub_elements_to_pop)
+
+def log_file_save(log_details, log_file_path, log_level):
+    """
+    日志文本文件保存
+    :param log_details: dict,从redis缓存中要读取的
+    :param log_file_path: str,日志要保存的路径
+    :param log_level: str，日志等级
+    :return:
+    """
+    log_record = log_details.get("log_record")
+    log_record = f'{log_details.get("log_record")}\n' if log_record else None
+
+    if log_record:
+        # 总日志
+        with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
+            main_log.write(log_record)
+
+        # 等级分流日志
+            sub_path = rename_log_file(log_file_path, log_level)
+            with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
+                sub_log.writelines(log_record)
 
 
 def rename_log_file(log_file_path, log_level):

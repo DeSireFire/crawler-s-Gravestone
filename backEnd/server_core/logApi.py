@@ -26,7 +26,7 @@ from server_core.conf import redisconf
 from utils.RedisDBHelper import RedisDBHelper
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request, APIRouter, Body, Depends, status, Query
-from log_server.components import create_log_message, count_logs_by_level, log_to_save
+from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
 from server_core.conf import BASE_DIR
 
 app = FastAPI()
@@ -470,6 +470,7 @@ async def handleLevelTotal(model_data, log_data):
     jid = extra_data.get("jid")
     # 入库计数
     items_count = extra_data.get("items_count") or 0
+    # 解析日志信息为日志对象
     log_details = create_log_message(log_data)
     # 入库计数日志不放在日志等级统计里
     if items_count and "当前新入库数据" in log_details.get("log_record"):
@@ -547,7 +548,16 @@ async def handleLogTextSave(model_data, log_data):
     redis_log_key = f"crawl_monitor:logging:{jid}"
     log_file_path = model_data.get("log_file_path")
     logger.info(f"日志保存路径：{log_file_path}")
-    log_to_save(redis_log_key, log_file_path, log_level)
+
+    # 从redis获取日志信息保存到日志文件，存在列表弹出过慢，导致日志重复保存的问题
+    # 为日后外部程序保存日志提供中间件的函数
+    # log_to_save(redis_log_key, log_file_path, log_level)
+
+    # 直接保存日志信息到日志文件
+    # 解析日志信息为日志对象
+    log_details = create_log_message(log_data)
+    log_file_save(log_details, log_file_path, log_level)
+
     # 异步写入，有问题
     # asyncio.run(log_to_save2(redis_log_key, log_file_path))
 
