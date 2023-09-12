@@ -549,6 +549,7 @@ async def handleLogTextSave(model_data, log_data):
     log_file_path = model_data.get("log_file_path")
     logger.info(f"日志保存路径：{log_file_path}")
 
+    # todo 优化日志弹出方式
     # 从redis获取日志信息保存到日志文件，存在列表弹出过慢，导致日志重复保存的问题
     # 为日后外部程序保存日志提供中间件的函数
     # log_to_save(redis_log_key, log_file_path, log_level)
