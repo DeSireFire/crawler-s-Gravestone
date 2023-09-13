@@ -20,6 +20,7 @@ export const ipInfo = () => {
     return http({
         url: API.EXTRALS.IPINFO,
         method: REQUEST_METHOD.GET,
-        headers: {},
+        headers: {
+        },
     });
 };
