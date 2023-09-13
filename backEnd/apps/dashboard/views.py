@@ -10,11 +10,14 @@ __author__ = 'RaXianch'
 import math
 import os
 import random
+from pprint import pprint
+
 from fastapi import requests
 import requests
 # 统一响应的数据结构
 from .components import list_files, get_machine_memory_usage_percent, \
-    get_memory_usage, get_projects_count, get_programs_count, get_completed_jobs, get_folder_sizes
+    get_memory_usage, get_projects_count, get_programs_count, get_completed_jobs, get_folder_sizes, \
+    get_first_part_from_right, count_element_in_list
 from apps.users.models import get_user_count
 from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
@@ -35,6 +38,7 @@ async def ipInfo():
     temp = response.json()
     return temp
 
+
 @route.get("/dboard_log_proportion")
 async def dboard_log_proportion():
     callbackJson = constructResponse()
@@ -46,6 +50,7 @@ async def dboard_log_proportion():
     dboard_log_proportion['list'] = get_folder_sizes(log_path)[:8]
     # print(dboard_log_proportion['list'])
     return callbackJson.callBacker(dboard_log_proportion)
+
 
 @route.get("/dboard_info")
 async def dboard_info():
@@ -65,11 +70,26 @@ async def dboard_info():
 
     return callbackJson.callBacker(board_info)
 
-
+# 任务概览
 @route.get("/dboard_jobs")
 async def dboard_jobs():
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     dboard_jobs = {}
-    dboard_jobs["list"] = get_completed_jobs()
+    # 获取符合筛选条件的数据
+    temp_list = get_completed_jobs()
+
+    # 将同工作流的任务数据筛出时间最新的一个
+    has_work = []
+    res_list = []
+    for i in temp_list:
+        name = i.get("name")
+        work_name = get_first_part_from_right(name)
+        if count_element_in_list(has_work, work_name) < 3:
+            has_work.append(work_name)
+            res_list.append(i)
+    # pprint(temp_list)
+    # print("*"*100)
+    # pprint(res_list)
+    dboard_jobs["list"] = res_list
     return callbackJson.callBacker(dboard_jobs)

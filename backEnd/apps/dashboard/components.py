@@ -118,6 +118,9 @@ def get_completed_jobs():
             for k, v in u.items():
                 if isinstance(v, datetime):
                     u[k] = u[k].strftime('%Y-%m-%d %H:%M:%S')
+
+        has_wid = []
+
         for d in temps:
             # 将字符串时间转换为datetime对象
             start_time = datetime.strptime(d['create_time'], "%Y-%m-%d %H:%M:%S")
@@ -217,6 +220,32 @@ def get_memory_usage():
                     "占用比例": f"{virtual_memory.used / virtual_memory.total * 100:.2f}%"}
     return memory_total
 
+
+def get_first_part_from_right(input_string, delimiter='-'):
+    # 从右向左查找第一个分隔符的位置
+    last_index = input_string.rfind(delimiter)
+
+    if last_index != -1:
+        # 使用切片操作获取第一个元素
+        first_part = input_string[:last_index]
+        return first_part
+    else:
+        # 如果没有找到分隔符，返回整个输入字符串
+        return input_string
+
+def count_element_in_list(lst, element_to_count):
+    """
+    统计列表中某一种元素出现的次数。
+
+    参数:
+    lst (list): 输入的列表。
+    element_to_count: 要统计的元素。
+
+    返回:
+    int: 指定元素在列表中出现的次数。
+    """
+    count = lst.count(element_to_count)
+    return count
 
 if __name__ == '__main__':
     # logs_path = os.path.join(BASE_DIR, "logs", "worker_logs")

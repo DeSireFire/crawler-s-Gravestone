@@ -32,10 +32,15 @@ def create_log_message(log_data):
     # 将log_data['extra'] JSON字符串转换为字典
     extra_data = json.loads(log_data['extra'])
 
+    # # 设置提供的日志格式化器
+    # formatter = logging.Formatter(
+    #     "%(asctime)s | %(name)s | %(levelname)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    # )
     # 设置提供的日志格式化器
     formatter = logging.Formatter(
-        "%(asctime)s | %(name)s | %(levelname)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)s | %(levelname)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
+
 
     # 创建一个内存中的StringIO对象以捕获日志输出
     log_buffer = io.StringIO()
