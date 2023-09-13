@@ -42,7 +42,7 @@
         <el-table-column prop="status" width="100" label="状态" align="center">
           <template #default="scope">
             <el-tag
-                :type="['warning', 'success', 'info', 'error', 'danger'][scope.row.status]"
+                :type="['warning', 'success', 'info', 'danger', 'danger'][scope.row.status]"
             >
               {{ ['未知', '执行中', '结束', '中断', '失败'][scope.row.status] }}
             </el-tag>

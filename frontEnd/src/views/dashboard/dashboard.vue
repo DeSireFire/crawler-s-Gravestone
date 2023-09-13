@@ -134,11 +134,10 @@
 						<el-table-column :show-overflow-tooltip="true">
 							<template #default="scope">
 								<div class="todo-item">
-                  {{ scope.row.title }}
                   <router-link :to="
                   { path: '/jobObjs', query: {
                     name:scope.row.name,
-                  }}"> ...(更多)
+                  }}"> {{ scope.row.title }}...
                   </router-link>
 								</div>
 							</template>
