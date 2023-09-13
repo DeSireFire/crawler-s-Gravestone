@@ -13,7 +13,7 @@
       </el-tooltip>
     </div>
     <div class="handle-box">
-      <el-input v-model="query.keyword" placeholder="搜索列表" class="handle-input mr10">
+      <el-input v-model="query.keyword" placeholder="搜索名称or所属项目" class="handle-input mr10">
         <template #append>
           <el-button :icon="Search" @click="filterEdit()"/>
         </template>
@@ -400,8 +400,12 @@ const handleSearch = (temp:TableItem[]=[]) => {
   // 从列表数据中根据关键词搜索匹配项
   if (temp && query.keyword) {
     keyword = query.keyword.trim();
-    temp = temp.filter(item => item.name.includes(keyword));
+    temp = temp.filter(item => item.name.includes(keyword) || item.p_nickname.includes(keyword));
   }
+
+  // return datas.filter((item) => {
+  //   return item.name.includes(kw) || item.remarks.includes(kw) || item.address.includes(kw);
+  // })
 
   return temp
 };

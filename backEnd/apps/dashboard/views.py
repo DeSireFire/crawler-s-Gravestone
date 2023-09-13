@@ -28,14 +28,17 @@ route = APIRouter()
 
 
 @route.get("/ipInfo")
-async def ipInfo():
-    headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
-    }
-
-    response = requests.get('https://api.live.bilibili.com/xlive/web-room/v1/index/getIpInfo',
-                            headers=headers)
-    temp = response.json()
+async def ipInfo(request: Request):
+    # headers = {
+    #     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
+    # }
+    #
+    # response = requests.get('https://api.live.bilibili.com/xlive/web-room/v1/index/getIpInfo',
+    #                         headers=headers)
+    # temp = response.json()
+    temp = {}
+    client_ip = request.client.host
+    print(f"client_ip: {client_ip}")
     return temp
 
 

@@ -201,7 +201,7 @@ getDate()
 const getLocal = async () => {
   const result = await ipInfo();
   // console.log('result',result);
-  local_name.value = result.data?.data?.city;
+  local_name.value = result.data?.data?.city ?? result.data?.regionName;
 };
 getLocal()
 
