@@ -16,13 +16,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status
 
 from server_core.control import constructResponse
+from .components import CRUD
 from .models import check_password, check_user, UserInDB, Users, get_users_info, add_user_info, update_user_info, \
     check_uid, del_user_info
 from .auth import create_access_token, auth_depend
 from fastapi.responses import JSONResponse
 
 route = APIRouter()
-
+sql_crud = CRUD(Users)
 
 # todo 抽取token依赖项
 @route.post(
@@ -62,10 +63,17 @@ async def get_token(form_data: OAuth2PasswordRequestForm = Depends()):
     # 第四步 生成 token
     # Authorization: bearer header.payload.sign
     token = create_access_token({"name": username})
-    # 给前端响应信息
-    # return {"token": f"bearer {token}"}
 
-    data = {"access_token": token, "token_type": "bearer"}
+    # 第四点五 获取用户信息
+    user_info = sql_crud.read(name=username, password=password)
+    # print(f"user_info.role: {user_info.role}")
+
+    # 给前端响应信息
+    data = {
+        "role": user_info.role or "normal",
+        "access_token": token,
+        "token_type": "bearer"
+    }
     temp = {
         "code": 0,
         "message": "OK",
@@ -87,16 +95,6 @@ async def get_my_info(me: Users = Depends(auth_depend)):
     }
 
 
-@route.get("/demo_err", summary="错误返回演示")
-async def error_demo():
-    temp = {
-        "err_code": "404",
-        "err_msg": "一大坨错误信息！",
-        "data": {}
-    }
-
-    return temp
-
 @route.get("/get_users")
 async def get_users():
     result = get_users_info()
@@ -114,6 +112,7 @@ async def get_users():
     content["pageTotal"] = len(users)
     return callbackJson.callBacker(content)
 
+
 @route.post("/add_user", summary="新增用户")
 async def add_user(request: Request):
     data = await request.body()
@@ -130,6 +129,7 @@ async def add_user(request: Request):
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
 
+
 @route.post("/edit_user")
 async def edit_user(request: Request):
     data = await request.body()
@@ -144,6 +144,7 @@ async def edit_user(request: Request):
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
 
+
 @route.post("/del_user")
 async def edit_user(request: Request):
     data = await request.body()
@@ -157,7 +158,6 @@ async def edit_user(request: Request):
         if result:
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
-
 
 # @route.post("/auth_token",
 #                    summary='登录接口，获取 token',

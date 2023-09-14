@@ -19,7 +19,7 @@
 						<span>{{ local_name }}</span>
 					</div>
 				</el-card>
-        <el-card shadow="hover" style="height: 373px">
+        <el-card shadow="hover" style="height: 495px">
           <template #header>
             <div class="clearfix">
               <span>日志比例Top</span>
@@ -39,17 +39,47 @@
 				<el-row :gutter="20" class="mgb20">
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
+              <div class="grid-content grid-con-1">
+                <el-icon class="grid-con-icon"><CreditCard /></el-icon>
+                <div class="grid-cont-right">
+                  <div class="grid-num">{{ board_info.project_total }}</div>
+                  <div>项目数量</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+					<el-col :span="8">
+						<el-card shadow="hover" :body-style="{ padding: '0px' }">
+							<div class="grid-content grid-con-1">
+								<el-icon class="grid-con-icon"><Postcard /></el-icon>
+								<div class="grid-cont-right">
+									<div class="grid-num">{{ board_info.programs_total }}</div>
+									<div>程序数量</div>
+								</div>
+							</div>
+						</el-card>
+					</el-col>
+					<el-col :span="8">
+						<el-card shadow="hover" :body-style="{ padding: '0px' }">
+							<div class="grid-content grid-con-1">
+								<el-icon class="grid-con-icon"><Document /></el-icon>
+								<div class="grid-cont-right">
+									<div class="grid-num">{{ board_info.logger_total }}</div>
+									<div>日志数量</div>
+								</div>
+							</div>
+						</el-card>
+					</el-col>
+				</el-row>
+				<el-row :gutter="20" class="mgb20">
+          <el-col :span="8">
+            <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-2">
                 <el-icon class="grid-con-icon"><CreditCard /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.project_total }}</div>
                   <div>项目数量</div>
                 </div>
-<!--                <div class="grid-cont-info">-->
-<!--                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>-->
-<!--                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>-->
-<!--                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>-->
-<!--                </div>-->
               </div>
             </el-card>
           </el-col>
@@ -66,7 +96,7 @@
 					</el-col>
 					<el-col :span="8">
 						<el-card shadow="hover" :body-style="{ padding: '0px' }">
-							<div class="grid-content grid-con-3">
+							<div class="grid-content grid-con-2">
 								<el-icon class="grid-con-icon"><Document /></el-icon>
 								<div class="grid-cont-right">
 									<div class="grid-num">{{ board_info.logger_total }}</div>
@@ -79,7 +109,7 @@
 				<el-row :gutter="20" class="mgb20">
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-1">
+              <div class="grid-content grid-con-3">
                 <el-icon class="grid-con-icon"><User /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.user_total }}</div>
@@ -163,7 +193,7 @@
 	</div>
 </template>
 
-<script setup lang="ts" name="dashboard">
+<script setup lang="ts" name="system_dashboard">
 import Schart from 'vue-schart';
 import {onBeforeMount, reactive, ref} from 'vue';
 // import imgurl from '../assets/img/img.jpg';

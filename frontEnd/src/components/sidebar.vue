@@ -58,11 +58,25 @@ import {Delete, Edit, Search, Plus, List} from '@element-plus/icons-vue';
 
 const items = [
   {
-    icon: 'Odometer',
-    index: '/dashboard',
+    icon: 'House',
+    index: '/house',
     title: '系统首页',
     permiss: '1',
   },
+  // {
+  //   icon: 'Odometer',
+  //   index: '6',
+  //   title: '仪表盘',
+  //   permiss: '6',
+  //   subs: [
+  //     {
+  //       index: '/system_dashboard',
+  //       title: '系统仪表',
+  //       permiss: '61',
+  //
+  //     },
+  //   ],
+  // },
   {
     icon: 'User',
     index: '2',

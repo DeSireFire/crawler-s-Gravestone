@@ -78,6 +78,7 @@ const handleLogin = async () => {
   if (resp.isSuccess) {
     // 获取 data 里的 access_token
     const { access_token } = resp.data!;
+    const { role } = resp.data!;
 
     // element 弹出成功信息
     ElMessage.success("登录成功");
@@ -87,7 +88,29 @@ const handleLogin = async () => {
     accountStore.setAuthToken(access_token!);
     // 获取权限编号(todo 目前写死)
     // const keys = permiss.defaultList["normal"];
-    const keys = permiss.defaultList[param.username == 'admin' ? 'admin' : 'normal'];
+    console.log("access_token:", access_token)
+    console.log("param:", param)
+    console.log("role:", role)
+    // const keys = permiss.defaultList[role == 'admin' ? 'admin' : 'normal'];
+    let keys;
+    switch (role) {
+      case 'admin':
+        keys = permiss.defaultList.admin;
+        break;
+      case 'normal':
+        keys = permiss.defaultList.normal;
+        break;
+      case 'xadmin':
+        keys = permiss.defaultList.xadmin;
+        break;
+      case 'coder':
+        keys = permiss.defaultList.coder;
+        break;
+      default:
+        // 默认情况，可以选择一个默认的键或执行其他操作
+        keys = permiss.defaultList.default;
+        break;
+    }
     // 将权限编号设置到浏览器缓存
     permiss.handleSet(keys);
     router.push("/");

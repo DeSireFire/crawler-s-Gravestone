@@ -6,6 +6,7 @@
 				<el-input v-model="query.keyword" placeholder="用户名" class="handle-input mr10"></el-input>
 				<el-button type="primary" :icon="Search" @click="handleSearch">搜索</el-button>
 				<el-button type="primary" :icon="Plus" @click="handleAdd">新增</el-button>
+				<el-button type="primary" :icon="Refresh" @click="handleFlush">刷新</el-button>
 			</div>
 			<el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
 				<el-table-column prop="id" label="ID" width="55" align="center"></el-table-column>
@@ -14,7 +15,13 @@
 					<template #default="scope">{{ scope.row.nicename }} #{{ scope.row.id }}</template>
 				</el-table-column>
 				<el-table-column prop="role" label="权限等级">
-          <template #default="scope">{{ scope.row.role === "admin" ? '管理员' : scope.row.role === 'normal' ? '普通用户' : '未知'}}</template>
+          <template #default="scope">{{
+              scope.row.role === "admin" ? '管理者' :
+              scope.row.role === "xadmin" ? '开发者' :
+              scope.row.role === 'coder' ? '开发者' :
+              scope.row.role === 'normal' ? '使用者' :
+              '未知'
+            }}</template>
         </el-table-column>
 				<el-table-column label="状态" align="center">
 					<template #default="scope">
@@ -86,7 +93,8 @@
         <el-form-item label="权限">
           <el-select v-model="editForm.role" placeholder="设置用户权限: admin, test" class="handle-select mr10">
             <el-option key="0" label="管理员" value="admin"></el-option>
-            <el-option key="1" label="普通账户" value="normal"></el-option>
+            <el-option key="1" label="使用者" value="normal"></el-option>
+            <el-option key="1" label="开发员" value="normal"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -104,7 +112,7 @@
 <script setup lang="ts" name="basetable">
 import { ref, reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Delete, Edit, Search, Plus } from '@element-plus/icons-vue';
+import { Delete, Edit, Search, Plus, Refresh } from '@element-plus/icons-vue';
 import {add_user, edit_user, get_users, del_user} from '~/api/account';
 import {um_api} from "~/store/user_mange";
 

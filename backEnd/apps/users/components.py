@@ -23,53 +23,50 @@ class CRUD:
         :param model: 一个继承了Base的模型
         """
         self.model = model
+        self.db = Newsession()
 
-    def create(self, db: Session, obj_in):
+    def create(self, obj_in):
         """
         创建一个新的对象
 
-        :param db: 数据库会话
         :param obj_in: 一个Pydantic模型
         :return: 创建的对象
         """
         db_obj = self.model(**obj_in.dict())
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+        self.db.add(db_obj)
+        self.db.commit()
+        self.db.refresh(db_obj)
         return db_obj
 
-    def read(self, db: Session, id_):
+    def read(self, **kwargs):
         """
         读取一个对象
 
-        :param db: 数据库会话
         :param id_: 对象的id
         :return: 读取的对象
         """
-        return db.query(self.model).filter(self.model.id == id_).first()
+        return self.db.query(self.model).filter_by(**kwargs).first()
 
-    def update(self, db: Session, obj_in):
+    def update(self, obj_in):
         """
         更新一个对象
 
-        :param db: 数据库会话
         :param obj_in: 一个Pydantic模型
         :return: 更新后的对象
         """
-        db_obj = self.read(db, obj_in.id)
+        db_obj = self.read(id=obj_in.id)
         for var, value in vars(obj_in).items():
             setattr(db_obj, var, value) if value else None
-        db.commit()
+        self.db.commit()
         return db_obj
 
-    def delete(self, db: Session, id_):
+    def delete(self, id_):
         """
         删除一个对象
 
-        :param db: 数据库会话
         :param id_: 对象的id
         """
-        obj = self.read(db, id_)
-        db.delete(obj)
-        db.commit()
+        obj = self.read(id=id_)
+        self.db.delete(obj)
+        self.db.commit()
 

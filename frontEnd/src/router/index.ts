@@ -6,7 +6,7 @@ import error from '../views/base/404.vue';
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
-        redirect: '/dashboard',
+        redirect: '/house',
     },
     {
         path: '/',
@@ -14,13 +14,13 @@ const routes: RouteRecordRaw[] = [
         component: Home,
         children: [
             {
-                path: '/dashboard',
-                name: 'dashboard',
+                path: '/house',
+                name: 'House',
                 meta: {
                     title: '系统首页',
                     permiss: '1',
                 },
-                component: () => import(/* webpackChunkName: "dashboard" */ '../views/dashboard/dashboard.vue'),
+                component: () => import(/* webpackChunkName: "dashboard" */ '../views/base/index.vue'),
             },
             {
                 path: '/worker_logs',
@@ -164,6 +164,15 @@ const routes: RouteRecordRaw[] = [
                     permiss: '13',
                 },
                 component: () => import(/* webpackChunkName: "permission" */ '../views/users/permission.vue'),
+            },
+            {
+                path: '/system_dashboard',
+                name: '系统仪表盘',
+                meta: {
+                    title: '系统仪表盘',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "permission" */ '../views/dashboard/system_dashboard.vue'),
             },
         ],
     },
