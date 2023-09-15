@@ -39,88 +39,48 @@
         <el-row :gutter="20" class="mgb20">
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-1">
+              <div class="grid-content grid-con-2">
                 <el-icon class="grid-con-icon"><CreditCard /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.project_total }}</div>
-                  <div>项目总数</div>
+                  <div>项目数量</div>
+                </div>
+                <!--                <div class="grid-cont-info">-->
+                <div class="grid-cont-right">
+                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>
+                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>
+                  <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>
                 </div>
               </div>
             </el-card>
           </el-col>
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-1">
+              <div class="grid-content grid-con-2">
                 <el-icon class="grid-con-icon"><Postcard /></el-icon>
                 <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.logger_total }}</div>
-                  <div>日志总量</div>
+                  <div class="grid-num">{{ board_info.programs_total }}</div>
+                  <div>程序数量</div>
                 </div>
               </div>
             </el-card>
           </el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" :body-style="{ padding: '0px' }">
+              <div class="grid-content grid-con-3">
+                <el-icon class="grid-con-icon"><Document /></el-icon>
+                <div class="grid-cont-right">
+                  <div class="grid-num">{{ board_info.logger_total }}</div>
+                  <div>日志数量</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20" class="mgb20">
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-1">
-                <el-icon class="grid-con-icon"><Document /></el-icon>
-                <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.jobs_total }}</div>
-                  <div>任务总数</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20" class="mgb20">
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><User /></el-icon>
-                <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.yesterday_finish_jobs }}</div>
-                  <div>昨日任务完成</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><Cpu /></el-icon>
-                <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.yesterday_new_logger }}</div>
-                  <div>昨日日志数量</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><PieChart /></el-icon>
-                <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.working_jobs }}</div>
-                  <div>当前执行任务</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20" class="mgb20">
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-4">
-                <el-icon class="grid-con-icon"><Cpu /></el-icon>
-                <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.taobao_captcha_api }} %</div>
-                  <div>淘系接口调用</div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-4">
                 <el-icon class="grid-con-icon"><User /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.user_total }}</div>
@@ -131,15 +91,38 @@
           </el-col>
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
-              <div class="grid-content grid-con-4">
-                <el-icon class="grid-con-icon"><PieChart /></el-icon>
+              <div class="grid-content grid-con-3">
+                <el-icon class="grid-con-icon"><Cpu /></el-icon>
                 <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.disk_total }}</div>
-                  <div>存储空间</div>
+                  <div class="grid-num">{{ board_info.master_cpu }} %</div>
+                  <div>CPU负载</div>
                 </div>
               </div>
             </el-card>
           </el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" :body-style="{ padding: '0px' }">
+              <div class="grid-content grid-con-3">
+                <!--								<el-icon class="grid-con-icon"><Odometer /></el-icon>-->
+                <el-icon class="grid-con-icon"><PieChart /></el-icon>
+                <div class="grid-cont-right">
+                  <div class="grid-num">{{ board_info.memory_total }}</div>
+                  <div>内存占用</div>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+          <!--          <el-col :span="8">-->
+          <!--            <el-card shadow="hover" :body-style="{ padding: '0px' }">-->
+          <!--              <div class="grid-content grid-con-3">-->
+          <!--                <el-icon class="grid-con-icon"><DocumentDelete /></el-icon>-->
+          <!--                <div class="grid-cont-right">-->
+          <!--                  <div class="grid-num">{{ board_info.user_total }}</div>-->
+          <!--                  <div>失败合计</div>-->
+          <!--                </div>-->
+          <!--              </div>-->
+          <!--            </el-card>-->
+          <!--          </el-col>-->
         </el-row>
         <el-card shadow="hover" style="height: 403px">
           <template #header>
@@ -195,37 +178,15 @@ const name = localStorage.getItem('ms_username');
 const role: string = name === 'admin' ? '超级管理员' : '普通用户';
 const local_name = ref('未知');
 const formattedDate = ref('未知');
-
 const board_info = reactive({
-  // 用户总数
   user_total: '--',
-  // 程序总数
-  programs_total: '--',
-  // 日志总量
-  logger_total: '--',
-  // 项目总量
-  project_total: '--',
-
-  // 待定
   system_info: '--',
-  // 内存占用
+  programs_total: '--',
+  logger_total: '--',
+  project_total: '--',
   memory_total: '--',
-  // cpu占用
   master_cpu: '--',
-
-  // 昨日任务完成
-  yesterday_finish_jobs: '--',
-  // 昨日任务数量
-  yesterday_new_logger: '--',
-  // 当前执行任务
-  working_jobs: '--',
-  // 任务总数
-  jobs_total: '--',
-  // 硬盘占用
-  disk_total: '--',
-  // 淘系接口应用调用
-  taobao_captcha_api: '--'
-})
+});
 
 // 当前日期格式化
 const getDate = async () => {
@@ -255,11 +216,6 @@ const getBoard = async () => {
   board_info.project_total = result.data.project_total;
   board_info.master_cpu = result.data.master_cpu;
   board_info.memory_total = result.data.memory_total;
-
-  board_info.yesterday_finish_jobs = result.data.yesterday_finish_jobs;
-  board_info.yesterday_new_logger = result.data.yesterday_new_logger;
-  board_info.working_jobs = result.data.working_jobs;
-  board_info.jobs_total = result.data.jobs_total;
 };
 getBoard()
 
@@ -409,18 +365,6 @@ onBeforeMount(() => {
 
 .grid-con-3 .grid-num {
   color: #FF6666;
-}
-
-.grid-con-4 .grid-con-icon {
-  background: #FF9966;
-}
-
-.grid-con-4 .grid-info-num {
-  color: #FF9966;
-}
-
-.grid-con-4 .grid-num {
-  color: #FF9966;
 }
 
 .user-info {
