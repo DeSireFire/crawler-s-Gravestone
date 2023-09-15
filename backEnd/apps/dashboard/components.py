@@ -8,6 +8,8 @@
 __author__ = 'RaXianch'
 
 import os
+from decimal import Decimal
+
 import psutil
 import platform
 from datetime import datetime, timedelta
@@ -337,21 +339,21 @@ def get_disk_space_percentage():
         if platform.system() == "Linux":
             # 获取Linux系统下硬盘的剩余空间
             disk_usage = psutil.disk_usage('/')
-            free_space_percentage = disk_usage.free / disk_usage.total * 100
+            free_space_percentage = disk_usage.free / disk_usage.total
         elif platform.system() == "Windows":
             # 获取Windows系统下硬盘的剩余空间
             partitions = psutil.disk_partitions()
             for partition in partitions:
                 if 'C:' in partition.device:
                     disk_usage = psutil.disk_usage(partition.device)
-                    free_space_percentage = disk_usage.free / disk_usage.total * 100
+                    free_space_percentage = disk_usage.free / disk_usage.total
                     break
         else:
             raise Exception("检测系统剩余空间时，发现不支持的操作系统")
     except Exception as e:
         print(e)
     finally:
-        return 100 - free_space_percentage
+        return 1 - free_space_percentage
 
 
 def get_items_count_by_wid(wid):
@@ -370,6 +372,9 @@ def get_items_count_by_wid(wid):
         # 如果没有匹配的数据，则返回0
         if total_items_count is None:
             total_items_count = 0
+
+        if isinstance(total_items_count, Decimal):
+            total_items_count = float(total_items_count)
 
         return total_items_count
     except Exception as e:

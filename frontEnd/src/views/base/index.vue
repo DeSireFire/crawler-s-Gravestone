@@ -112,8 +112,8 @@
               <div class="grid-content grid-con-4">
                 <el-icon class="grid-con-icon"><Cpu /></el-icon>
                 <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.taobao_captcha_api }} %</div>
-                  <div>淘系接口调用</div>
+                  <div class="grid-num">{{ board_info.taobao_captcha_api }}</div>
+                  <div>淘系调用总数</div>
                 </div>
               </div>
             </el-card>
@@ -260,6 +260,8 @@ const getBoard = async () => {
   board_info.yesterday_new_logger = result.data.yesterday_new_logger;
   board_info.working_jobs = result.data.working_jobs;
   board_info.jobs_total = result.data.jobs_total;
+  board_info.taobao_captcha_api = result.data.taobao_captcha_api;
+  board_info.disk_total = `${floatToPercentage(result.data.disk_total)}%`;
 };
 getBoard()
 

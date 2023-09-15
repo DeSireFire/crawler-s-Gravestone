@@ -112,9 +112,9 @@ async def dboard_info():
     board_info["yesterday_new_logger"] = count_logs_modified_yesterday(directory_path) or '--'
     board_info["working_jobs"] = get_running_jobs_count() or '--'
     board_info["jobs_total"] = get_total_jobinfos_count() or '--'
-    # board_info["disk_total"] = get_disk_space_percentage() or '--'
+    board_info["disk_total"] = get_disk_space_percentage() or '--'
     board_info["taobao_captcha_api"] = get_items_count_by_wid("daae2b53920ca33216bef79ccb27c651") or '--'
-
+    pprint(board_info)
     return callbackJson.callBacker(board_info)
 
 
