@@ -19,7 +19,7 @@
             <span>{{ local_name }}</span>
           </div>
         </el-card>
-        <el-card shadow="hover" style="height: 373px">
+        <el-card shadow="hover" style="height: 495px">
           <template #header>
             <div class="clearfix">
               <span>日志比例Top</span>
