@@ -135,7 +135,7 @@
                 <el-icon class="grid-con-icon"><PieChart /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.disk_total }}</div>
-                  <div>存储空间</div>
+                  <div>已用存储空间</div>
                 </div>
               </div>
             </el-card>

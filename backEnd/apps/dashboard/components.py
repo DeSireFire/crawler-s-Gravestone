@@ -353,7 +353,7 @@ def get_disk_space_percentage():
     except Exception as e:
         print(e)
     finally:
-        return free_space_percentage
+        return 1 - free_space_percentage
 
 
 def get_items_count_by_wid(wid):
