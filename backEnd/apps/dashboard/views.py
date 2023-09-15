@@ -17,7 +17,8 @@ import requests
 # 统一响应的数据结构
 from .components import list_files, get_machine_memory_usage_percent, \
     get_memory_usage, get_projects_count, get_programs_count, get_completed_jobs, get_folder_sizes, \
-    get_first_part_from_right, count_element_in_list
+    get_first_part_from_right, count_element_in_list, get_yesterday_finish_jobs, get_running_jobs_count, \
+    get_total_jobinfos_count, count_logs_modified_yesterday, get_disk_space_percentage, get_items_count_by_wid
 from apps.users.models import get_user_count
 from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
@@ -57,10 +58,43 @@ async def dboard_log_proportion():
 
 @route.get("/dboard_info")
 async def dboard_info():
+    """
+    仪表盘
+
+    // 用户总数
+    user_total: '--',
+    // 程序总数
+    programs_total: '--',
+    // 日志总量
+    logger_total: '--',
+    // 项目总量
+    project_total: '--',
+
+    // 待定
+    system_info: '--',
+    // 内存占用
+    memory_total: '--',
+    // cpu占用
+    master_cpu: '--',
+
+    // 昨日任务完成
+    yesterday_finish_jobs: '--',
+    // 昨日任务数量
+    yesterday_new_logger: '--',
+    // 当前执行任务
+    working_jobs: '--',
+    // 任务总数
+    jobs_total: '--',
+    // 硬盘占用
+    disk_total: '--',
+    // 淘系接口应用调用
+    taobao_captcha_api: '--'
+
+    :return:
+    """
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     board_info = {}
-    # 用户数
     board_info["project_total"] = get_projects_count() or '--'
     board_info["user_total"] = get_user_count() or '--'
     board_info["system_info"] = '--'
@@ -71,7 +105,18 @@ async def dboard_info():
     board_info["memory_total"] = memory_total.get("占用比例") or '--'
     board_info["master_cpu"] = get_machine_memory_usage_percent() or '--'
 
+    board_info["yesterday_finish_jobs"] = get_yesterday_finish_jobs() or '--'
+    directory_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+    board_info["yesterday_new_logger"] = count_logs_modified_yesterday(directory_path) or '--'
+    board_info["working_jobs"] = get_running_jobs_count() or '--'
+    board_info["jobs_total"] = get_total_jobinfos_count() or '--'
+    # board_info["disk_total"] = get_disk_space_percentage() or '--'
+    board_info["taobao_captcha_api"] = get_items_count_by_wid("daae2b53920ca33216bef79ccb27c651") or '--'
+
     return callbackJson.callBacker(board_info)
+
 
 # 任务概览
 @route.get("/dboard_jobs")

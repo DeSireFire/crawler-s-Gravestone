@@ -9,7 +9,11 @@ __author__ = 'RaXianch'
 
 import os
 import psutil
+import platform
 from datetime import datetime, timedelta
+
+from sqlalchemy import func
+
 from apps.programs import get_query_all
 from apps.projects import get_projects_info
 from apps.programs.models import ProgramInfos
@@ -61,6 +65,7 @@ def get_folder_sizes(path):
 
     return folder_info_list
 
+
 def get_folder_size(folder_path):
     """
     获取文件夹的大小（字节）。
@@ -78,6 +83,7 @@ def get_folder_size(folder_path):
             total_size += os.path.getsize(file_path)
     return total_size
 
+
 def get_human_readable_size(size_bytes):
     """
     将字节数转换为人类可读的文件大小表示。
@@ -92,6 +98,7 @@ def get_human_readable_size(size_bytes):
         if size_bytes < 1024.0:
             return f"{size_bytes:.2f} {unit}"
         size_bytes /= 1024.0
+
 
 def get_completed_jobs():
     """
@@ -194,6 +201,116 @@ def get_machine_memory_usage_percent():
     return int(psutil.virtual_memory()._asdict().get('percent'))
 
 
+def get_yesterday_finish_jobs():
+    """
+    获取昨日完成任务数量
+    :return:
+    """
+    pro_list = get_projects_info() or []
+    names = [d["name"] for d in pro_list if d["name"]]
+    return len(names)
+
+
+def get_yesterday_finish_jobs():
+    """
+    获取昨日完成的任务数量
+    :return:
+    """
+    session = Newsession()
+    try:
+        # 获取昨日日期
+        yesterday = datetime.now() - timedelta(days=1)
+        yesterday_date = yesterday.date()
+
+        # 查询昨日状态为结束(2)的数据数量
+        finished_jobs_count = session.query(JobInfos).filter(
+            JobInfos.create_time >= yesterday_date,
+            JobInfos.create_time < yesterday_date + timedelta(days=1),
+            JobInfos.status == 2
+        ).count()
+
+        return finished_jobs_count
+    except Exception as e:
+        print(e)
+
+    finally:
+        session.close()
+
+
+def get_total_jobinfos_count():
+    """
+    获取任务总数数量
+    :param session:
+    :return:
+    """
+    session = Newsession()
+    try:
+        # 查询JobInfos表的总数据数量
+        total_jobinfos_count = session.query(JobInfos).count()
+
+        return total_jobinfos_count
+    except Exception as e:
+        print(e)
+
+    finally:
+        session.close()
+
+
+def count_logs_modified_yesterday(directory_path):
+    """
+
+    # 指定要遍历的文件夹路径
+    directory_path = "/path/to/your/log/directory"
+
+    # 调用函数来获取昨日日志文件的数量
+    log_count = count_logs_modified_yesterday(directory_path)
+
+    遍历当中的最后修改时间为昨日的log文件，并统计其数量。
+    :param directory_path:
+    :return:
+    """
+    # 获取昨日日期
+    yesterday = datetime.now() - timedelta(days=1)
+    yesterday_date = yesterday.date()
+
+    # 初始化计数器
+    log_count = 0
+
+    # 遍历指定目录下的所有文件
+    for root, _, files in os.walk(directory_path):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+
+            # 检查文件是否是日志文件（您可以根据文件名后缀或其他标识来判断）
+            if file_name.endswith(".log"):
+                # 获取文件的最后修改时间
+                modification_time = datetime.fromtimestamp(os.path.getmtime(file_path))
+
+                # 检查最后修改时间是否为昨日
+                if modification_time.date() == yesterday_date:
+                    log_count += 1
+
+    return log_count
+
+
+def get_running_jobs_count():
+    """
+    获取正在执行中的任务数量
+    :param session:
+    :return:
+    """
+    session = Newsession()
+    try:
+        # 查询状态为执行中(1)的数据数量
+        running_jobs_count = session.query(JobInfos).filter(JobInfos.status == 1).count()
+
+        return running_jobs_count
+    except Exception as e:
+        print(e)
+    finally:
+        session.close()
+
+
 def get_projects_count():
     """
     获取项目数量
@@ -203,6 +320,81 @@ def get_projects_count():
     names = [d["name"] for d in pro_list if d["name"]]
     return len(names)
 
+
+def get_disk_space_percentage():
+    """
+    获取硬盘剩余空间
+
+    # 调用函数来获取硬盘剩余空间百分比
+    free_space_percentage = get_disk_space_percentage()
+
+    # 打印结果
+    print(f"硬盘剩余空间百分比：{free_space_percentage:.2f}%")
+    :return:
+    """
+    free_space_percentage = ""
+    try:
+        if platform.system() == "Linux":
+            # 获取Linux系统下硬盘的剩余空间
+            disk_usage = psutil.disk_usage('/')
+            free_space_percentage = disk_usage.free / disk_usage.total * 100
+        elif platform.system() == "Windows":
+            # 获取Windows系统下硬盘的剩余空间
+            partitions = psutil.disk_partitions()
+            for partition in partitions:
+                if 'C:' in partition.device:
+                    disk_usage = psutil.disk_usage(partition.device)
+                    free_space_percentage = disk_usage.free / disk_usage.total * 100
+                    break
+        else:
+            raise Exception("检测系统剩余空间时，发现不支持的操作系统")
+    except Exception as e:
+        print(e)
+    finally:
+        return 100 - free_space_percentage
+
+
+def get_items_count_by_wid(wid):
+    """
+    统计指定工作流所属的所有任务的数据计数总和
+    :param wid:
+    :return:
+    """
+    session = Newsession()
+    try:
+        # 查询wid为指定值的所有数据，并计算items_count总和
+        total_items_count = session.query(func.sum(JobInfos.items_count)).filter(
+            JobInfos.wid == wid
+        ).scalar()
+
+        # 如果没有匹配的数据，则返回0
+        if total_items_count is None:
+            total_items_count = 0
+
+        return total_items_count
+    except Exception as e:
+        print(e)
+    finally:
+        session.close()
+
+
+def get_items_count_by_wid_with_time_limit(wid):
+    # 获取昨日日期
+    yesterday = datetime.now() - timedelta(days=1)
+    yesterday_date = yesterday.date()
+
+    # 查询wid为指定值且在昨日日期内的所有数据，并计算items_count总和
+    total_items_count = session.query(func.sum(JobInfos.items_count)).filter(
+        JobInfos.wid == wid,
+        JobInfos.create_time >= yesterday_date,
+        JobInfos.create_time < yesterday_date + timedelta(days=1)
+    ).scalar()
+
+    # 如果没有匹配的数据，则返回0
+    if total_items_count is None:
+        total_items_count = 0
+
+    return total_items_count
 
 def get_memory_usage():
     """
@@ -233,6 +425,7 @@ def get_first_part_from_right(input_string, delimiter='-'):
         # 如果没有找到分隔符，返回整个输入字符串
         return input_string
 
+
 def count_element_in_list(lst, element_to_count):
     """
     统计列表中某一种元素出现的次数。
@@ -246,6 +439,7 @@ def count_element_in_list(lst, element_to_count):
     """
     count = lst.count(element_to_count)
     return count
+
 
 if __name__ == '__main__':
     # logs_path = os.path.join(BASE_DIR, "logs", "worker_logs")
