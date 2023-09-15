@@ -312,7 +312,6 @@ async def update_logging(request: Request):
 #         callbackJson.message = f"构建新任务实例时发生了错误！错误原因：{e}"
 #         return callbackJson.callBacker(content)
 
-# todo 常驻任务，每日仅生成一个密钥了。
 @app.post("/add_job", summary="新增任务")
 async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """

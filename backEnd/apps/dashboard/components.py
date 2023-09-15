@@ -353,6 +353,7 @@ def get_disk_space_percentage():
     except Exception as e:
         print(e)
     finally:
+        # 减去剩余空间即为已用空间
         return 1 - free_space_percentage
 
 

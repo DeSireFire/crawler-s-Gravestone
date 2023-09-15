@@ -209,6 +209,11 @@ def log_file_save(log_details, log_file_path, log_level):
     log_record = log_details.get("log_record")
     log_record = f'{log_details.get("log_record")}\n' if log_record else None
 
+    # 创建目录
+    log_directory = os.path.dirname(log_file_path)
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
+
     if log_record:
         # 总日志
         with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
