@@ -384,6 +384,7 @@ def get_items_count_by_wid(wid):
 
 
 def get_items_count_by_wid_with_time_limit(wid):
+    session = Newsession()
     # 获取昨日日期
     yesterday = datetime.now() - timedelta(days=1)
     yesterday_date = yesterday.date()
