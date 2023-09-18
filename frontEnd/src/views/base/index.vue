@@ -40,7 +40,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-1">
-                <el-icon class="grid-con-icon"><CreditCard /></el-icon>
+                <el-icon class="grid-con-icon"><MessageBox /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.project_total }}</div>
                   <div>项目总数</div>
@@ -51,7 +51,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-1">
-                <el-icon class="grid-con-icon"><Postcard /></el-icon>
+                <el-icon class="grid-con-icon"><Document /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.logger_total }}</div>
                   <div>日志总量</div>
@@ -62,7 +62,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-1">
-                <el-icon class="grid-con-icon"><Document /></el-icon>
+                <el-icon class="grid-con-icon"><Finished /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.jobs_total }}</div>
                   <div>任务总数</div>
@@ -75,7 +75,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><User /></el-icon>
+                <el-icon class="grid-con-icon"><DocumentChecked /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.yesterday_finish_jobs }}</div>
                   <div>昨日任务完成</div>
@@ -86,7 +86,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><Cpu /></el-icon>
+                <el-icon class="grid-con-icon"><Document /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.yesterday_new_logger }}</div>
                   <div>昨日日志数量</div>
@@ -97,7 +97,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-2">
-                <el-icon class="grid-con-icon"><PieChart /></el-icon>
+                <el-icon class="grid-con-icon"><Connection /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.working_jobs }}</div>
                   <div>当前执行任务</div>
@@ -132,7 +132,7 @@
           <el-col :span="8">
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-4">
-                <el-icon class="grid-con-icon"><PieChart /></el-icon>
+                <el-icon class="grid-con-icon"><Monitor /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ board_info.disk_total }}</div>
                   <div>已用存储空间</div>

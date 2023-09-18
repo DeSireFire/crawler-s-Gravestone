@@ -426,6 +426,7 @@ async def handleAddNormalJob(worker_info, data, content):
 
     return content
 
+
 async def handleAddJobOne(JobInfos, data):
     """
     新建任务
@@ -576,6 +577,9 @@ async def handleAlarm(model_data, log_data):
     # 工作流密钥
     token = extra_data.get('token', 'unknown')
     wid = token
+
+    # todo 开发占位符，用来替换成各项计数
+
     if log_level == "ERROR":
         alarm_handler = AlarmHandler()
         await alarm_handler.handle_alarm(
