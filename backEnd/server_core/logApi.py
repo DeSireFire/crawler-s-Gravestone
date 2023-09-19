@@ -7,30 +7,39 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
-import asyncio
-import json
 import os
-from datetime import datetime
-
 import pytz
-
-from .log import logger
-import uvicorn
+import json
+import asyncio
 from pprint import pprint
-from fastapi import FastAPI
-
-from apps.alarms.alarmers_components import AlarmHandler
-from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
-    synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_to_2_for_old_jobs
+import uvicorn
+from starlette.responses import JSONResponse, Response
+from .log import logger
+from fastapi import FastAPI, HTTPException
+from datetime import datetime
+from server_core.conf import BASE_DIR
 from server_core.conf import redisconf
 from utils.RedisDBHelper import RedisDBHelper
 from fastapi.middleware.cors import CORSMiddleware
+from apps.alarms.alarmers_components import AlarmHandler
 from fastapi import Request, APIRouter, Body, Depends, status, Query
 from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
-from server_core.conf import BASE_DIR
+from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
+    synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_to_2_for_old_jobs
 
+# 使用slowapi进行端口频率限制
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+
 rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
+app.state.limiter = limiter
+
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 origins = [
     "*"
 ]
@@ -48,126 +57,43 @@ logger.info(
 )
 
 
-@app.post("/log2", summary="日志传输接口")
-async def log(data: str):
-    rdb.set('log', data)
-    return {"status": "success"}
+# 处理速率限制超出的自定义异常处理器
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 429
+    callbackJson.message = "大圣，收了神通吧..请求速率限制已超出。请稍后再试。"
+    return callbackJson.callBacker()
 
 
-# @app.post("/log")
-# async def update_logging(request: Request):
-#     """
-#     接收客户端日志
-#     {'args': '()',
-#      'created': '1690426537.0822754',
-#      'exc_info': 'None',
-#      'exc_text': 'None',
-#      'extra': '{"ip": "192.168.9.193", "log_name": "单例爬虫测试日志", "project_name": '
-#               '"高德地图", "token": "a158dc3a9d0f71283132f2c1127bc8c0"}',
-#      'filename': 'logClient.py',
-#      'funcName': '<module>',
-#      'levelname': 'DEBUG',
-#      'levelno': '10',
-#      'lineno': '112',
-#      'module': 'logClient',
-#      'msecs': '82.275390625',
-#      'msg': '这是一条 调试 日志，发出来测试一下！！！ cpu占用：57%',
-#      'name': '单例爬虫测试日志',
-#      'pathname': 'F:\\workSpace\\myGithub\\crawler-s-Gravestone\\backEnd\\log_server\\logClient.py',
-#      'process': '15080',
-#      'processName': 'MainProcess',
-#      'relativeCreated': '146.44455909729004',
-#      'stack_info': 'None',
-#      'thread': '1028',
-#      'threadName': 'MainThread'}
-#     {'ip': '192.168.9.193',
-#      'log_name': '单例爬虫测试日志',
-#      'project_name': '高德地图',
-#      'token': 'a158dc3a9d0f71283132f2c1127bc8c0'}
-#
-#     :param request:
-#     :return:
-#     """
-#     data = await request.body()
-#     fdata = await request.form()
-#     # 获取日志流传送的信息
-#     log_data = fdata.__dict__.get('_dict')
-#
-#     # 日志附加信息
-#     extra_data = json.loads(log_data.get("extra"))
-#     # 日志等级
-#     log_level = log_data['levelname']
-#     # 工作流密钥
-#     token = extra_data.get('token', 'unknown')
-#     wid = token
-#     jid = extra_data.get("jid")
-#     j_status = extra_data.get("status") or 0
-#     items_count = extra_data.get("items_count") or 0
-#     # 预留备用信息传递
-#     meta = extra_data.get("meta")
-#     try:
-#         # 同步到数据库
-#         # 获取工作流信息=>
-#         # 生成任务实例的jid=>
-#         # 通过jid获取任务实例信息，如果没有就生成新的任务实例=>
-#
-#         # 调用函数并打印结果
-#         log_details = create_log_message(log_data)
-#         redis_log_key = f"crawl_monitor:logging:{jid}"
-#         sub_redis_log_key = f"crawl_monitor:logging:{jid}:{log_level}"
-#         rdb.lpush(redis_log_key, log_details.get("log_record"))
-#         rdb.lpush(sub_redis_log_key, log_details.get("log_record"))
-#
-#         # 使用 Redis 的INCR命令对计数器进行原子递增
-#         lv_total = count_logs_by_level([log_data])
-#
-#         # 同步监控数据到数据库
-#         job_info = get_fetch_one(JobInfos, jid=jid)
-#
-#         # 状态
-#         # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
-#         if j_status:
-#             job_info["status"] = j_status
-#         else:
-#             job_info["status"] = job_info["status"] if job_info["status"] else 3
-#
-#         # 入库数据计数
-#         if job_info["items_count"] == None:
-#             job_info["items_count"] = 0
-#         if items_count:
-#             job_info["items_count"] += items_count or 0
-#
-#         job_info["log_lv_info"] = lv_total.get(jid, {}).get('INFO') or job_info["log_lv_info"]
-#         job_info["log_lv_error"] = lv_total.get(jid, {}).get('ERROR') or job_info["log_lv_error"]
-#         job_info["log_lv_warning"] = lv_total.get(jid, {}).get('WARNING') or job_info["log_lv_warning"]
-#         job_info["end_time"] = datetime.now(pytz.timezone('Asia/Shanghai'))
-#         del job_info["create_time"]
-#         job_info_new = update_data(JobInfos, [job_info])
-#
-#         # 获取日志文件路径
-#         log_file_path = job_info.get("log_file_path")
-#         logger.info(f"日志保存路径：{log_file_path}")
-#         log_to_save(redis_log_key, log_file_path, log_level)
-#         # asyncio.run(log_to_save2(redis_log_key, log_file_path))
-#
-#         # 告警任务推送
-#         if log_level == "ERROR":
-#             alarm_handler = AlarmHandler()
-#             await alarm_handler.handle_alarm(
-#                 wid, f'{job_info["name"]}_有关告警信息',
-#                 f"该任务接收到了一次报错日志！内容如下:"
-#                 f"{log_data['msg']}"
-#             )
-#
-#         # 状态的控制，销毁前发送状态，推送时修改状态，atexit 模块的尝试
-#
-#         return {"status": "ok", "error": None, "data": data}
-#     except Exception as err:
-#         logger.error(f"日志流处理错误！错误原因：{err}")
-#         return {"status": "err", "error": err, "data": None}
+@app.post("/log_total", summary="任务指数统计")
+@limiter.limit("5/minute")
+async def log_total(request: Request):
+    fdata = await request.form()
+    data = dict(fdata)
+    callbackJson = constructResponse()
+    job_info = get_fetch_one(JobInfos, jid=data.get("jid"))
+    result = {
+        "jid": "",
+        "run_user": "",
+        "log_lv_warning": 0,
+        "log_lv_info": 0,
+        "items_count": 0,
+        "create_time": 0,
+        "end_time": 0,
+    }
+    for k, v in job_info.items():
+        if k in result:
+            result[k] = v
+    if not result.get("jid"):
+        callbackJson.statusCode = 404
+    else:
+        callbackJson.statusCode = 200
+
+    return callbackJson.callBacker(result)
 
 
-@app.post("/log")
+@app.post("/log", summary="日志传输接口")
 async def update_logging(request: Request):
     """
     接收客户端日志

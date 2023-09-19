@@ -42,7 +42,7 @@ class constructResponse(object):
             self.resData["errMsg"] = self.message
             self.resData["err_msg"] = self.message
             self.resData["statusBool"] = False
-            logger.error(f"[{self.message}] url:{self.url}")
+            logger.error(f"[{self.message}]")
 
         if data:
             self.resData["data"] = data
