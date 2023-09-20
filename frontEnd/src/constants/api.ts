@@ -25,7 +25,7 @@ export enum ACCOUNT {
 export enum DASHBOARD {
   DBOARDINFO = "/dboard_info",
   DBOARDJOBS = "/dboard_jobs",
-  DBOARDLOGPROPORTION = "/dboard_log_proportion",
+  DBOARDLOGTOTAL = "/dboard_log_total",
 }
 
 // 任务日志

@@ -23,7 +23,7 @@ export const getDashJobs = () => {
 
 export const getDashLogs = () => {
     return handleGet({
-        url: API.DASHBOARD.DBOARDLOGPROPORTION,
+        url: API.DASHBOARD.DBOARDLOGTOTAL,
         method: REQUEST_METHOD.GET,
         headers: {},
     });

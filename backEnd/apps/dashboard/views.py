@@ -18,7 +18,8 @@ import requests
 from .components import list_files, get_machine_memory_usage_percent, \
     get_memory_usage, get_projects_count, get_programs_count, get_completed_jobs, get_folder_sizes, \
     get_first_part_from_right, count_element_in_list, get_yesterday_finish_jobs, get_running_jobs_count, \
-    get_total_jobinfos_count, count_logs_modified_yesterday, get_disk_space_percentage, get_items_count_by_wid
+    get_total_jobinfos_count, count_logs_modified_yesterday, get_disk_space_percentage, get_items_count_by_wid, \
+    summarize_logs_by_wid
 from apps.users.models import get_user_count
 from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
@@ -59,13 +60,15 @@ async def dboard_log_proportion():
 async def dboard_log_proportion():
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
-    dboard_log_proportion = {}
+    dboard_log_total = {}
+    dboard_log_total['yesterday'] = summarize_logs_by_wid("yesterday")
+    dboard_log_total['last_7_days'] = summarize_logs_by_wid("last_7_days")
+    dboard_log_total['all_time'] = summarize_logs_by_wid("all_time")
     log_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
     if not os.path.exists(log_path):
         os.makedirs(log_path)
-    dboard_log_proportion['list'] = get_folder_sizes(log_path)[:8]
-    # print(dboard_log_proportion['list'])
-    return callbackJson.callBacker(dboard_log_proportion)
+    dboard_log_total['proportion'] = get_folder_sizes(log_path)
+    return callbackJson.callBacker(dboard_log_total)
 
 
 @route.get("/dboard_info")

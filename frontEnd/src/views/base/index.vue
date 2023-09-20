@@ -22,17 +22,72 @@
         <el-card shadow="hover" style="height: 495px">
           <template #header>
             <div class="clearfix">
-              <span>日志比例Top</span>
+              <span>日志统计</span>
               <el-button style="float: right; padding: 6px 0" text @click="getLogs()"> 刷新 </el-button>
             </div>
           </template>
-          <div v-if="dlogs.length">
-            <div  v-for="(item, key) in dlogs" v-if="dlogs.length">
-              <span class="folder-name">{{ item.folder_name }}</span>
-              <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="getRandomColor()"></el-progress>
-            </div>
-          </div>
-          <div v-else class="no-data">暂无数据</div>
+          <el-tabs v-model="activeName" tab-position="left" class="job-log-tabs" @tab-click="handleClick">
+            <!--     昨日统计 近7日统计 历史统计      -->
+            <el-tab-pane label="历史" name="first">
+              <div v-if="dLogsTotal.all_time.length">
+                <div  v-for="(item, key) in dLogsTotal.all_time">
+                  <span class="folder-name">{{ item.wname }}</span>
+                  <el-progress
+                      :text-inside="true"
+                      :stroke-width="20"
+                      :percentage="floatToPercentage(item.log_proportion)"
+                      :color="progressColor"
+                  >
+                    <span class="progress-content">{{ floatToPercentage(item.log_proportion) }}%:{{item.log_sum}} 条</span>
+                  </el-progress>
+                </div>
+              </div>
+              <div v-else class="no-data">暂无数据</div>
+            </el-tab-pane>
+            <el-tab-pane label="近7天" name="second">
+              <div v-if="dLogsTotal.last_7_days.length">
+                <div  v-for="(item, key) in dLogsTotal.last_7_days">
+                  <span class="folder-name">{{ item.wname }}</span>
+                  <el-progress
+                      :text-inside="true"
+                      :stroke-width="20"
+                      :percentage="floatToPercentage(item.log_proportion)"
+                      :color="progressColor"
+                  >
+                    <span class="progress-content">{{ floatToPercentage(item.log_proportion) }}%:{{item.log_sum}} 条</span>
+                  </el-progress>
+                </div>
+              </div>
+              <div v-else class="no-data">暂无数据</div>
+            </el-tab-pane>
+            <el-tab-pane label="昨日" name="third">
+              <div v-if="dLogsTotal.yesterday.length">
+                <div  v-for="(item, key) in dLogsTotal.yesterday">
+                  <span class="folder-name">{{ item.wname }}</span>
+                  <el-progress
+                      :text-inside="true"
+                      :stroke-width="20"
+                      :percentage="floatToPercentage(item.log_proportion)"
+                      :color="progressColor"
+                  >
+                    <span class="progress-content">{{ floatToPercentage(item.log_proportion) }}%:{{item.log_sum}} 条</span>
+                  </el-progress>
+                </div>
+              </div>
+              <div v-else class="no-data">暂无数据</div>
+            </el-tab-pane>
+            <el-tab-pane label="大小比例" name="fourth">
+              <div v-if="dLogsTotal.proportion.length">
+                <div  v-for="(item, key) in dLogsTotal.proportion">
+                  <span class="folder-name">{{ item.folder_name }}</span>
+                  <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="getRandomColor()">
+                    {{ floatToPercentage(item.size_ratio) }}%:{{ item.size_human_readable }}
+                  </el-progress>
+                </div>
+              </div>
+              <div v-else class="no-data">暂无数据</div>
+            </el-tab-pane>
+          </el-tabs>
         </el-card>
       </el-col>
       <el-col :span="16">
@@ -189,6 +244,11 @@ import {onBeforeMount, reactive, ref} from 'vue';
 import { ipInfo } from '~/api/extras';
 import {fetchChartss} from "~/api";
 import {getDashInfo, getDashJobs, getDashLogs} from "~/api/dashboard";
+import type { TabsPaneContext } from 'element-plus'
+const activeName = ref('first')
+const handleClick = (tab: TabsPaneContext, event: Event) => {
+  console.log(tab, event)
+}
 const imgurl = 'https://avatars.githubusercontent.com/u/64947085?v=4'
 
 const name = localStorage.getItem('ms_username');
@@ -282,16 +342,44 @@ const getDJobs = async () => {
 getDJobs()
 
 // 日志比例信息
-interface dlogsItem {
+const progressColor = [
+  { color: '#6f7ad3', percentage: 20 },
+  { color: '#1989fa', percentage: 40 },
+  { color: '#5cb87a', percentage: 60 },
+  { color: '#e6a23c', percentage: 80 },
+  { color: '#f56c6c', percentage: 100 },
+]
+
+interface LogEntry {
+  wid: string;
+  pid: string;
+  wname: string;
+  pname: string;
+  log_sum: number;
+  log_proportion: number;
+}
+
+interface ProportionFolder {
   folder_name: string;
-  size_bytes: string;
+  size_bytes: number;
   size_human_readable: string;
   size_ratio: number;
 }
-const dlogs = ref<dlogsItem[]>([]);
+
+const dLogsTotal = reactive({
+  yesterday: <LogEntry[]>([]),
+  last_7_days: <LogEntry[]>([]),
+  all_time: <LogEntry[]>([]),
+  proportion: <ProportionFolder[]>([]),
+})
+
+
 const getLogs = async () => {
   const result = (await getDashLogs())
-  dlogs.value = result.data.list;
+  dLogsTotal.yesterday = result.data.yesterday;
+  dLogsTotal.last_7_days = result.data.last_7_days;
+  dLogsTotal.all_time = result.data.all_time;
+  dLogsTotal.proportion = result.data.proportion;
 };
 getLogs()
 
@@ -320,6 +408,17 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
+.progress-content {
+  color: #2c0b0b
+}
+
+.job-log-tabs > .el-tabs__content {
+  padding: 32px;
+  color: #6b778c;
+  font-size: 32px;
+  font-weight: 600;
+}
+
 .folder-name {
   flex: 1;
   margin-right: 10px;

@@ -486,13 +486,13 @@ const handleDelete = (index: number, row: any) => {
           console.log("sub_flush", sub_flush)
           localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
 
-          // todo 旧版bug待修复
-          let temp = tableResData.value.splice(index, 1)[0];
-          tableResData.value = sub_flush.data.list
-          pageTotal.value -= 1
+          // // todo 旧版bug待修复
+          // let temp = tableResData.value.splice(index, 1)[0];
+          // tableResData.value = sub_flush.data.list
+          // pageTotal.value -= 1
 
-          // // todo 根据刷新的数据处理筛选条件
-          // handleTableDataResult();
+          // todo 根据刷新的数据处理筛选条件
+          handleTableDataResult();
 
           // 响应删除成功则弹出提示
           ElMessage.success('删除成功！');
