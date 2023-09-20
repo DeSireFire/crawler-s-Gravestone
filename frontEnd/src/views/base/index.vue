@@ -19,7 +19,7 @@
             <span>{{ local_name }}</span>
           </div>
         </el-card>
-        <el-card shadow="hover" style="height: 495px">
+        <el-card shadow="hover" style="height: 507px">
           <template #header>
             <div class="clearfix">
               <span>日志统计</span>
@@ -31,7 +31,15 @@
             <el-tab-pane label="历史" name="first">
               <div v-if="dLogsTotal.all_time.length">
                 <div  v-for="(item, key) in dLogsTotal.all_time">
-                  <span class="folder-name">{{ item.wname }}</span>
+                  <router-link
+                  :to="
+                  { path: '/projects_tabs', query: {
+                    pid:item.pid,
+                    name:item.pname,
+                    title:item.pname,
+                  }}">
+                    <span class="folder-name">{{ item.wname }}</span>
+                  </router-link>
                   <el-progress
                       :text-inside="true"
                       :stroke-width="20"
@@ -47,7 +55,15 @@
             <el-tab-pane label="近7天" name="second">
               <div v-if="dLogsTotal.last_7_days.length">
                 <div  v-for="(item, key) in dLogsTotal.last_7_days">
-                  <span class="folder-name">{{ item.wname }}</span>
+                  <router-link
+                      :to="
+                  { path: '/projects_tabs', query: {
+                    pid:item.pid,
+                    name:item.pname,
+                    title:item.pname,
+                  }}">
+                    <span class="folder-name">{{ item.wname }}</span>
+                  </router-link>
                   <el-progress
                       :text-inside="true"
                       :stroke-width="20"
@@ -63,7 +79,15 @@
             <el-tab-pane label="昨日" name="third">
               <div v-if="dLogsTotal.yesterday.length">
                 <div  v-for="(item, key) in dLogsTotal.yesterday">
-                  <span class="folder-name">{{ item.wname }}</span>
+                  <router-link
+                      :to="
+                  { path: '/projects_tabs', query: {
+                    pid:item.pid,
+                    name:item.pname,
+                    title:item.pname,
+                  }}">
+                    <span class="folder-name">{{ item.wname }}</span>
+                  </router-link>
                   <el-progress
                       :text-inside="true"
                       :stroke-width="20"
@@ -201,7 +225,7 @@
             </el-card>
           </el-col>
         </el-row>
-        <el-card shadow="hover" style="height: 403px">
+        <el-card shadow="hover" style="height: 415px">
           <template #header>
             <div class="clearfix">
               <span>任务概览</span>
@@ -440,6 +464,13 @@ onBeforeMount(() => {
 
 .el-row {
   margin-bottom: 20px;
+}
+
+.el-row a{
+  color: #303133;
+}
+.el-row a.router-link-exact-active {
+  color: #73767a; /* 设置你想要的字体颜色 */
 }
 
 .grid-content {
