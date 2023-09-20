@@ -7,7 +7,7 @@
       <el-collapse v-model="activeName" accordion>
         <el-collapse-item name="1">
           <template #title>
-            <b>监控平台推送操作说明书</b>
+            <b>如何获取工作流密钥？</b>
           </template>
           <el-scrollbar class="preview">
             <MdPreview :editorId="mdId1" :modelValue="markdownContent1" />
@@ -30,7 +30,7 @@
 import { ref, onMounted,watch } from 'vue';
 import { MdPreview,MdEditor, MdCatalog } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
-import 平台说明书 from '~/assets/md/平台说明书.md?raw'; // 根据实际路径调整
+import 如何获取工作流密钥 from '~/assets/md/如何获取工作流密钥.md?raw'; // 根据实际路径调整
 import 推送器说明书 from '~/assets/md/推送器说明书.md?raw'; // 根据实际路径调整
 // 折叠面板
 const activeName = ref('')
@@ -42,7 +42,7 @@ const markdownContent2 = ref('');
 // 加载 markdown 文本文件内容
 const loadMarkdownContent = async () => {
   // const response = await fetch(平台说明书);
-  markdownContent1.value = 平台说明书;
+  markdownContent1.value = 如何获取工作流密钥;
   markdownContent2.value = 推送器说明书;
 };
 
@@ -58,6 +58,22 @@ onMounted(() => {
 
 <style scoped>
 .preview {
-  height: 400px;
+  height: 600px;
+}
+.preview img {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /*max-width: 50%;*/
+}
+
+.default-theme img {
+  margin: 0 auto;
+  max-width: 50%!important;
+  box-sizing: border-box;
+  padding: 5px;
+  border: 1px solid var(--md-theme-border-color);
+  border-radius: 3px;
 }
 </style>
