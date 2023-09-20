@@ -19,9 +19,70 @@ from sqlalchemy import func
 from apps.programs import get_query_all
 from apps.projects import get_projects_info
 from apps.programs.models import ProgramInfos
-from apps.projects.models import JobInfos
+from apps.projects.models import JobInfos, WorkerInfos, ProjectInfos
 from server_core.conf import BASE_DIR
 from server_core.db import engine, Newsession
+
+from collections import defaultdict
+from sqlalchemy import func
+from datetime import datetime, timedelta
+
+
+def summarize_logs_by_wid(time_range):
+    session = Newsession()
+    result_list = []
+    try:
+        # 根据传入的时间范围计算日期范围
+        if time_range == 'yesterday':
+            start_date = datetime.now() - timedelta(days=1)
+            end_date = datetime.now() - timedelta(days=1)
+        elif time_range == 'last_7_days':
+            start_date = datetime.now() - timedelta(days=6)
+            end_date = datetime.now()
+        elif time_range == 'all_time':
+            start_date = datetime.min
+            end_date = datetime.now()
+        else:
+            raise ValueError("Invalid time_range parameter")
+
+        # 查询end_time在指定时间范围内的数据
+        job_infos = session.query(JobInfos).filter(
+            JobInfos.end_time >= start_date,
+            JobInfos.end_time <= end_date
+        ).all()
+
+        # 创建一个字典，用于按wid分类和汇总日志级别数据
+        wid_logs_summary = defaultdict(lambda: {'wid': None, 'pid': None, 'wname': None, 'pname': None, 'log_sum': 0})
+
+        # 遍历查询结果，根据wid分类并求和日志级别
+        for job_info in job_infos:
+            wid = job_info.wid
+            pid = job_info.pid
+            wname = job_info.w_nickname
+            pname = job_info.p_nickname
+            log_sum = job_info.log_lv_warning + job_info.log_lv_error + job_info.log_lv_info
+
+            # 如果该wid的字典不存在，创建一个新的字典
+            if wid_logs_summary[wid]['wid'] is None:
+                wid_logs_summary[wid] = {'wid': wid, 'pid': pid, 'wname': wname, 'pname': pname, 'log_sum': log_sum}
+            else:
+                # 如果字典已存在，更新log_sum字段
+                wid_logs_summary[wid]['log_sum'] += log_sum
+
+        # 计算每个wid的log_proportion，即占比
+        total_log_sum = sum(item['log_sum'] for item in wid_logs_summary.values())
+        for item in wid_logs_summary.values():
+            item['log_proportion'] = item['log_sum'] / total_log_sum if total_log_sum > 0 else 0
+
+        # 将结果字典放入列表中，并按log_proportion从大到小排序
+        result_list = list(wid_logs_summary.values())
+        result_list.sort(key=lambda x: x['log_proportion'], reverse=True)
+    except Exception as e:
+        print(f"系统首页查询日志统计记录时，发生了错误：{e}")
+    finally:
+        session.close()
+        return result_list
+
 
 
 def get_folder_sizes(path):

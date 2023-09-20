@@ -80,8 +80,13 @@
               <div v-if="dLogsTotal.proportion.length">
                 <div  v-for="(item, key) in dLogsTotal.proportion">
                   <span class="folder-name">{{ item.folder_name }}</span>
-                  <el-progress :percentage="floatToPercentage(item.size_ratio)" :color="getRandomColor()">
-                    {{ floatToPercentage(item.size_ratio) }}%:{{ item.size_human_readable }}
+                  <el-progress
+                      :text-inside="true"
+                      :stroke-width="20"
+                      :percentage="floatToPercentage(item.size_ratio)"
+                      :color="progressColor"
+                  >
+                    <span class="progress-content"> {{ floatToPercentage(item.size_ratio) }}%:{{ item.size_human_readable }}</span>
                   </el-progress>
                 </div>
               </div>
@@ -343,11 +348,11 @@ getDJobs()
 
 // 日志比例信息
 const progressColor = [
-  { color: '#6f7ad3', percentage: 20 },
-  { color: '#1989fa', percentage: 40 },
-  { color: '#5cb87a', percentage: 60 },
-  { color: '#e6a23c', percentage: 80 },
-  { color: '#f56c6c', percentage: 100 },
+  { color: '#6f7ad3', percentage: 10 },
+  { color: '#1989fa', percentage: 20 },
+  { color: '#5cb87a', percentage: 30 },
+  { color: '#e6a23c', percentage: 40 },
+  { color: '#f56c6c', percentage: 50 },
 ]
 
 interface LogEntry {
