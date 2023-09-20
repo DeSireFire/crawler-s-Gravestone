@@ -61,13 +61,13 @@ async def dboard_log_proportion():
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     dboard_log_total = {}
-    dboard_log_total['yesterday'] = summarize_logs_by_wid("yesterday")
-    dboard_log_total['last_7_days'] = summarize_logs_by_wid("last_7_days")
-    dboard_log_total['all_time'] = summarize_logs_by_wid("all_time")
+    dboard_log_total['yesterday'] = summarize_logs_by_wid("yesterday")[:10]
+    dboard_log_total['last_7_days'] = summarize_logs_by_wid("last_7_days")[:10]
+    dboard_log_total['all_time'] = summarize_logs_by_wid("all_time")[:10]
     log_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
     if not os.path.exists(log_path):
         os.makedirs(log_path)
-    dboard_log_total['proportion'] = get_folder_sizes(log_path)
+    dboard_log_total['proportion'] = get_folder_sizes(log_path)[:10]
     return callbackJson.callBacker(dboard_log_total)
 
 
