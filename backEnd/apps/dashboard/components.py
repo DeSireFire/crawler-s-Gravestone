@@ -35,7 +35,9 @@ def summarize_logs_by_wid(time_range):
         # 根据传入的时间范围计算日期范围
         if time_range == 'yesterday':
             start_date = datetime.now() - timedelta(days=1)
-            end_date = datetime.now() - timedelta(days=1)
+            now = datetime.now()
+            end_date = datetime(now.year, now.month, now.day, 0, 0, 0)
+            # end_date = datetime.now() - timedelta(days=1)
         elif time_range == 'last_7_days':
             start_date = datetime.now() - timedelta(days=6)
             end_date = datetime.now()
