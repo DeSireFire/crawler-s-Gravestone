@@ -213,8 +213,8 @@
                 </div>
                 <div class="grid-cont-info">
                   <div>通过数:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total }}</span></div>
-                  <div>今日和:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total + taobao_captcha_api.failure_total }}</span></div>
-                  <div>历史总:  <span class="grid-info-num">{{ taobao_captcha_api.history_total }}</span></div>
+                  <div>失败数:  <span class="grid-info-num">{{ taobao_captcha_api.failure_total }}</span></div>
+                  <div>今日总:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total + taobao_captcha_api.failure_total }}</span></div>
                 </div>
               </div>
             </el-card>
