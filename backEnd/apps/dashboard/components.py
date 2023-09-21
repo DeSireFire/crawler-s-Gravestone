@@ -37,7 +37,6 @@ def summarize_logs_by_wid(time_range):
             start_date = datetime.now() - timedelta(days=1)
             now = datetime.now()
             end_date = datetime(now.year, now.month, now.day, 0, 0, 0)
-            # end_date = datetime.now() - timedelta(days=1)
         elif time_range == 'last_7_days':
             start_date = datetime.now() - timedelta(days=6)
             end_date = datetime.now()
@@ -465,6 +464,35 @@ def get_items_count_by_wid_with_time_limit(wid):
         total_items_count = 0
 
     return total_items_count
+
+
+from sqlalchemy import desc
+
+
+def get_latest_job_info_by_wid(wid):
+    """
+    获取指定工作流最新更新任务的指数统计信息
+    :param wid:
+    :return:
+    """
+    session = Newsession()
+    res_dict = {}
+    try:
+        # 查询指定wid值匹配的记录，并按end_time降序排序，选择第一条记录
+        latest_job_info = session.query(JobInfos).filter(JobInfos.wid == wid).order_by(desc(JobInfos.end_time)).first()
+        res_dict["pid"] = latest_job_info.pid
+        res_dict["wid"] = latest_job_info.wid
+        res_dict["jid"] = latest_job_info.jid
+        res_dict["job_name"] = latest_job_info.name
+        res_dict["passing_total"] = latest_job_info.items_count
+        res_dict["failure_total"] = latest_job_info.log_lv_warning
+        res_dict["passing_rate"] = latest_job_info.items_count/(latest_job_info.items_count+latest_job_info.log_lv_warning)
+        res_dict["history_total"] = get_items_count_by_wid(wid)
+        return res_dict
+    except Exception as e:
+        print(f"get_latest_job_info_by_wid 查询是发生了错误！ {e}")
+    finally:
+        session.close()
 
 def get_memory_usage():
     """

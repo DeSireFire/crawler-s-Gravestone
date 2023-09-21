@@ -192,12 +192,29 @@
         </el-row>
         <el-row :gutter="20" class="mgb20">
           <el-col :span="8">
+<!--            <el-card shadow="hover" :body-style="{ padding: '0px' }">-->
+<!--              <div class="grid-content grid-con-4">-->
+<!--                <el-icon class="grid-con-icon"><Cpu /></el-icon>-->
+<!--                <div class="grid-cont-right">-->
+<!--                  <div class="grid-num">-->
+<!--                    {{ board_info.taobao_captcha_api }}-->
+<!--                  </div>-->
+<!--                  <div>淘系调用总数</div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </el-card>-->
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-4">
-                <el-icon class="grid-con-icon"><Cpu /></el-icon>
+                <el-icon class="grid-con-icon"><ElementPlus /></el-icon>
                 <div class="grid-cont-right">
-                  <div class="grid-num">{{ board_info.taobao_captcha_api }}</div>
-                  <div>淘系调用总数</div>
+                  <div class="grid-num">{{ floatToPercentage(taobao_captcha_api.passing_rate) }}%</div>
+                  <div>淘系接口统计</div>
+                  <div>今日通过率</div>
+                </div>
+                <div class="grid-cont-info">
+                  <div>通过数:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total }}</span></div>
+                  <div>今日和:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total + taobao_captcha_api.failure_total }}</span></div>
+                  <div>历史总:  <span class="grid-info-num">{{ taobao_captcha_api.history_total }}</span></div>
                 </div>
               </div>
             </el-card>
@@ -272,7 +289,7 @@ import {onBeforeMount, reactive, ref} from 'vue';
 // import {get_ip_info} from '~/api';
 import { ipInfo } from '~/api/extras';
 import {fetchChartss} from "~/api";
-import {getDashInfo, getDashJobs, getDashLogs} from "~/api/dashboard";
+import {getDashInfo, getDashJobs, getDashLogs, getDashTB} from "~/api/dashboard";
 import type { TabsPaneContext } from 'element-plus'
 const activeName = ref('first')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
@@ -312,8 +329,6 @@ const board_info = reactive({
   jobs_total: '--',
   // 硬盘占用
   disk_total: '--',
-  // 淘系接口应用调用
-  taobao_captcha_api: '--'
 })
 
 // 当前日期格式化
@@ -349,10 +364,29 @@ const getBoard = async () => {
   board_info.yesterday_new_logger = result.data.yesterday_new_logger;
   board_info.working_jobs = result.data.working_jobs;
   board_info.jobs_total = result.data.jobs_total;
-  board_info.taobao_captcha_api = result.data.taobao_captcha_api;
   board_info.disk_total = `${floatToPercentage(result.data.disk_total)}%`;
 };
-getBoard()
+getBoard();
+
+interface tbCaptchaTotal {
+  pid: string;
+  wid: string;
+  jid: string;
+  job_name: string;
+  passing_total: number;
+  failure_total: number;
+  passing_rate: number;
+  history_total: number;
+}
+
+
+// 淘系接口统计信息
+const taobao_captcha_api = ref(<tbCaptchaTotal>{})
+const getTBTotal = async () => {
+  const result = (await getDashTB());
+  taobao_captcha_api.value = result.data
+};
+getTBTotal();
 
 // 获取仪表盘任务概览信息
 interface djobsItem {
@@ -480,9 +514,11 @@ onBeforeMount(() => {
 }
 
 .grid-cont-info {
-  font-size: 20px;
+  border-left: 1px dotted #999;
+  flex: 1;
+  font-size: 10px;
   color: #999;
-  padding: 5px 5px 5px 20px;
+  padding: 5px 10px 5px 10px;
 }
 
 .grid-info-num {
@@ -493,12 +529,12 @@ onBeforeMount(() => {
 .grid-cont-right {
   flex: 1;
   text-align: center;
-  font-size: 14px;
+  font-size: 10px;
   color: #999;
 }
 
 .grid-num {
-  font-size: 25px;
+  font-size: 20px;
   font-weight: bold;
 }
 

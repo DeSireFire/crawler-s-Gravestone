@@ -45,8 +45,7 @@
                   <div class="grid-num">{{ board_info.project_total }}</div>
                   <div>项目数量</div>
                 </div>
-                <!--                <div class="grid-cont-info">-->
-                <div class="grid-cont-right">
+                <div class="grid-cont-info">
                   <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>
                   <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>
                   <div>项目数量:  <span class="grid-info-num">{{ board_info.project_total }}</span></div>

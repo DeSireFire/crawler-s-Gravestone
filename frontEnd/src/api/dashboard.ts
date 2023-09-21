@@ -28,3 +28,13 @@ export const getDashLogs = () => {
         headers: {},
     });
 };
+
+// 业务统计
+// 淘系调用统计
+export const getDashTB = () => {
+    return handleGet({
+        url: API.DASHBOARD.DBOARDTAOBAO,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};

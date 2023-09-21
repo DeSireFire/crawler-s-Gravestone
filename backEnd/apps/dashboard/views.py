@@ -19,7 +19,7 @@ from .components import list_files, get_machine_memory_usage_percent, \
     get_memory_usage, get_projects_count, get_programs_count, get_completed_jobs, get_folder_sizes, \
     get_first_part_from_right, count_element_in_list, get_yesterday_finish_jobs, get_running_jobs_count, \
     get_total_jobinfos_count, count_logs_modified_yesterday, get_disk_space_percentage, get_items_count_by_wid, \
-    summarize_logs_by_wid
+    summarize_logs_by_wid, get_latest_job_info_by_wid
 from apps.users.models import get_user_count
 from server_core.conf import BASE_DIR
 from server_core.control import constructResponse
@@ -28,7 +28,7 @@ from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, st
 
 route = APIRouter()
 
-
+# 首页模块
 @route.get("/ipInfo")
 async def ipInfo(request: Request):
     # headers = {
@@ -44,18 +44,6 @@ async def ipInfo(request: Request):
     return temp
 
 # 日志统计
-@route.get("/dboard_log_proportion")
-async def dboard_log_proportion():
-    callbackJson = constructResponse()
-    callbackJson.statusCode = 200
-    dboard_log_proportion = {}
-    log_path = os.path.join(BASE_DIR, 'logs', 'worker_logs')
-    if not os.path.exists(log_path):
-        os.makedirs(log_path)
-    dboard_log_proportion['list'] = get_folder_sizes(log_path)[:8]
-    # print(dboard_log_proportion['list'])
-    return callbackJson.callBacker(dboard_log_proportion)
-
 @route.get("/dboard_log_total")
 async def dboard_log_proportion():
     callbackJson = constructResponse()
@@ -70,7 +58,7 @@ async def dboard_log_proportion():
     dboard_log_total['proportion'] = get_folder_sizes(log_path)[:10]
     return callbackJson.callBacker(dboard_log_total)
 
-
+# 基本信息统计
 @route.get("/dboard_info")
 async def dboard_info():
     """
@@ -128,7 +116,6 @@ async def dboard_info():
     board_info["working_jobs"] = get_running_jobs_count() or '--'
     board_info["jobs_total"] = get_total_jobinfos_count() or '--'
     board_info["disk_total"] = get_disk_space_percentage() or '--'
-    board_info["taobao_captcha_api"] = get_items_count_by_wid("daae2b53920ca33216bef79ccb27c651") or '--'
     pprint(board_info)
     return callbackJson.callBacker(board_info)
 
@@ -156,3 +143,17 @@ async def dboard_jobs():
     # pprint(res_list)
     dboard_jobs["list"] = res_list[:8]
     return callbackJson.callBacker(dboard_jobs)
+
+
+# 仪表盘模块
+@route.get("/dboard_taobao")
+async def dboard_taobao():
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    # 淘系接口的工作流密钥
+    tb_wid = "daae2b53920ca33216bef79ccb27c651"
+    dboard_taobao = get_latest_job_info_by_wid(tb_wid) or {}
+    if not dboard_taobao:
+        callbackJson.statusCode = 429
+        callbackJson.message = "淘系接口统计信息，查询失败..."
+    return callbackJson.callBacker(dboard_taobao)
