@@ -208,7 +208,7 @@
                 <el-icon class="grid-con-icon"><ElementPlus /></el-icon>
                 <div class="grid-cont-right">
                   <div class="grid-num">{{ floatToPercentage(taobao_captcha_api.passing_rate) }}%</div>
-                  <div>淘系接口统计</div>
+                  <div>饿了么滑块接口</div>
                   <div>今日通过率</div>
                 </div>
                 <div class="grid-cont-info">
