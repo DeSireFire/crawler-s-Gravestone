@@ -138,9 +138,6 @@ async def dboard_jobs():
         if count_element_in_list(has_work, work_name) < 3:
             has_work.append(work_name)
             res_list.append(i)
-    # pprint(temp_list)
-    # print("*"*100)
-    # pprint(res_list)
     dboard_jobs["list"] = res_list[:8]
     return callbackJson.callBacker(dboard_jobs)
 

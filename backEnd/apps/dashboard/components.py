@@ -34,9 +34,11 @@ def summarize_logs_by_wid(time_range):
     try:
         # 根据传入的时间范围计算日期范围
         if time_range == 'yesterday':
-            start_date = datetime.now() - timedelta(days=1)
+            old = datetime.now() - timedelta(days=1)
+            start_date = datetime(old.year, old.month, old.day-1, 0, 0, 0)
             now = datetime.now()
             end_date = datetime(now.year, now.month, now.day, 0, 0, 0)
+            print(f"start_date:{start_date},now：{now}")
         elif time_range == 'last_7_days':
             start_date = datetime.now() - timedelta(days=6)
             end_date = datetime.now()
@@ -544,21 +546,24 @@ def count_element_in_list(lst, element_to_count):
 
 
 if __name__ == '__main__':
-    # logs_path = os.path.join(BASE_DIR, "logs", "worker_logs")
-    # list_files(logs_path)
+    # # logs_path = os.path.join(BASE_DIR, "logs", "worker_logs")
+    # # list_files(logs_path)
+    #
+    # # t = get_memory_usage()
+    # # print(t)
+    #
+    # # 指定要扫描的路径
+    # # target_path = os.path.join(BASE_DIR,'logs_back/worker_logs')
+    # target_path = os.path.join('F:\\workSpace\\myGithub\\crawler-s-Gravestone\\backEnd\\logs/worker_logs')
+    #
+    # # 获取文件夹信息列表
+    # folder_info_list = get_folder_sizes(target_path)
+    #
+    # # 打印文件夹信息
+    # for folder_info in folder_info_list:
+    #     print(f"Folder: {folder_info['folder_name']}")
+    #     print(f"Size: {folder_info['size_human_readable']} ({folder_info['size_bytes']} bytes)")
+    #     print(f"Size Ratio: {folder_info['size_ratio']:.2%}\n")
 
-    # t = get_memory_usage()
-    # print(t)
-
-    # 指定要扫描的路径
-    # target_path = os.path.join(BASE_DIR,'logs_back/worker_logs')
-    target_path = os.path.join('F:\\workSpace\\myGithub\\crawler-s-Gravestone\\backEnd\\logs/worker_logs')
-
-    # 获取文件夹信息列表
-    folder_info_list = get_folder_sizes(target_path)
-
-    # 打印文件夹信息
-    for folder_info in folder_info_list:
-        print(f"Folder: {folder_info['folder_name']}")
-        print(f"Size: {folder_info['size_human_readable']} ({folder_info['size_bytes']} bytes)")
-        print(f"Size Ratio: {folder_info['size_ratio']:.2%}\n")
+    temp = summarize_logs_by_wid("yesterday")[:10]
+    print(temp)
