@@ -38,7 +38,6 @@ def summarize_logs_by_wid(time_range):
             start_date = datetime(old.year, old.month, old.day-1, 0, 0, 0)
             now = datetime.now()
             end_date = datetime(now.year, now.month, now.day, 0, 0, 0)
-            print(f"start_date:{start_date},now：{now}")
         elif time_range == 'last_7_days':
             start_date = datetime.now() - timedelta(days=6)
             end_date = datetime.now()
