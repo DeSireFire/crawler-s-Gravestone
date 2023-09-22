@@ -486,7 +486,11 @@ def get_latest_job_info_by_wid(wid):
         res_dict["job_name"] = latest_job_info.name
         res_dict["passing_total"] = latest_job_info.items_count
         res_dict["failure_total"] = latest_job_info.log_lv_warning
-        res_dict["passing_rate"] = latest_job_info.items_count/(latest_job_info.items_count+latest_job_info.log_lv_warning)
+        if latest_job_info.items_count and latest_job_info.items_count+latest_job_info.log_lv_warning:
+            res_dict["passing_rate"] = latest_job_info.items_count/(latest_job_info.items_count+latest_job_info.log_lv_warning)
+        else:
+            res_dict["passing_rate"] = 0
+
         res_dict["history_total"] = get_items_count_by_wid(wid)
         return res_dict
     except Exception as e:

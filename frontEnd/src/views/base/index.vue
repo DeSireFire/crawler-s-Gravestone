@@ -28,11 +28,11 @@
           </template>
           <el-tabs v-model="activeName" tab-position="left" class="job-log-tabs" @tab-click="handleClick">
             <!--     昨日统计 近7日统计 历史统计      -->
-            <el-tab-pane label="历史" name="first">
-              <div v-if="dLogsTotal.all_time.length">
-                <div  v-for="(item, key) in dLogsTotal.all_time">
+            <el-tab-pane label="昨日" name="first">
+              <div v-if="dLogsTotal.yesterday.length">
+                <div  v-for="(item, key) in dLogsTotal.yesterday">
                   <router-link
-                  :to="
+                      :to="
                   { path: '/projects_tabs', query: {
                     pid:item.pid,
                     name:item.pname,
@@ -76,9 +76,9 @@
               </div>
               <div v-else class="no-data">暂无数据</div>
             </el-tab-pane>
-            <el-tab-pane label="昨日" name="third">
-              <div v-if="dLogsTotal.yesterday.length">
-                <div  v-for="(item, key) in dLogsTotal.yesterday">
+            <el-tab-pane label="历史" name="third">
+              <div v-if="dLogsTotal.all_time.length">
+                <div  v-for="(item, key) in dLogsTotal.all_time">
                   <router-link
                       :to="
                   { path: '/projects_tabs', query: {
