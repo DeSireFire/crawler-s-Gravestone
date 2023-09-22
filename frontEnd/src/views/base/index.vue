@@ -26,7 +26,12 @@
               <el-button style="float: right; padding: 6px 0" text @click="getLogs()"> 刷新 </el-button>
             </div>
           </template>
-          <el-tabs v-model="activeName" tab-position="left" class="job-log-tabs" @tab-click="handleClick">
+          <el-tabs v-model="activeName"
+                   tab-position="left"
+                   class="job-log-tabs"
+                   v-loading="log_total_loading"
+                   @tab-click="handleClick"
+          >
             <!--     昨日统计 近7日统计 历史统计      -->
             <el-tab-pane label="昨日" name="first">
               <div v-if="dLogsTotal.yesterday.length">
@@ -192,26 +197,15 @@
         </el-row>
         <el-row :gutter="20" class="mgb20">
           <el-col :span="8">
-<!--            <el-card shadow="hover" :body-style="{ padding: '0px' }">-->
-<!--              <div class="grid-content grid-con-4">-->
-<!--                <el-icon class="grid-con-icon"><Cpu /></el-icon>-->
-<!--                <div class="grid-cont-right">-->
-<!--                  <div class="grid-num">-->
-<!--                    {{ board_info.taobao_captcha_api }}-->
-<!--                  </div>-->
-<!--                  <div>淘系调用总数</div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </el-card>-->
             <el-card shadow="hover" :body-style="{ padding: '0px' }">
               <div class="grid-content grid-con-4">
                 <el-icon class="grid-con-icon"><ElementPlus /></el-icon>
-                <div class="grid-cont-right">
+                <div class="grid-cont-right" v-loading="tbc_loading">
                   <div class="grid-num">{{ floatToPercentage(taobao_captcha_api.passing_rate) }}%</div>
                   <div>饿了么滑块接口</div>
                   <div>今日通过率</div>
                 </div>
-                <div class="grid-cont-info">
+                <div class="grid-cont-info" v-loading="tbc_loading">
                   <div>通过数:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total }}</span></div>
                   <div>失败数:  <span class="grid-info-num">{{ taobao_captcha_api.failure_total }}</span></div>
                   <div>今日总:  <span class="grid-info-num">{{ taobao_captcha_api.passing_total + taobao_captcha_api.failure_total }}</span></div>
@@ -249,7 +243,7 @@
               <el-button style="float: right; padding: 6px 0" text @click="getDJobs()"> 刷新 </el-button>
             </div>
           </template>
-          <el-table :show-header="false" :data="todoList" style="width: 100%">
+          <el-table :show-header="false" :data="todoList" style="width: 100%" v-loading="djobs_loading">
             <el-table-column :show-overflow-tooltip="true">
               <template #default="scope">
                 <div class="todo-item">
@@ -344,7 +338,6 @@ getDate()
 // 获取登录ip地区
 const getLocal = async () => {
   const result = await ipInfo();
-  // console.log('result',result);
   local_name.value = result.data?.data?.city ?? result.data?.regionName;
 };
 getLocal()
@@ -381,10 +374,17 @@ interface tbCaptchaTotal {
 
 
 // 淘系接口统计信息
+const tbc_loading = ref(true)
 const taobao_captcha_api = ref(<tbCaptchaTotal>{})
 const getTBTotal = async () => {
+  // 加载状态
+  tbc_loading.value = true;
   const result = (await getDashTB());
   taobao_captcha_api.value = result.data
+  // 加载状态还原
+  if (result.hasData) {
+    tbc_loading.value = false;
+  }
 };
 getTBTotal();
 
@@ -397,10 +397,18 @@ interface djobsItem {
   title: string;
   duration: string;
 }
+const djobs_loading = ref(true);
 const todoList = ref<djobsItem[]>([]);
 const getDJobs = async () => {
+  // 加载状态
+  djobs_loading.value = true;
   const result = (await getDashJobs())
+  console.log("result.hasData",result.hasData)
   todoList.value = result.data.list;
+  // 加载状态还原
+  if (result.hasData) {
+    djobs_loading.value = false;
+  }
 };
 getDJobs()
 
@@ -436,9 +444,14 @@ const dLogsTotal = reactive({
   proportion: <ProportionFolder[]>([]),
 })
 
-
+const log_total_loading = ref(true)
 const getLogs = async () => {
+  // 进入加载状态
+  log_total_loading.value = true;
   const result = (await getDashLogs())
+  if (result.data.all_time) {
+    log_total_loading.value = false;
+  }
   dLogsTotal.yesterday = result.data.yesterday;
   dLogsTotal.last_7_days = result.data.last_7_days;
   dLogsTotal.all_time = result.data.all_time;

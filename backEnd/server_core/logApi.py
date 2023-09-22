@@ -178,66 +178,6 @@ async def update_logging(request: Request):
         return {"status": "err", "error": err, "data": None}
 
 
-# @app.post("/add_job", summary="新增任务")
-# async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
-#     """
-#     通过传入工作流实例wid等信息创建实际的任务实例记录
-#     :param request:
-#     :return:
-#     """
-#     fdata = await request.form()
-#     data = dict(fdata)
-#
-#     callbackJson = constructResponse()
-#     callbackJson.statusCode = 400
-#     content = {}
-#
-#     wid = data.get("wid", None)
-#     init_mark = data.get("init_mark", None)
-#
-#     # 没有wid传入，直接返回失败
-#     if not wid:
-#         return callbackJson.callBacker(content)
-#     try:
-#         # wid 获取工作流信息
-#         winfo = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-#         # 没获取到直接返回失败
-#         if not winfo:
-#             logger.error(f"所属工作流信息获取失败! 日志创建信息：{data}")
-#             callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
-#             return callbackJson.callBacker(content)
-#
-#         project_name = winfo.get('name')
-#
-#         log_file_name = f"{winfo.get('name')}-{init_mark}"
-#         log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
-#         data["log_file_path"] = log_file_path
-#         del data['init_mark']
-#         result = add_job_one(JobInfos, data)
-#         # result = handleAddJobOne(JobInfos, data)
-#         worker = get_fetch_one(WorkerInfos, wid=data.get("wid"))
-#         if result:
-#             # 同步项目下的任务数量，还有各项指标参数
-#             synchronous_jobs(worker.get("pid"))
-#             jid = result.get_jid()
-#             callbackJson.statusCode = 200
-#             content["pid"] = pid
-#             content["jid"] = jid
-#             content["log_file_path"] = log_file_path
-#             # 附加信息，备用传递部分信息到客户端
-#             content["meta"] = {}
-#         else:
-#             err = f"构建新任务实例时失败了，数据明细：{data}"
-#             logger.error(err)
-#             callbackJson.message = err
-#             callbackJson.resData["errMsg"] = err
-#         return callbackJson.callBacker(content)
-#     except Exception as e:
-#         logger.error(f"构建新任务实例时发生了错误！错误原因：{e}")
-#         callbackJson.statusCode = 400
-#         callbackJson.message = f"构建新任务实例时发生了错误！错误原因：{e}"
-#         return callbackJson.callBacker(content)
-
 @app.post("/add_job", summary="新增任务")
 async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
     """
@@ -255,7 +195,6 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
     content["meta"] = {}
 
     wid = data.get("wid", None)
-    init_mark = data.get("init_mark", None)
 
     # 没有wid传入，直接返回失败
     if not wid:
