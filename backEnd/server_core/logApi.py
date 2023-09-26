@@ -11,8 +11,8 @@ import os
 import pytz
 import json
 import asyncio
-from pprint import pprint
 import uvicorn
+from pprint import pprint
 from starlette.responses import JSONResponse, Response
 from .log import logger
 from fastapi import FastAPI, HTTPException
@@ -276,8 +276,8 @@ async def handleAddNormalJob(worker_info, data, content):
     log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
     data["log_file_path"] = log_file_path
     del data['init_mark']
-    result = add_job_one(JobInfos, data)
-    # result = handleAddJobOne(JobInfos, data)
+    # result = add_job_one(JobInfos, data)
+    result = await handleAddJobOne(JobInfos, data)
     if result:
         # 同步项目下的任务数量，还有各项指标参数
         synchronous_jobs(worker_info.get("pid"))
@@ -288,7 +288,9 @@ async def handleAddNormalJob(worker_info, data, content):
         content["log_file_path"] = log_file_path
         # 附加信息，备用传递部分信息到客户端
         content["meta"] = {}
-
+        print(f"{'*'*20}\n"
+              f"新增JID为： {jid} !!!\n"
+              f"{'*'*20}\n")
     return content
 
 
@@ -301,7 +303,9 @@ async def handleAddJobOne(JobInfos, data):
     """
     try:
         result = add_job_one(JobInfos, data)
-        if not check_id(JobInfos, temp_id=result.jid):
+        # 检测id是否存在于该表，确定创建成功。
+        # 不存在则弹出错误，进入重试逻辑
+        if not check_id(JobInfos, jid=result.jid):
             raise ValueError
         return result
     except Exception as e:
@@ -311,13 +315,42 @@ async def handleAddJobOne(JobInfos, data):
             try:
                 count += 1
                 result = add_job_one(JobInfos, data)
-                if check_id(JobInfos, temp_id=result.jid):
+                # 存在则直接返回跳出循环
+                if check_id(JobInfos, jid=result.jid):
                     return result
             except Exception as ee:
                 logger.error(f"构建新任务实例时发生了错误！当前重试次数 ({count})，错误原因：{ee}")
 
         logger.error(f"构建新任务实例时发生了错误！！重试失败！！！数据明细：{data} 错误原因：{e}")
-        return False
+        return None
+
+# async def handleAddJobOne(JobInfos, data):
+#     """
+#     新建任务
+#     :param JobInfos:
+#     :param data:
+#     :return:
+#     """
+#     try:
+#         result = add_job_one(JobInfos, data)
+#         # 检测id是否存在于该表，确定创建成功。
+#         if not check_id(JobInfos, temp_id=result.jid):
+#             raise ValueError
+#         return result
+#     except Exception as e:
+#         logger.error(f"构建新任务实例时发生了错误！将进行创建重试，错误原因：{e}")
+#         count = 0
+#         for i in range(3):
+#             try:
+#                 count += 1
+#                 result = add_job_one(JobInfos, data)
+#                 if check_id(JobInfos, temp_id=result.jid):
+#                     return result
+#             except Exception as ee:
+#                 logger.error(f"构建新任务实例时发生了错误！当前重试次数 ({count})，错误原因：{ee}")
+#
+#         logger.error(f"构建新任务实例时发生了错误！！重试失败！！！数据明细：{data} 错误原因：{e}")
+#         return False
 
 
 async def handleLevelTotal(model_data, log_data):

@@ -215,7 +215,7 @@ async def add_workers(request: Request):
     # 检测所属项目存在
     if check_pid(pid=pid):
         # 检测工作流是否存在
-        if not check_id(model=WorkerInfos, temp_id=temp_wid):
+        if not check_id(model=WorkerInfos, wid=temp_wid):
             result = add_data_one(WorkerInfos, data)
             if result:
                 # 更新项目上面显示的工作流数量
@@ -282,7 +282,7 @@ async def update_workers(request: Request):
     # 检测所属项目存在
     if check_pid(pid=pid):
         # 检测工作流是否存在
-        if not check_id(model=WorkerInfos, temp_id=temp_wid):
+        if not check_id(model=WorkerInfos, wid=temp_wid):
             result = update_data(WorkerInfos, [data])
             if result:
                 callbackJson.statusCode = 200

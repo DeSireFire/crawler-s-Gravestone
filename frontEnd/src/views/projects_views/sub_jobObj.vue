@@ -8,7 +8,7 @@
     <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
   </div>
   <el-scrollbar>
-    <el-table :data="tableResData" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="480">
+    <el-table :data="tableResData" v-load="table_loading" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="480">
       <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
       <el-table-column label="实例名称">
         <template #default="scope">
@@ -114,7 +114,8 @@ interface TableItem {
   create_time: string;
   end_time: string;
 }
-
+// 加载状态
+const table_loading = ref(true);
 // 声明 props
 const props = defineProps<{
   pid: String,
@@ -147,6 +148,10 @@ let project_info = reactive({
 
 // 刷新数据
 const handleFlush = async (init = true) => {
+  if (!table_loading.value) {
+    table_loading.value = true;
+  }
+
   // 获取pid
   pid.value = props.pid
   project_info.name = props.pname as string ||''
@@ -178,6 +183,7 @@ const handleFlush = async (init = true) => {
   } else {
     ElMessage.error(`未找到项目ID，无法获取项目相关工作流信息！`);
   }
+  table_loading.value = false;
 };
 // 打开页面就刷新
 handleFlush();

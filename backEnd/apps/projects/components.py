@@ -147,7 +147,9 @@ def update_status_to_2_for_old_jobs(wid):
             .filter(JobInfos.status.in_([0, 1]))\
             .all()
 
-        # 更新这些数据的status为2
+        # 更新这些数据的status
+        # 状态未知 改为 中断
+        # 状态执行中 改为 结束
         for job in old_jobs:
             if job.status == 1:
                 job.status = 2
@@ -333,11 +335,19 @@ def update_data(model, datas):
 
 
 # 检查项目的ID是否存在
-def check_id(model, temp_id=None):
+def check_id(model, **filterkw) -> bool:
+    """
+    根据指定字段，查询数据是否已存在
+    存在返回 true
+    不存在和报错返回false
+    :param model:
+    :param filterkw:
+    :return:
+    """
     session = Newsession()
     try:
-        data = session.query(model).filter_by(pid=temp_id).first()
-        if temp_id and data:
+        data = session.query(model).filter_by(**filterkw).first()
+        if filterkw and data:
             return True
         else:
             return False
