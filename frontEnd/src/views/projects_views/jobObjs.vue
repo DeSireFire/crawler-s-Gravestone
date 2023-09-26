@@ -28,7 +28,7 @@
         stripe
         class="table"
         @sort-change="handleSortChange"
-
+        v-loading="table_loading"
         header-cell-class-name="table-header"
         height="540"
       >
@@ -220,8 +220,10 @@ const query = reactive({
 const tableRawData = ref<TableItem[]>([]);
 // 表格整合数据
 const tableResData = ref<TableItem[]>([]);
-
+// 页面统计
 const pageTotal = ref(0);
+// 加载状态
+const table_loading = ref(true);
 
 // 初始化query数据
 const clearQuery = () => {
@@ -234,6 +236,10 @@ const clearQuery = () => {
 
 // 刷新数据
 const handleFlush = async (init = true) => {
+  if (!table_loading.value) {
+    table_loading.value = true;
+  }
+
   // 获取数据
   const res = (await getJobs({}))
 
@@ -257,9 +263,12 @@ const handleFlush = async (init = true) => {
     // 缓存数据
     localStorage.setItem('jobs_list', JSON.stringify(res.data));
   }
+
+  table_loading.value = false;
 };
 // 打开页面就刷新
 handleFlush();
+
 
 // 声明 jobsList 和 keyword 的类型
 let jobsList: { list: TableItem[] };
@@ -267,6 +276,8 @@ let jobsList: { list: TableItem[] };
 const handleTableDataResult = async () => {
   // 初始化中间变量
   let temp:TableItem[] = [];
+  //启动加载状态
+  table_loading.value = true;
 
   // 数据来源：后台获取、缓存读取
   // 从localStorage中获取缓存数据
@@ -310,6 +321,8 @@ const handleTableDataResult = async () => {
   // 装载数据：将多重处理后的数据交给表格渲染
   tableResData.value = temp;
   // console.log("tableResData",tableResData.value)
+  //关闭加载状态
+  table_loading.value = false;
 }
 
 // 条件过滤
