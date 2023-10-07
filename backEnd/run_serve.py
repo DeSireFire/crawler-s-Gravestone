@@ -20,6 +20,7 @@ if __name__ == "__main__":
         uvicorn.run(app='run_serve:app',
                     host=conf.host,
                     port=conf.port,
+                    workers=4,
                     reload=True,
                     log_level=LogLevel.lower(),
                     log_config="server_core/UlogConf.json"

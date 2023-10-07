@@ -17,6 +17,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from server_core.db import engine, Newsession
 from apps import db_Base
 
+
 class Basejson():
     def json(self):
         dict = self.__dict__
@@ -46,6 +47,8 @@ class Users(db_Base, Basejson):
     # def __str__(self):
     #     return self.name
 
+    def to_dict(self):
+        return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
 
 class UserInDB(BaseModel):
     """ 这个模型是orm模型 """

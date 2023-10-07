@@ -20,7 +20,7 @@
           <el-tag
               :type="['warning', 'success', 'info', 'error', 'danger'][scope.row.status]"
           >
-            {{ ['未知', '执行中', '结束', '中断', '失败'][scope.row.status] }}
+            {{ ['未知', '执行中', '结束', '中断', '错误'][scope.row.status] }}
           </el-tag>
         </template>
       </el-table-column>

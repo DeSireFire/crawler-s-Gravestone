@@ -129,8 +129,9 @@ def get_today_job_infos_by_wid(wid):
         session.close()
 
 
-def update_status_to_2_for_old_jobs(wid):
+def update_status_for_old_comon_jobs(wid):
     """
+    常驻类型的历史任务的状态修改
     获取指定wid下昨天和昨天以前且status为0或1的数据，将它们的status转换为对应的新状态，并保存到数据库中
     :param wid: 工作流ID
     """
@@ -148,6 +149,7 @@ def update_status_to_2_for_old_jobs(wid):
             .all()
 
         # 更新这些数据的status
+        # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
         # 状态未知 改为 中断
         # 状态执行中 改为 结束
         for job in old_jobs:
@@ -155,6 +157,79 @@ def update_status_to_2_for_old_jobs(wid):
                 job.status = 2
             else:
                 job.status = 3
+
+        # 提交更改
+        session.commit()
+        logger.info(f"成功更新 {len(old_jobs)} 条数据的 status 为 2")
+    except Exception as e:
+        session.rollback()  # 回滚事务以防出现错误
+        logger.error(f"update_status_to_2_for_old_jobs 发生错误：{e}")
+    finally:
+        session.close()
+
+
+def update_status_for_old_jobs(wid):
+    """
+    普通类型的历史任务的状态修改
+    获取指定wid下end_time时间超过一天且状态为0和1的数据
+    :param wid: 工作流ID
+    """
+
+    session = Newsession()
+    try:
+        # 计算昨天的日期
+        yesterday = datetime.now() - timedelta(days=1)
+
+        # 查询指定wid下昨天和昨天以前的数据，status为0或1
+        old_jobs = session.query(JobInfos)\
+            .filter(JobInfos.wid == wid)\
+            .filter(JobInfos.end_time <= yesterday)\
+            .filter(JobInfos.status.in_([0, 1]))\
+            .all()
+
+        # 更新这些数据的status
+        # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
+        # 状态未知 改为 失败
+        # 状态执行中 改为 中断
+        for job in old_jobs:
+            if job.status == 1:
+                job.status = 3
+            else:
+                job.status = 4
+
+        # 提交更改
+        session.commit()
+        logger.info(f"成功更新 {len(old_jobs)} 条数据的 status 为 2")
+    except Exception as e:
+        session.rollback()  # 回滚事务以防出现错误
+        logger.error(f"update_status_to_2_for_old_jobs 发生错误：{e}")
+    finally:
+        session.close()
+
+def clean_status_for_all_old_jobs():
+    """
+    筛选所有过期任务
+    最后更新时间超过7天的任务一律失败处理
+    :return:
+    """
+    session = Newsession()
+    try:
+        # 计算昨天的日期
+        lastweek = datetime.now() - timedelta(days=7)
+
+        # 查询指定wid下昨天和昨天以前的数据，status为0或1
+
+        old_jobs = session.query(JobInfos)\
+            .filter(JobInfos.end_time <= lastweek) \
+            .filter(JobInfos.status.in_([0, 1, 3]))\
+            .all()
+
+        # 更新这些数据的status
+        # 0 未知，1 执行中，2 结束， 3 中断， 4 错误
+        # 状态未知 改为 中断
+        # 状态执行中 改为 结束
+        for job in old_jobs:
+            job.status = 4
 
         # 提交更改
         session.commit()
@@ -436,7 +511,9 @@ __all__ = [
     "synchronous_workers",
     "synchronous_jobs",
     "get_today_job_infos_by_wid",
-    "update_status_to_2_for_old_jobs",
+    "update_status_for_old_jobs",
+    "update_status_for_old_comon_jobs",
+    "clean_status_for_all_old_jobs",
 
     # 通用性函数
     "get_query_all",

@@ -19,6 +19,7 @@ export enum ACCOUNT {
   EDITUSER = "/edit_user",
   DELUSER = "/del_user",
   GETUSERS = "/get_users",
+  EDITPERSON = "/edit_person",
 }
 
 // 系统首页

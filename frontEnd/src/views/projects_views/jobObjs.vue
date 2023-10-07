@@ -30,7 +30,7 @@
         @sort-change="handleSortChange"
         v-loading="table_loading"
         header-cell-class-name="table-header"
-        height="540"
+        height="520"
       >
       <!--:default-sort="{ prop: 'end_time', order: 'null' }"-->
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>

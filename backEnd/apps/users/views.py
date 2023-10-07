@@ -18,7 +18,7 @@ from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, st
 from server_core.control import constructResponse
 from .components import CRUD
 from .models import check_password, check_user, UserInDB, Users, get_users_info, add_user_info, update_user_info, \
-    check_uid, del_user_info
+    check_uid, del_user_info, get_user_info
 from .auth import create_access_token, auth_depend
 from fastapi.responses import JSONResponse
 
@@ -158,6 +158,37 @@ async def edit_user(request: Request):
         if result:
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
+
+@route.post("/edit_person")
+async def edit_person(request: Request):
+    """
+    用户中心，修改个人密码
+    :param request:
+    :return:
+    """
+    data = await request.body()
+    fdata = await request.form()
+    form_info = dict(fdata)
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    # 检查用户名是否存在
+    if check_user(form_info.get("name")):
+        # 获取用户信息
+        user_info = get_user_info(form_info.get("name"))
+        # 核对旧密码
+        if user_info.password == form_info.get("old_password"):
+            user_info.password = form_info.get("new_password")
+            update_user_info(user_info.to_dict())
+            callbackJson.statusCode = 200
+        else:
+            callbackJson.message = "旧密码不正确！"
+    else:
+        callbackJson.message = "不存在该用户！"
+
+    return callbackJson.callBacker(content)
+
+
 
 # @route.post("/auth_token",
 #                    summary='登录接口，获取 token',

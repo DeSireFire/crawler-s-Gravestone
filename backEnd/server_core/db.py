@@ -9,9 +9,9 @@ __author__ = 'RaXianch'
 
 import pymysql
 
+import os
 pymysql.install_as_MySQLdb()
 from sqlalchemy import create_engine, QueuePool
-import os
 from .conf import BASE_DIR, conf, mysqlconf, pgdbconf, redisconf
 from sqlalchemy.orm import sessionmaker
 from utils.RedisDBHelper import RedisDBHelper

@@ -25,7 +25,8 @@ from apps.alarms.alarmers_components import AlarmHandler
 from fastapi import Request, APIRouter, Body, Depends, status, Query
 from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
 from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
-    synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_to_2_for_old_jobs
+    synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_for_old_jobs, \
+    update_status_for_old_comon_jobs, clean_status_for_all_old_jobs
 
 # 使用slowapi进行端口频率限制
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -217,10 +218,18 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             if not content.get("jid"):  # 当日没有同个工作流任务，则创建新任务
                 content = await handleAddNormalJob(winfo, data, content)
                 # 查找前一天相关常驻任务，将其任务状态设为关闭
-                update_status_to_2_for_old_jobs(wid)
-        else:
+                update_status_for_old_comon_jobs(wid)
+        if winfo.get("crawl_frequency") not in ["常驻"]:
             # 不是常驻任务，创建新任务
             content = await handleAddNormalJob(winfo, data, content)
+            # 查找前一天相关普通任务，修改状态
+            update_status_for_old_jobs(wid)
+            # todo 异步框架和多线程等因素，会导致多个任务实例创建的整合方法
+            # todo 根据创建信息，检测集中的启动时间来判断整合多线程实例
+            # todo 接收日志时，发现不识别的密钥，自动根据各项参数，查找当日里多项计数为0的任务实例给安排上
+
+        # todo 检测所有任务(移动到守护程序)
+        clean_status_for_all_old_jobs()
 
         # 错误判断
         # 创建or接续成功，则有jid,没有则任务创建or接续失败！
