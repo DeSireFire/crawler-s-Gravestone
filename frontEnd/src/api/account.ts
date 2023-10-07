@@ -1,4 +1,4 @@
-import { LoginParam, LoginResponse, UsersResponse } from "~/api/types/account";
+import { LoginParam, LoginResponse, UsersResponse, Person } from "~/api/types/account";
 import { API } from "~/constants/api";
 import {CONTENT_TYPE, REQUEST_HEADER, REQUEST_METHOD} from "~/constants/request";
 import useHttp from "~/utils/request";
@@ -51,6 +51,18 @@ export const get_users = () => {
 export const del_user = (payload: UsersResponse) => {
   return handlePost({
     url: API.ACCOUNT.DELUSER,
+    headers: {
+      [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+    },
+    data: payload,
+  });
+};
+
+// 个人中心
+// 用户修改信息
+export const edit_person = (payload: Person) => {
+  return handlePost({
+    url: API.ACCOUNT.EDITPERSON,
     headers: {
       [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
     },

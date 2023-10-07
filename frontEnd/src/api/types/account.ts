@@ -18,3 +18,12 @@ export type UsersResponse = Partial<{
   lastlogin: string | undefined;
   password: string | undefined;
 }>;
+//
+// 获取用户列表
+export type Person = Partial<{
+  id: string | undefined;
+  name: string | undefined;
+  nicename: string | undefined;
+  old_password: string | undefined;
+  new_password: string | undefined;
+}>;

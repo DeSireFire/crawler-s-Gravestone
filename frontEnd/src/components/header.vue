@@ -70,7 +70,9 @@ onMounted(() => {
 const router = useRouter();
 const handleCommand = (command: string) => {
 	if (command == 'loginout') {
-		localStorage.removeItem('ms_username');
+		// localStorage.removeItem('ms_username');
+    localStorage.clear();
+    sessionStorage.clear();
 		router.push('/login');
 	} else if (command == 'user') {
 		router.push('/user');

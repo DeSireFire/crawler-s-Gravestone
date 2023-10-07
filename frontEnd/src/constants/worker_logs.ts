@@ -32,7 +32,7 @@ export let pageTotal = ref(0);
 export let editVisible = ref(false);
 export let form = reactive({
   name: '',
-  address: ''
+  address: '',
 });
 
 // 表格查看日志内容
