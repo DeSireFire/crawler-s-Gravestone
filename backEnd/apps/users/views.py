@@ -25,6 +25,7 @@ from fastapi.responses import JSONResponse
 route = APIRouter()
 sql_crud = CRUD(Users)
 
+
 # todo 抽取token依赖项
 @route.post(
     "/auth_token",
@@ -159,6 +160,7 @@ async def edit_user(request: Request):
             callbackJson.statusCode = 200
     return callbackJson.callBacker(content)
 
+
 @route.post("/edit_person")
 async def edit_person(request: Request):
     """
@@ -187,8 +189,6 @@ async def edit_person(request: Request):
         callbackJson.message = "不存在该用户！"
 
     return callbackJson.callBacker(content)
-
-
 
 # @route.post("/auth_token",
 #                    summary='登录接口，获取 token',

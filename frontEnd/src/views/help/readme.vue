@@ -21,6 +21,14 @@
             <MdPreview :editorId="mdId2" :modelValue="markdownContent2" />
           </el-scrollbar>
         </el-collapse-item>
+        <el-collapse-item name="3">
+          <template #title>
+            <b>告警管理的使用指南</b>
+          </template>
+          <el-scrollbar class="preview">
+            <MdPreview :editorId="mdId3" :modelValue="markdownContent3" />
+          </el-scrollbar>
+        </el-collapse-item>
       </el-collapse>
     </div>
   </div>
@@ -32,6 +40,7 @@ import { MdPreview,MdEditor, MdCatalog } from 'md-editor-v3';
 import 'md-editor-v3/lib/preview.css';
 import 如何获取工作流密钥 from '~/assets/md/如何获取工作流密钥.md?raw'; // 根据实际路径调整
 import 推送器说明书 from '~/assets/md/推送器说明书.md?raw'; // 根据实际路径调整
+import 告警管理使用手册 from '~/assets/md/告警管理使用手册.md?raw'; // 根据实际路径调整
 // 折叠面板
 const activeName = ref('')
 
@@ -39,11 +48,14 @@ const mdId1 = 'preview-only1';
 const markdownContent1 = ref('');
 const mdId2 = 'preview-only2';
 const markdownContent2 = ref('');
+const mdId3 = 'preview-only3';
+const markdownContent3 = ref('');
 // 加载 markdown 文本文件内容
 const loadMarkdownContent = async () => {
   // const response = await fetch(平台说明书);
   markdownContent1.value = 如何获取工作流密钥;
   markdownContent2.value = 推送器说明书;
+  markdownContent3.value = 告警管理使用手册;
 };
 
 
