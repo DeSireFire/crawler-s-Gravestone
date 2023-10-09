@@ -211,6 +211,10 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             callbackJson.resData["errMsg"] = "所属工作流信息获取失败！"
             return callbackJson.callBacker(content)
 
+        # 异步框架和多线程等因素，所以按照时间频率做任务复用压缩避免高频创建
+        # todo 根据创建信息，检测集中的启动时间来判断整合多线程实例（目前仅根据时间频率），增加任务合并时的准确性
+        # todo 接收日志时，发现不识别的密钥，自动根据各项参数，查找当日里多项计数为0的任务实例给安排上
+
         # wid工作流如果为常驻任务
         # 则判断当日内是否已经创建过同个工作流任务
         # 无则创建，有则直接获取该任务信息，并返回该任务的有关jid
@@ -219,30 +223,56 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             if not content.get("jid"):  # 当日没有同个工作流任务，则创建新任务
                 content = await handleAddNormalJob(winfo, data, content)
                 # 查找前一天相关常驻任务，将其任务状态设为关闭
-                update_status_for_old_comon_jobs(wid)
+                update_status_for_old_comon_jobs(wid, step_day=1)
 
         if winfo.get("crawl_frequency") == "年更":
-            # 判断最近2分钟内是否已经出现过同类任务
+            # 判断最近过期时间限制 60天内 是否已经出现过同类任务,且任务状态 不为结束和失败
             # 存在同类任务则直接返回该任务的id
             # 不存在则创建然后返回任务id
-            content = await handleAddLongJob(winfo, data, content)
+            content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60*60*24*60)
             # 查找前一天相关常驻任务，将其任务状态设为关闭
-            update_status_for_old_comon_jobs(wid)
+            update_status_for_old_comon_jobs(wid, step_day=30)
 
+        if winfo.get("crawl_frequency") == "季更":
+            # 判断最近过期时间限制 20天内 是否已经出现过同类任务,且任务状态不为结束和失败
+            # 存在同类任务则直接返回该任务的id
+            # 不存在则创建然后返回任务id
+            content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60*60*24*20)
+            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            update_status_for_old_comon_jobs(wid, step_day=20)
 
         if winfo.get("crawl_frequency") == "月更":
-            pass
+            # 判断最近过期时间限制 7 天内 是否已经出现过同类任务,且任务状态不为结束和失败
+            # 存在同类任务则直接返回该任务的id
+            # 不存在则创建然后返回任务id
+            content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60*60*24*7)
+            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            update_status_for_old_comon_jobs(wid, step_day=7)
 
+        if winfo.get("crawl_frequency") == "周更":
+            # 判断最近过期时间限制 2 天内 是否已经出现过同类任务,且任务状态不为结束和失败
+            # 存在同类任务则直接返回该任务的id
+            # 不存在则创建然后返回任务id
+            content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60*60*24*2)
+            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            update_status_for_old_comon_jobs(wid, step_day=2)
+
+        if winfo.get("crawl_frequency") == "日更":
+            # 判断最近过期时间限制 1分钟内 是否已经出现过同类任务,且任务状态不为结束和失败
+            # 存在同类任务则直接返回该任务的id
+            # 不存在则创建然后返回任务id
+            content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60)
+            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            update_status_for_old_comon_jobs(wid, step_day=1)
+
+        # 临时任务或首次任务
         # 当前几个判断获取失败时 content = {'meta': {}}
-        # 则按照常规或首次任务进行创建
         if len(content.keys()) == 1:
             # 不是常驻任务，创建新任务
             content = await handleAddNormalJob(winfo, data, content)
             # 查找前一天相关普通任务，修改状态
-            update_status_for_old_jobs(wid)
-            # todo 异步框架和多线程等因素，会导致多个任务实例创建的整合方法
-            # todo 根据创建信息，检测集中的启动时间来判断整合多线程实例
-            # todo 接收日志时，发现不识别的密钥，自动根据各项参数，查找当日里多项计数为0的任务实例给安排上
+            update_status_for_old_jobs(wid, step_day=1)
+
 
         # todo 检测所有任务(移动到守护程序)
         clean_status_for_all_old_jobs()
@@ -266,7 +296,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
 
 
 # 工具函数
-async def handleAddLongJob(worker_info, data, content):
+async def handleAddLongJob(worker_info, data, content, step_time=60):
     """
     添加年更任务的处理
     :return:
@@ -282,7 +312,7 @@ async def handleAddLongJob(worker_info, data, content):
     else:
         now_ts = int(now_ts)
     # 获取到符合条件的任务集
-    around_jobs = get_long_job_infos_by_wid(wid=wid, now_ts=now_ts, step_time=300)
+    around_jobs = get_long_job_infos_by_wid(wid=wid, now_ts=now_ts, step_time=step_time)
 
     if not around_jobs:
         return content

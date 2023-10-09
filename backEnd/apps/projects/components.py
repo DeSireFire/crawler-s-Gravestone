@@ -159,7 +159,7 @@ def get_today_job_infos_by_wid(wid):
         session.close()
 
 
-def update_status_for_old_comon_jobs(wid):
+def update_status_for_old_comon_jobs(wid, step_day=1):
     """
     常驻类型的历史任务的状态修改
     获取指定wid下昨天和昨天以前且status为0或1的数据，将它们的status转换为对应的新状态，并保存到数据库中
@@ -169,7 +169,7 @@ def update_status_for_old_comon_jobs(wid):
     session = Newsession()
     try:
         # 计算昨天的日期
-        yesterday = datetime.now() - timedelta(days=1)
+        yesterday = datetime.now() - timedelta(days=step_day)
 
         # 查询指定wid下昨天和昨天以前的数据，status为0或1
         old_jobs = session.query(JobInfos)\
