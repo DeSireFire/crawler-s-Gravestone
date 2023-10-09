@@ -111,6 +111,36 @@ def get_projects_info():
         session.close()
 
 
+def get_long_job_infos_by_wid(wid, now_ts, step_time):
+    """
+    查询指定wid下，create_time日期为今天且与now_ts之间的间隔不超过step_time，
+    且状态不为 结束 的数据
+    :param wid: 工作流ID
+    :param now_ts: 时间戳字符串，用于计算间隔时间
+    :param step_time: 间隔时间（秒）
+    :return: 查询结果的列表，如果找不到则返回空列表
+    """
+    session = Newsession()
+    try:
+        now_ts_datetime = datetime.fromtimestamp(int(now_ts)/1000.0)  # 将时间戳字符串转换为 datetime
+        delta = timedelta(seconds=step_time)  # 创建时间间隔对象
+
+        # 计算时间范围，以及筛选条件
+        start_time = now_ts_datetime - delta
+        end_time = now_ts_datetime + delta
+
+        result = session.query(JobInfos).filter_by(wid=wid).filter(
+            JobInfos.create_time.between(start_time, end_time),
+            JobInfos.status.notin_([2, 4])
+        ).all()
+
+        return result
+    except Exception as e:
+        logger.error(f"get_today_job_infos_by_wid 发生错误：{e}")
+        return []
+    finally:
+        session.close()
+
 def get_today_job_infos_by_wid(wid):
     """
     查询指定wid下，create_time日期为今天的数据
@@ -250,10 +280,13 @@ def add_job_one(model, data):
     :return:
     """
     session = Newsession()
-    model_data = session.add(model(**data))
+    # 添加是没有返回值的
+    temp_model = model(**data)
     try:
+        session.add(temp_model)
         session.commit()
-        return model(**data)
+        result = session.query(model).filter_by(jid=temp_model.jid).first()
+        return result
     except Exception as e:
         session.rollback()
         logger.error(f"{add_job_one.__name__} 发生错误：{e}")
@@ -410,7 +443,7 @@ def update_data(model, datas):
 
 
 # 检查项目的ID是否存在
-def check_id(model, **filterkw) -> bool:
+def check_id(model, **filterkw):
     """
     根据指定字段，查询数据是否已存在
     存在返回 true
@@ -511,6 +544,7 @@ __all__ = [
     "synchronous_workers",
     "synchronous_jobs",
     "get_today_job_infos_by_wid",
+    "get_long_job_infos_by_wid",
     "update_status_for_old_jobs",
     "update_status_for_old_comon_jobs",
     "clean_status_for_all_old_jobs",

@@ -14,6 +14,7 @@ import asyncio
 import uvicorn
 from pprint import pprint
 from starlette.responses import JSONResponse, Response
+
 from .log import logger
 from fastapi import FastAPI, HTTPException
 from datetime import datetime
@@ -26,7 +27,7 @@ from fastapi import Request, APIRouter, Body, Depends, status, Query
 from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
 from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
     synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_for_old_jobs, \
-    update_status_for_old_comon_jobs, clean_status_for_all_old_jobs
+    update_status_for_old_comon_jobs, clean_status_for_all_old_jobs, get_long_job_infos_by_wid
 
 # 使用slowapi进行端口频率限制
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -219,7 +220,22 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
                 content = await handleAddNormalJob(winfo, data, content)
                 # 查找前一天相关常驻任务，将其任务状态设为关闭
                 update_status_for_old_comon_jobs(wid)
-        if winfo.get("crawl_frequency") not in ["常驻"]:
+
+        if winfo.get("crawl_frequency") == "年更":
+            # 判断最近2分钟内是否已经出现过同类任务
+            # 存在同类任务则直接返回该任务的id
+            # 不存在则创建然后返回任务id
+            content = await handleAddLongJob(winfo, data, content)
+            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            update_status_for_old_comon_jobs(wid)
+
+
+        if winfo.get("crawl_frequency") == "月更":
+            pass
+
+        # 当前几个判断获取失败时 content = {'meta': {}}
+        # 则按照常规或首次任务进行创建
+        if len(content.keys()) == 1:
             # 不是常驻任务，创建新任务
             content = await handleAddNormalJob(winfo, data, content)
             # 查找前一天相关普通任务，修改状态
@@ -250,6 +266,36 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
 
 
 # 工具函数
+async def handleAddLongJob(worker_info, data, content):
+    """
+    添加年更任务的处理
+    :return:
+    """
+    # 获取工作流id
+    wid = data.get("wid")
+    # 获取任务时间
+    now_ts = data.get("now_time")
+
+    if not now_ts:
+        dn = datetime.now()
+        now_ts = int(dn.timestamp() * 1000)
+    else:
+        now_ts = int(now_ts)
+    # 获取到符合条件的任务集
+    around_jobs = get_long_job_infos_by_wid(wid=wid, now_ts=now_ts, step_time=300)
+
+    if not around_jobs:
+        return content
+
+    now_job = around_jobs[0]
+    jid = now_job.jid
+    pid = now_job.pid
+    log_file_path = now_job.log_file_path
+    content["pid"] = pid
+    content["jid"] = jid
+    content["log_file_path"] = log_file_path
+    return content
+
 async def handleAddKeepJob(worker_info, data, content):
     """
     添加常驻任务的处理
@@ -285,7 +331,9 @@ async def handleAddNormalJob(worker_info, data, content):
     log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
     data["log_file_path"] = log_file_path
     del data['init_mark']
+    del data['now_time']
     # result = add_job_one(JobInfos, data)
+    # 新增任务实例到表中
     result = await handleAddJobOne(JobInfos, data)
     if result:
         # 同步项目下的任务数量，还有各项指标参数
@@ -296,7 +344,9 @@ async def handleAddNormalJob(worker_info, data, content):
         content["jid"] = jid
         content["log_file_path"] = log_file_path
         # 附加信息，备用传递部分信息到客户端
-        content["meta"] = {}
+        content["meta"].update({
+
+        })
         print(f"{'*'*20}\n"
               f"新增JID为： {jid} !!!\n"
               f"{'*'*20}\n")
@@ -314,7 +364,7 @@ async def handleAddJobOne(JobInfos, data):
         result = add_job_one(JobInfos, data)
         # 检测id是否存在于该表，确定创建成功。
         # 不存在则弹出错误，进入重试逻辑
-        if not check_id(JobInfos, jid=result.jid):
+        if not check_id(JobInfos, jid=result.get_jid()):
             raise ValueError
         return result
     except Exception as e:

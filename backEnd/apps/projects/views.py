@@ -31,7 +31,8 @@ from .components import \
     add_project_info, del_project_info, \
     update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, \
     add_job_one, get_query_count, synchronous_workers, synchronous_jobs, get_today_job_infos_by_wid, \
-    update_status_for_old_jobs, update_status_for_old_comon_jobs, clean_status_for_all_old_jobs
+    update_status_for_old_jobs, update_status_for_old_comon_jobs, clean_status_for_all_old_jobs, \
+    get_long_job_infos_by_wid
 from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
@@ -283,14 +284,14 @@ async def update_workers(request: Request):
     # 检测所属项目存在
     if check_pid(pid=pid):
         # 检测工作流是否存在
-        if not check_id(model=WorkerInfos, wid=temp_wid):
+        if check_id(model=WorkerInfos, wid=temp_wid):
             result = update_data(WorkerInfos, [data])
             if result:
                 callbackJson.statusCode = 200
             else:
-                callbackJson.resData["errMsg"] = "数据添加错误！"
+                callbackJson.resData["errMsg"] = "修改工作流错误！"
         else:
-            callbackJson.resData["errMsg"] = "工作流已存在！"
+            callbackJson.resData["errMsg"] = "工作流不存在！"
     else:
         callbackJson.resData["errMsg"] = "未查询到所属项目！"
     return callbackJson.callBacker(content)

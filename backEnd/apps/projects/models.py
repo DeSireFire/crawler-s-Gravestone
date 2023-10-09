@@ -133,6 +133,12 @@ class JobInfos(db_Base, BaseJson):
     def get_jid(self):
         return self.jid
 
+    def to_dict(self):
+        tdict = self.__dict__
+        if "_sa_instance_state" in tdict:
+            del tdict["_sa_instance_state"]
+        return tdict
+
 
 __all__ = [
     "ProjectInfos",
