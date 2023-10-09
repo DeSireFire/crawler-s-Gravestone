@@ -56,12 +56,13 @@
       </el-form-item>
       <el-form-item label="预计采集频率">
         <el-select v-model="addForm.crawl_frequency" placeholder="采集频率" class="handle-select mr10">
-          <el-option key="0" label="周更" value="周更"></el-option>
-          <el-option key="1" label="月更" value="月更"></el-option>
-          <el-option key="2" label="季更" value="季更"></el-option>
-          <el-option key="3" label="年更" value="年更"></el-option>
-          <el-option key="4" label="临时" value="临时"></el-option>
-          <el-option key="3" label="常驻" value="常驻"></el-option>
+          <el-option key="0" label="日更" value="日更"></el-option>
+          <el-option key="1" label="周更" value="周更"></el-option>
+          <el-option key="2" label="月更" value="月更"></el-option>
+          <el-option key="3" label="季更" value="季更"></el-option>
+          <el-option key="4" label="年更" value="年更"></el-option>
+          <el-option key="5" label="临时" value="临时"></el-option>
+          <el-option key="6" label="常驻" value="常驻"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="背景描述">
@@ -86,11 +87,13 @@
       </el-form-item>
       <el-form-item label="预计采集频率">
         <el-select v-model="editForm.crawl_frequency" placeholder="采集频率" class="handle-select mr10">
-          <el-option key="0" label="周更" value="周更"></el-option>
-          <el-option key="1" label="月更" value="月更"></el-option>
-          <el-option key="2" label="季更" value="季更"></el-option>
-          <el-option key="3" label="年更" value="年更"></el-option>
-          <el-option key="4" label="临时" value="临时"></el-option>
+          <el-option key="0" label="日更" value="日更"></el-option>
+          <el-option key="1" label="周更" value="周更"></el-option>
+          <el-option key="2" label="月更" value="月更"></el-option>
+          <el-option key="3" label="季更" value="季更"></el-option>
+          <el-option key="4" label="年更" value="年更"></el-option>
+          <el-option key="5" label="临时" value="临时"></el-option>
+          <el-option key="6" label="常驻" value="常驻"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="背景描述">
@@ -337,6 +340,7 @@ const editSaveEdit = async () => {
     ElMessage.error(`修改 ${editForm.nickname} 失败！项目名称不能为空！`);
   }
   editVisible.value = false;
+  handleFlush();
 };
 
 // 密钥信息展示
