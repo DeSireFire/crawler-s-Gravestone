@@ -271,7 +271,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             # 不是常驻任务，创建新任务
             content = await handleAddNormalJob(winfo, data, content)
             # 查找前一天相关普通任务，修改状态
-            update_status_for_old_jobs(wid, step_day=1)
+            update_status_for_old_jobs(wid)
 
 
         # todo 检测所有任务(移动到守护程序)
@@ -360,8 +360,10 @@ async def handleAddNormalJob(worker_info, data, content):
     log_file_name = f"{worker_info.get('name')}-{init_mark}"
     log_file_path = os.path.join(BASE_DIR, "logs", "worker_logs", project_name, f"{log_file_name}.log")
     data["log_file_path"] = log_file_path
-    del data['init_mark']
-    del data['now_time']
+    if 'init_mark' in list(data.keys()):
+        del data['init_mark']
+    if 'now_time' in list(data.keys()):
+        del data['now_time']
     # result = add_job_one(JobInfos, data)
     # 新增任务实例到表中
     result = await handleAddJobOne(JobInfos, data)

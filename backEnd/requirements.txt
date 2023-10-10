@@ -16,3 +16,4 @@ chardet
 gitpython
 slowapi
 retry
+apscheduler
