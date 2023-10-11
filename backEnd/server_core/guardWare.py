@@ -42,6 +42,7 @@ def update_job_statuses():
     对除了结束和失败以外的所有任务，进行过期判断
     :return:
     """
+    logger.info("update_job_statuses 启动。扫描过往任务实例,并对过期任务状态进行调整...")
     # 创建数据库连接
     session = Newsession()
     try:
@@ -84,7 +85,7 @@ def update_job_statuses():
                             job.status = 4  # 执行中且没有日志信息或数据项，状态转为失败
                     elif job.status == 3:
                         if job.log_lv_error or job.log_lv_info or job.log_lv_warning or job.items_count:
-                            if job.update_time < expiration_time:
+                            if job.end_time < expiration_time:
                                 job.status = 2  # 中断且已过期，状态转为结束
                             else:
                                 job.status = 3  # 中断且未过期，保持中断状态
@@ -100,10 +101,10 @@ def update_job_statuses():
         # 提交事务
         session.commit()
     except Exception as e:
-        print(f"An error occurred: {e}")
+        logger.error(f"update_job_statuses 处理时发生了错误: {e}")
     finally:
         if session is not None:
             session.close()
 
 # 使用示例
-update_job_statuses()
+# update_job_statuses()
