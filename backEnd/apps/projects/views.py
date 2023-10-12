@@ -32,7 +32,7 @@ from .components import \
     update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, \
     add_job_one, get_query_count, synchronous_workers, synchronous_jobs, get_today_job_infos_by_wid, \
     update_status_for_old_jobs, update_status_for_old_comon_jobs, clean_status_for_all_old_jobs, \
-    get_long_job_infos_by_wid
+    get_long_job_infos_by_wid, read_latest_lines
 from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
@@ -379,8 +379,16 @@ async def get_log(request: Request,
     try:
         if not log_file_path:
             raise FileNotFoundError
+
+
         with open(log_file_path, encoding="utf-8") as f:
             log_content = f.read()
+
+        # todo 更新日志最新1000行
+        # log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
+        # if log_content_lines:
+        #     log_content = "\n".join(log_content)
+
     except FileNotFoundError as FNFE:
         # 未找到指定文件
         log_content = "未查询到符合条件的日志..."

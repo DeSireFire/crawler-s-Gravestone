@@ -143,7 +143,20 @@
     <!--  功能弹窗  -->
     <el-dialog title="高级搜索" v-model="filterVisible" width="30%">
       <el-form label-width="80px">
-        <el-form-item label="筛选词:">
+<!--        <el-form-item label="任务状态:">-->
+<!--          <el-select v-model="query.status" style="width: 150px" placeholder="选择状态">-->
+<!--            <el-option-->
+<!--                v-for="(status_number, status_name) in statusMapping"-->
+<!--                :key="status_number"-->
+<!--                :label="status_name"-->
+<!--                :value="status_name"-->
+<!--                @click="query.status = status_name"-->
+<!--            />-->
+<!--            <el-option key="0" label="无" value=""></el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
+
+        <el-form-item label="列名筛选:">
           <el-input v-model="query.filterValue"
                     placeholder="匹配的筛选值"
                     class="input-with-select"
@@ -165,7 +178,7 @@
           </el-input>
         </el-form-item>
 
-        <el-form-item label="搜索词:">
+        <el-form-item label="模糊搜索:">
           <el-input v-model="query.keyword" style="width: 400px"></el-input>
         </el-form-item>
       </el-form>
@@ -210,6 +223,7 @@ interface TableItem {
 // 获取路由对象
 const route = useRoute();
 const query = reactive({
+  status:'',
   filterKey: '',
   filterValue: '',
   keyword: '',
@@ -227,6 +241,7 @@ const table_loading = ref(true);
 
 // 初始化query数据
 const clearQuery = () => {
+  query.status=''
   query.filterKey = ''
   query.filterValue = ''
   query.keyword = ''
@@ -290,6 +305,11 @@ const handleTableDataResult = async () => {
   }
   temp = jobsList.list;
 
+  // 筛选数据：根据固定条件，筛选任务状态
+  if (query.status) {
+    temp = handleFilterStatus(temp);
+  }
+
   // 筛选数据：根据特定条件，对数据筛选
   if (query.filterValue && query.filterKey) {
     temp = handleFilter(temp);
@@ -327,6 +347,13 @@ const handleTableDataResult = async () => {
 
 // 条件过滤
 // 定义筛选数据的函数
+const statusMapping = {
+  "未知": 0,
+  "执行中": 1,
+  "结束": 2,
+  "中断": 3,
+  "失败": 4,
+}
 const columnMapping = {
   // 'id': '编号',
   // 'name': '实例名称',
@@ -356,6 +383,31 @@ const columnOptions = computed(() => {
   }
   return options;
 });
+// todo 按任务状态筛选(等待开启)
+const handleFilterStatus = (temp: TableItem[] = []) => {
+  // 传入需要筛选的值和被查询的字段名称
+  if (!query.status) {
+    return temp;
+  }
+
+  let temp_fk = "状态"
+  let temp_fv:any = -1
+
+  // 状态 列 参数的转换 特化代码
+  let qfv = ['未知', '执行中', '结束', '中断', '失败'].findIndex(status => status === query.status)
+  temp_fv = qfv as number;
+
+  // 初始值为-1，在此规避错误，直接返回
+  if (temp_fv < 0){
+    return temp
+  }
+  const filteredData = temp.filter(item => item["status"] === temp_fv);
+  // 清空
+  temp_fk = "";
+  temp_fv = "";
+  return filteredData;
+};
+
 // 响应式数据，用于存储用户选择的列名
 const handleFilter = (temp: TableItem[] = []) => {
   // 传入需要筛选的值和被查询的字段名称
@@ -378,11 +430,12 @@ const handleFilter = (temp: TableItem[] = []) => {
   temp_fk = query.filterKey
   temp_fv = query.filterValue
 
-  // 状态 列 参数的转换 特化代码
-  if (query.filterKey && query.filterKey=="status") {
-    let qfv = ['未知', '执行中', '结束', '中断', '失败'].findIndex(status => status === query.filterValue)
-    temp_fv = qfv as number;
-  }
+  // // 状态 列 参数的转换 特化代码
+  // if (query.filterKey && query.filterKey=="status") {
+  //   let qfv = ['未知', '执行中', '结束', '中断', '失败'].findIndex(status => status === query.filterValue)
+  //   temp_fv = qfv as number;
+  // }
+
   console.log(temp_fk, temp_fv)
   console.log(temp)
   const filteredData = temp.filter(item => item[temp_fk as keyof TableItem] === temp_fv);

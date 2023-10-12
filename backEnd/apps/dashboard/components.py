@@ -185,6 +185,10 @@ def get_completed_jobs():
     ).order_by(JobInfos.end_time.desc()).limit(limit)
     datas = []
     if result:
+        # 获取所有workInfos，生成采集频率字典
+        work_infos = session.query(WorkerInfos).all()
+        work_info_dict = {info.wid: info.crawl_frequency for info in work_infos}
+
         temps = [{k: v for k, v in u.__dict__.items() if not str(k).startswith("_")} for u in result]
         for u in temps:
             for k, v in u.items():
@@ -201,10 +205,11 @@ def get_completed_jobs():
             item = {
                 "id": d["id"],
                 "name": d["name"],
+                "crawl_frequency": work_info_dict.get(d["wid"]),
                 "status": d["status"],
                 "datetime": d["end_time"],
                 # "title": f'《{d["name"]}》 任务运行结束! | 结束时间: {d["end_time"]}'
-                "title": f'《{d["name"]}》 任务运行结束!',
+                "title": f'《{d["name"]}》 运行结束!',
                 "duration": duration,
             }
             datas.append(item)

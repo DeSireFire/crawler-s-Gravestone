@@ -532,6 +532,35 @@ def synchronous_jobs(pid):
     except Exception as E:
         return False
 
+# 读取日志文本最新十行
+def read_latest_lines(filename, num_lines=1000):
+    """
+
+    # 用法示例
+    file_path = 'your_large_file.txt'
+    latest_lines = read_latest_lines(file_path, num_lines=1000)
+    for line in latest_lines:
+        print(line.strip())
+
+    :param filename:
+    :param num_lines:
+    :return:
+    """
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+            # 如果文件行数不足 num_lines，直接返回所有行
+            if len(lines) <= num_lines:
+                return lines
+            # 否则，返回最新的 num_lines 行
+            else:
+                return lines[-num_lines:]
+    except FileNotFoundError:
+        return []
+
+
+
+
 
 __all__ = [
     "check_pid",
@@ -557,4 +586,5 @@ __all__ = [
     "del_data_one",
     "update_data",
     "rename_log_file",
+    "read_latest_lines",
 ]

@@ -46,7 +46,7 @@ def update_job_statuses():
     # 创建数据库连接
     session = Newsession()
     try:
-        # 获取所有workInfos，生成字典
+        # 获取所有workInfos，生成采集频率字典
         work_infos = session.query(WorkerInfos).all()
         work_info_dict = {info.wid: info.crawl_frequency for info in work_infos}
 
