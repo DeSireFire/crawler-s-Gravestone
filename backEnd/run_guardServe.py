@@ -35,8 +35,10 @@ if __name__ == '__main__':
     with TaskScheduler() as task_scheduler:
         # 添加任务
         # task_scheduler.add_task("task1", sample_job, "interval", seconds=10)
-        # 过往任务过期判断
-        task_scheduler.add_task("update_job_statuses", update_job_statuses, "interval", seconds=600)
+        # 任务状态判断
+        # task_scheduler.add_task("update_job_statuses", update_job_statuses, "interval", seconds=600)
+        # 系统表auto_increment重置
+        task_scheduler.add_task("base_auto_increment", base_auto_increment, "cron", hour=17, minute=34)
 
         try:
             # 这里可以添加你的其他程序逻辑

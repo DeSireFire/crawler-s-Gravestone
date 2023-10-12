@@ -11,6 +11,7 @@ import time
 import datetime
 import os
 from sqlalchemy import func
+from sqlalchemy import text
 from utils.other import get_md5
 from server_core.log import logger
 from datetime import datetime, timedelta
@@ -20,7 +21,6 @@ from apps.projects.models import JobInfos, WorkerInfos
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
 from apps.projects.models import ProjectInfos, WorkerInfos, JobInfos
-
 
 """
 守护程序的子程序
@@ -40,6 +40,10 @@ def update_job_statuses():
     扫描过往任务，对状态的修改
     # 0 未知，1 执行中，2 结束， 3 中断， 4 失败
     对除了结束和失败以外的所有任务，进行过期判断
+
+    # 使用示例
+    # update_job_statuses()
+
     :return:
     """
     logger.info("update_job_statuses 启动。扫描过往任务实例,并对过期任务状态进行调整...")
@@ -106,5 +110,36 @@ def update_job_statuses():
         if session is not None:
             session.close()
 
-# 使用示例
-# update_job_statuses()
+# 对平台各表id起始数重置
+def base_auto_increment():
+    tables = [
+        "worker_infos",
+        "project_infos",
+        "alamer_jobs",
+        "alamers",
+        "users",
+    ]
+    try:
+        for t in tables:
+            reset_auto_increment_table(t)
+    except Exception as e:
+        logger.error(f"守护任务发生错误，base_auto_increment 错误信息:{e}")
+
+# 将数据表的id数字夯实，减少断续id
+def reset_auto_increment_table(table_name):
+    logger.info("reset_auto_increment_table 启动。...")
+    # 创建数据库连接
+    session = Newsession()
+
+    # 构建等效的SQL语句
+    sql = f"ALTER TABLE {table_name} AUTO_INCREMENT = 1;"
+
+    try:
+        # 使用session执行DDL语句
+        session.execute(text(sql))
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
