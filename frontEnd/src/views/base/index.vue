@@ -239,7 +239,7 @@
         <el-card shadow="hover" style="height: 415px">
           <template #header>
             <div class="clearfix">
-              <span>任务概览</span>
+              <span>任务结束概览</span>
               <el-button style="float: right; padding: 6px 0" text @click="getDJobs()"> 刷新 </el-button>
             </div>
           </template>
@@ -247,6 +247,12 @@
             <el-table-column :show-overflow-tooltip="true">
               <template #default="scope">
                 <div class="todo-item">
+
+                  <el-tag
+                      type="success"
+                  >
+                    {{ scope.row.crawl_frequency }}
+                  </el-tag>
                   <router-link :to="
                   { path: '/jobObjs', query: {
                     name:scope.row.name,
@@ -392,6 +398,7 @@ getTBTotal();
 interface djobsItem {
   id: string;
   name: string;
+  crawl_frequency: string;
   status: string;
   datetime: string;
   title: string;
