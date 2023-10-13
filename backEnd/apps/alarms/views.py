@@ -9,13 +9,15 @@ __author__ = 'RaXianch'
 
 import math
 import random
+from pprint import pprint
+
 from fastapi import requests
 import requests
 # 统一响应的数据结构
 from .models import Alamers, AlamerJobs
 from server_core.control import constructResponse
 from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
-
+from apps.projects.models import WorkerInfos, ProjectInfos, JobInfos
 from .components import get_query_all, add_job_one, check_id_one, del_data_one, update_data
 
 route = APIRouter()
@@ -166,4 +168,56 @@ async def update_alarmer_jobs(request: Request):
             callbackJson.resData["errMsg"] = "告警任务不存在！无法修改状态"
     else:
         callbackJson.resData["errMsg"] = "所属的告警器！不存在！"
+    return callbackJson.callBacker(content)
+
+
+
+
+# 获取项目和工作流从属关系
+@route.get("/get_pro_sub", summary="获取项目和工作流从属关系")
+async def get_alarmer_jobs(request: Request):
+    """
+    获取项目和工作流从属关系
+    const options = [
+      {
+        value: 'guide',
+        label: 'Guide',
+        children: [
+          {
+            value: 'disciplines',
+            label: 'Disciplines',
+          },
+          {
+            value: 'navigation',
+            label: 'Navigation',
+          },
+        ],
+      },
+    ]
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    pro_res = get_query_all(ProjectInfos) or []
+    work_res = get_query_all(WorkerInfos) or []
+    res = []
+    for p in pro_res:
+        pid = p.get("pid")
+        temp = {
+            "label": p.get("name"),
+            "value": p.get("pid"),
+            "children": [],
+        }
+        for w in work_res:
+            sub_temp = {
+            "label": w.get("name"),
+            "value": w.get("wid"),
+            }
+            if pid == w.get("pid"):
+                temp["children"].append(sub_temp)
+        res.append(temp)
+    content = {}
+    pprint(res)
+    # 转换为业务响应数据
+    content["list"] = res
     return callbackJson.callBacker(content)
