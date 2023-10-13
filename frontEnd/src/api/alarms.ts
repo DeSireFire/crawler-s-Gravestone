@@ -75,3 +75,12 @@ export const delAlarmerJobs = (DelData: alarm_jobs) => {
         params: DelData,
     });
 };
+
+// 获取级联选择器
+export const getProSub = () => {
+    return handleGet({
+        url: API.ALARMS.GETPROSUB,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};

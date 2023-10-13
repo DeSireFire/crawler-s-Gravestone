@@ -5,8 +5,8 @@
         <b>任务告警</b>
       </div>
       <div class="handle-box">
-        <el-button type="primary" :icon="Plus" @click="handleAdd()">创建监控</el-button>
-        <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleAdd();handleCascader();">创建监控</el-button>
+        <el-button type="primary" :icon="Refresh" @click="handleFlush();">刷新</el-button>
       </div>
       <el-scrollbar>
         <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header">
@@ -44,8 +44,8 @@
         <el-pagination
             background
             layout="total, prev, pager, next"
-            :current-page="query.pageIndex"
-            :page-size="query.pageSize"
+            :current-page="alarm_query.pageIndex"
+            :page-size="alarm_query.pageSize"
             :total="pageTotal"
             @current-change="handlePageChange"
         ></el-pagination>
@@ -53,14 +53,24 @@
     </div>
 
     <!-- 弹出框 -->
-    <el-dialog title="创建监控" v-model="addVisible" width="40%">
+    <el-dialog title="创建监控" v-model="addVisible" width="30%">
       <el-form label-width="100px">
         <el-form-item label="监控名称">
           <el-input v-model="addForm.name"></el-input>
         </el-form-item>
-        <el-form-item label="工作流密钥">
-          <el-input v-model="addForm.wid"></el-input>
+
+        <el-form-item label="工作流">
+          <el-cascader :options="cascader" @change="handleCascaderChange">
+            <template #default="{ node, data }">
+              <span>{{ data.label }}</span>
+              <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
+            </template>
+          </el-cascader>
         </el-form-item>
+        <el-form-item label="密钥">
+          <el-input v-model="addForm.wid" :disabled="true"></el-input>
+        </el-form-item>
+
         <el-form-item label="告警器">
           <el-select v-model="addForm.aid" placeholder="告警器">
             <el-option v-for="(item, index) in alarmers_list" :key="item.aid"
@@ -117,10 +127,11 @@
 <script setup lang="ts" name="projects_list">
 import {reactive, ref, onMounted} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {addAlarmerJobs, delAlarmerJobs, getAlarmerJobs, getAlarmers, updateAlarmerJobs} from '~/api/alarms';
+import {addAlarmerJobs, delAlarmerJobs, getAlarmerJobs, getAlarmers, updateAlarmerJobs, getProSub} from '~/api/alarms';
 import { Delete, Edit, Plus,Refresh } from '@element-plus/icons-vue';
 import {getWorker} from '~/api/projects';
-import {um_api} from "~/store/user_mange";
+// import {um_api} from "~/store/user_mange";
+import type { CascaderProps } from 'element-plus'
 
 interface TableItem {
   id: number;
@@ -148,7 +159,13 @@ interface alarmers_TableItem {
   create_time: string;
 }
 
-const query = um_api.query
+const alarm_query = reactive({
+  filterWord: '',
+  keyword: '',
+  pageIndex: 1,
+  pageSize: 100
+})
+// const query = alarm_query
 const tableData = ref<TableItem[]>([]);
 const pageTotal = ref(0);
 
@@ -160,7 +177,7 @@ const handleFlush = async (init = true) => {
   // 是否初始化
   if (init) {
     // 载入数据
-    tableData.value = res.data.list.slice(0, query.pageSize);
+    tableData.value = res.data.list.slice(0, alarm_query.pageSize);
     pageTotal.value = res.data.pageTotal || 1;
     // 缓存数据
     localStorage.setItem('alarmerJobs_list', JSON.stringify(res.data));
@@ -169,17 +186,38 @@ const handleFlush = async (init = true) => {
 // 打开页面就刷新
 // handleFlush();
 
+// 列表刷新展示
+const updateView = (page_num: number, datas: [] = []) => {
+  if (!datas) {
+    datas = JSON.parse(localStorage.getItem('alarmerJobs_list') as string).list;
+  }
+  // 传递页码
+  alarm_query.pageIndex = page_num;
+  // 获取每个分页得大小
+  let page_size = alarm_query.pageSize
+  // 计算本页需要展示得片段
+  let index_start = 0
+  let index_end = alarm_query.pageSize
+  if (page_num == 1 /* 第1页和第0页，内容一致 */) {
+    index_start = 0
+  } else {
+    index_start = (page_num - 1) * page_size
+    index_end = (page_num - 1) * page_size + page_size
+  }
+  return datas.slice(index_start, index_end)
+}
+
 // 分页导航
 const handlePageChange = (val: number) => {
   // todo 封装一个函数，对从浏览器缓存中获取数据时，产生的错误进行处理
   let temp = JSON.parse(localStorage.getItem('alarmerJobs_list') as string).list;
 
   // 对新的搜索结果做分页处理
-  query.pageIndex = val;
+  alarm_query.pageIndex = val;
   pageTotal.value = temp.length || 1;
   console.log("翻页搜索结果datas", temp)
   // 缓存数据
-  tableData.value = um_api.updateView(val, temp);
+  tableData.value = updateView(val, temp);
 };
 
 // 增删改
@@ -307,12 +345,33 @@ const handleEdit = async (index: number, row: any) => {
   editVisible.value = true;
 };
 
+// 获取项目和工作流的自从关系
+// 作为级联选择器
+let cascader = []
+const handleCascader = async () => {
+  const response = (await getProSub())
+  cascader = response.data.list
+  console.log("cascader:",cascader)
+}
+const handleCascaderChange = (value:string) => {
+  // 获取最后一级选项的value
+  const lastValue:string = value[value.length - 1];
+
+  // 将其赋值给addForm.wid
+  addForm.wid = lastValue || '';
+}
+
 onMounted(() => {
   handleFlush();
+  handleCascader();
 });
+
 </script>
 
 <style scoped>
+.custom-cascader {
+  width: 30%;
+}
 .handle-box {
   margin-bottom: 20px;
 }

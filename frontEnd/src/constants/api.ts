@@ -72,6 +72,7 @@ export enum ALARMS {
   UPDATEALARMERJOBS = "/update_alarmer_jobs",
   ADDALARMERJOBS = "/add_alarmer_jobs",
   DELALARMERJOBS = "/del_alarmer_jobs",
+  GETPROSUB = "/get_pro_sub",
 }
 
 // 程序管理
