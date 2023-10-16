@@ -236,40 +236,6 @@ def update_status_for_old_jobs(wid):
     finally:
         session.close()
 
-def clean_status_for_all_old_jobs():
-    """
-    筛选所有过期任务
-    最后更新时间超过7天的任务一律失败处理
-    :return:
-    """
-    session = Newsession()
-    try:
-        # 计算昨天的日期
-        lastweek = datetime.now() - timedelta(days=7)
-
-        # 查询指定wid下昨天和昨天以前的数据，status为0或1
-
-        old_jobs = session.query(JobInfos)\
-            .filter(JobInfos.end_time <= lastweek) \
-            .filter(JobInfos.status.in_([0, 1, 3]))\
-            .all()
-
-        # 更新这些数据的status
-        # 0 未知，1 执行中，2 结束， 3 中断， 4 错误
-        # 状态未知 改为 中断
-        # 状态执行中 改为 结束
-        for job in old_jobs:
-            job.status = 4
-
-        # 提交更改
-        session.commit()
-        logger.info(f"成功更新 {len(old_jobs)} 条数据的 status 为 2")
-    except Exception as e:
-        session.rollback()  # 回滚事务以防出现错误
-        logger.error(f"update_status_to_2_for_old_jobs 发生错误：{e}")
-    finally:
-        session.close()
-
 
 # 创建任务实例
 def add_job_one(model, data):
@@ -576,7 +542,6 @@ __all__ = [
     "get_long_job_infos_by_wid",
     "update_status_for_old_jobs",
     "update_status_for_old_comon_jobs",
-    "clean_status_for_all_old_jobs",
 
     # 通用性函数
     "get_query_all",

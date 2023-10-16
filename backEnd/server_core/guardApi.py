@@ -13,19 +13,14 @@ import datetime
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.schedulers.background import BackgroundScheduler
-
+from guard_server.guardWare import *
+import datetime
 """
 守护程序
 
 用于定期检查各模块数据状态，
 脱离网络请求，独立处理各项业务的程序
 """
-
-
-# 定义一个示例函数，用于在定时任务中执行
-def sample_job():
-    print("这是一个定时任务的示例")
-
 
 class TaskScheduler:
     def __init__(self):
@@ -157,10 +152,23 @@ if __name__ == "__main__":
 
     # 添加任务
     # task_scheduler.add_task("task1", lambda: print("任务1执行了"), "interval", seconds=10)
-    task_scheduler.add_task("task1", sample_job, "interval", seconds=10)
+    # task_scheduler.add_task("task1", sample_job, "interval", seconds=10)
+    # task_scheduler.add_task("task1", sample_job, "interval", seconds=10)
+    # # 按频率对任务过期状态处理
+    # task_scheduler.add_task("update_job_statuses", update_job_statuses, "interval", seconds=30)
+    # # 系统表auto_increment重置
+    # task_scheduler.add_task("base_auto_increment", base_auto_increment, "cron", hour=10, minute=22)
+    # 最后更新时间超时任务的状态处理
+    # task_scheduler.add_task("clean_status_for_all_old_jobs", clean_status_for_all_old_jobs, "cron", hour=11, minute=18)
+    # 定时将日志缓存，保存到日志文本
+    task_scheduler.add_task("update_logs_file", update_logs_file,
+                            "cron", hour="0-23", minute=",".join([str(x) for x in range(0, 60, 5)])
+                            )
+
 
     # 启动调度器
     task_scheduler.start_scheduler()
+
 
     # 获取所有任务
     tasks = task_scheduler.get_all_tasks()
@@ -168,19 +176,28 @@ if __name__ == "__main__":
     for task in tasks:
         print(task)
 
-    time.sleep(30)
+    try:
+        # 这里可以添加你的其他程序逻辑
+        # 例如，可以运行一个无限循环以保持程序运行，或者在这里执行其他任务
+        while True:
+            print("平台守护程序运行中..")
+            time.sleep(5)
+    except (KeyboardInterrupt, SystemExit):
+        # 当你手动停止程序时，由atexit注册的退出处理函数会关闭定时任务调度器
+        pass
 
-    # 修改任务的触发器
-    task_scheduler.modify_task("task1", "cron", hour=0, minute=30)
 
-    # 获取修改后的任务列表
-    tasks = task_scheduler.get_all_tasks()
-    print("\n修改后的任务:")
-    for task in tasks:
-        print(task)
+    # # 修改任务的触发器
+    # task_scheduler.modify_task("task1", "cron", hour=0, minute=30)
+    #
+    # # 获取修改后的任务列表
+    # tasks = task_scheduler.get_all_tasks()
+    # print("\n修改后的任务:")
+    # for task in tasks:
+    #     print(task)
 
-    # 移除任务
-    task_scheduler.remove_task("task1")
-
-    # 停止调度器
-    task_scheduler.stop_scheduler()
+    # # 移除任务
+    # task_scheduler.remove_task("task1")
+    #
+    # # 停止调度器
+    # task_scheduler.stop_scheduler()

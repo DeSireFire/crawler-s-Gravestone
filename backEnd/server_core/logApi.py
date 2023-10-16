@@ -14,7 +14,7 @@ import asyncio
 import uvicorn
 from pprint import pprint
 from starlette.responses import JSONResponse, Response
-
+from server_core.db import rdb
 from .log import logger
 from fastapi import FastAPI, HTTPException
 from datetime import datetime
@@ -27,7 +27,7 @@ from fastapi import Request, APIRouter, Body, Depends, status, Query
 from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
 from apps.projects import get_fetch_one, JobInfos, update_data, WorkerInfos, constructResponse, add_job_one, \
     synchronous_jobs, check_id, get_today_job_infos_by_wid, update_status_for_old_jobs, \
-    update_status_for_old_comon_jobs, clean_status_for_all_old_jobs, get_long_job_infos_by_wid
+    update_status_for_old_comon_jobs, get_long_job_infos_by_wid
 
 # 使用slowapi进行端口频率限制
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -37,7 +37,7 @@ from slowapi.errors import RateLimitExceeded
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 
-rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
+# rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
 app.state.limiter = limiter
 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -95,7 +95,7 @@ async def log_total(request: Request):
     return callbackJson.callBacker(result)
 
 
-@app.post("/log", summary="日志传输接口")
+@app.post("/log_v1", summary="日志传输接口")
 async def update_logging(request: Request):
     """
     接收客户端日志
@@ -167,7 +167,8 @@ async def update_logging(request: Request):
         job_info_new = update_data(JobInfos, [job_info])
 
         # 获取日志文件路径
-        await handleLogTextSave(job_info, log_data)
+        # todo 测试交给守护程序处理
+        # await handleLogTextSave(job_info, log_data)
 
         # 告警任务推送
         await handleAlarm(job_info, log_data)
@@ -175,6 +176,65 @@ async def update_logging(request: Request):
         # 状态的控制，销毁前发送状态，推送时修改状态，atexit 模块的尝试
 
         return {"status": "ok", "error": None, "data": data}
+    except Exception as err:
+        logger.error(f"日志流处理错误！错误原因：{err}")
+        return {"status": "err", "error": err, "data": None}
+
+@app.post("/log", summary="日志传输接口")
+async def update_logging(request: Request):
+    """
+    接收客户端日志
+    {'args': '()',
+     'created': '1690426537.0822754',
+     'exc_info': 'None',
+     'exc_text': 'None',
+     'extra': '{"ip": "192.168.9.193", "log_name": "单例爬虫测试日志", "project_name": '
+              '"高德地图", "token": "a158dc3a9d0f71283132f2c1127bc8c0"}',
+     'filename': 'logClient.py',
+     'funcName': '<module>',
+     'levelname': 'DEBUG',
+     'levelno': '10',
+     'lineno': '112',
+     'module': 'logClient',
+     'msecs': '82.275390625',
+     'msg': '这是一条 调试 日志，发出来测试一下！！！ cpu占用：57%',
+     'name': '单例爬虫测试日志',
+     'pathname': 'F:\\workSpace\\myGithub\\crawler-s-Gravestone\\backEnd\\log_server\\logClient.py',
+     'process': '15080',
+     'processName': 'MainProcess',
+     'relativeCreated': '146.44455909729004',
+     'stack_info': 'None',
+     'thread': '1028',
+     'threadName': 'MainThread'}
+    {'ip': '192.168.9.193',
+     'log_name': '单例爬虫测试日志',
+     'project_name': '高德地图',
+     'token': 'a158dc3a9d0f71283132f2c1127bc8c0'}
+
+    :param request:
+    :return:
+    """
+    data = await request.body()
+    fdata = await request.form()
+    # 获取日志流传送的信息
+    log_data = fdata.__dict__.get('_dict')
+
+    # 日志附加信息
+    extra_data = json.loads(log_data.get("extra"))
+    # 工作流密钥
+    jid = extra_data.get("jid")
+    # 预留备用信息传递
+    meta = extra_data.get("meta")
+    try:
+        # 直接把接收到的日志数据推送到redis
+        rcallback = rdb.lpush("crawl_monitor:RawLogList", log_data)
+        if rcallback:   # rcallback返回值都是数字
+            return {"status": "ok", "error": None, "data": data}
+        else:
+            warning = "日志流未能缓存..."
+            logger.warning(f"日志流处理存在问题！问题原因：{warning}")
+            return {"status": "err", "error": warning, "data": None}
+
     except Exception as err:
         logger.error(f"日志流处理错误！错误原因：{err}")
         return {"status": "err", "error": err, "data": None}
@@ -246,7 +306,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             # 存在同类任务则直接返回该任务的id
             # 不存在则创建然后返回任务id
             content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60*60*24*7)
-            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            # 查找若干天相关常驻任务，将其任务状态设为关闭
             update_status_for_old_comon_jobs(wid, step_day=7)
 
         if winfo.get("crawl_frequency") == "周更":
@@ -254,7 +314,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             # 存在同类任务则直接返回该任务的id
             # 不存在则创建然后返回任务id
             content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60*60*24*2)
-            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            # 查找若干天相关常驻任务，将其任务状态设为关闭
             update_status_for_old_comon_jobs(wid, step_day=2)
 
         if winfo.get("crawl_frequency") == "日更":
@@ -262,7 +322,7 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             # 存在同类任务则直接返回该任务的id
             # 不存在则创建然后返回任务id
             content = await handleAddLongJob(worker_info=winfo, data=data, content=content, step_time=60)
-            # 查找前一天相关常驻任务，将其任务状态设为关闭
+            # 查找若干天相关常驻任务，将其任务状态设为关闭
             update_status_for_old_comon_jobs(wid, step_day=1)
 
         # 临时任务或首次任务
@@ -272,10 +332,6 @@ async def add_job(request: Request, pid: str = Query(None), wid: str = Query(Non
             content = await handleAddNormalJob(winfo, data, content)
             # 查找前一天相关普通任务，修改状态
             update_status_for_old_jobs(wid)
-
-
-        # todo 检测所有任务(移动到守护程序)
-        clean_status_for_all_old_jobs()
 
         # 错误判断
         # 创建or接续成功，则有jid,没有则任务创建or接续失败！

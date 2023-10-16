@@ -19,6 +19,8 @@ from utils.RedisDBHelper import RedisDBHelper
 # 加载redis配置
 if redisconf.host:
     rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
+else:
+    rdb = None
 
 if conf.db == 'mysql':
     # 构建数据库连接字符串

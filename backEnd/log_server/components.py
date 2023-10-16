@@ -14,11 +14,9 @@ import os
 import time
 import logging
 import aiofiles
+from server_core.db import rdb
 from server_core.conf import redisconf, logger
 from utils.RedisDBHelper import RedisDBHelper
-
-rdb = RedisDBHelper(redisconf.db if redisconf.db else 0)
-
 
 def create_log_message(log_data):
     """

@@ -29,8 +29,7 @@ from .components import \
     add_project_info, del_project_info, \
     update_project_infos, get_query_all, add_data_one, check_id, get_fetch_one, del_data_one, update_data, \
     add_job_one, get_query_count, synchronous_workers, synchronous_jobs, get_today_job_infos_by_wid, \
-    update_status_for_old_jobs, update_status_for_old_comon_jobs, clean_status_for_all_old_jobs, \
-    get_long_job_infos_by_wid, read_latest_lines
+    update_status_for_old_jobs, update_status_for_old_comon_jobs, get_long_job_infos_by_wid, read_latest_lines
 from .models import WorkerInfos, ProjectInfos, JobInfos
 
 route = APIRouter()
