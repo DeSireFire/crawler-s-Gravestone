@@ -15,7 +15,7 @@ from apps.models import initdb
 @logger.catch()
 def hello():
     initlog()
-    # initdb()
+    initdb()
     if conf.debug:
         print(f"基础参数：{conf}")
         print(f"数据库：{mysqlconf}")
