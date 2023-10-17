@@ -143,18 +143,18 @@
     <!--  功能弹窗  -->
     <el-dialog title="高级搜索" v-model="filterVisible" width="30%">
       <el-form label-width="80px">
-<!--        <el-form-item label="任务状态:">-->
-<!--          <el-select v-model="query.status" style="width: 150px" placeholder="选择状态">-->
-<!--            <el-option-->
-<!--                v-for="(status_number, status_name) in statusMapping"-->
-<!--                :key="status_number"-->
-<!--                :label="status_name"-->
-<!--                :value="status_name"-->
-<!--                @click="query.status = status_name"-->
-<!--            />-->
-<!--            <el-option key="0" label="无" value=""></el-option>-->
-<!--          </el-select>-->
-<!--        </el-form-item>-->
+        <el-form-item label="任务状态:">
+          <el-select v-model="query.status" style="width: 150px" placeholder="选择状态">
+            <el-option
+                v-for="(status_number, status_name) in statusMapping"
+                :key="status_number"
+                :label="status_name"
+                :value="status_name"
+                @click="query.status = status_name"
+            />
+            <el-option key="0" label="无" value=""></el-option>
+          </el-select>
+        </el-form-item>
 
         <el-form-item label="列名筛选:">
           <el-input v-model="query.filterValue"
@@ -383,7 +383,7 @@ const columnOptions = computed(() => {
   }
   return options;
 });
-// todo 按任务状态筛选(等待开启)
+// 按任务状态筛选
 const handleFilterStatus = (temp: TableItem[] = []) => {
   // 传入需要筛选的值和被查询的字段名称
   if (!query.status) {
