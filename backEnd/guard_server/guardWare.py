@@ -287,11 +287,11 @@ def update_logging(rkey: str = "crawl_monitor:RawLogList"):
             # 告警任务推送
             handleAlarm(job_info, log_data)
 
-            logger.info(f"日志流缓存处理结束！")
+            logger.info(f"{jid} 本批次日志流缓存处理结束！")
             callback = True
 
         except Exception as err:
-            logger.error(f"日志流缓存处理错误！错误原因：{err}")
+            logger.error(f"{jid} 日志流缓存处理错误！错误原因：{err}")
             callback = False
 
     logger.info(f"没有需要处理的日志流...")

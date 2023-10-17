@@ -22,6 +22,7 @@ class Basejson():
             del dict["_sa_instance_state"]
         return dict
 
+
 # 用户初始化，生成特殊用户
 def inituser():
     from apps.users.models import Users
@@ -167,6 +168,7 @@ def initdb():
     from apps.programs.models import ProgramInfos
     db_Base.metadata.create_all(engine)
     inituser()
+
 
 if __name__ == '__main__':
     initdb()

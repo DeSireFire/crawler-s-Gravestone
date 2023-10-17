@@ -135,6 +135,7 @@ async def get_projects(request: Request):
     content["pageTotal"] = len(pro_list)
     return callbackJson.callBacker(content)
 
+
 @route.get("/get_projects_names", summary="获取所有项目名称")
 async def get_projects_names(request: Request):
     """
@@ -147,7 +148,7 @@ async def get_projects_names(request: Request):
     callbackJson.statusCode = 200
     content = {}
     pro_list = get_projects_info() or []
-    names = [v for k,v in pro_list.items() if k == "name"]
+    names = [v for k, v in pro_list.items() if k == "name"]
     # pprint(pro_list)
     # 转换为业务响应数据
     content["list"] = names or None
@@ -173,6 +174,7 @@ async def get_workers(request: Request, pid: str = Query(None)):
     content["list"] = workers_list or None
     content["pageTotal"] = len(workers_list)
     return callbackJson.callBacker(content)
+
 
 @route.get("/get_worker", summary="获取工作流信息")
 async def get_worker(request: Request, wid: str = Query(None)):
@@ -355,7 +357,7 @@ async def get_log(request: Request,
                   pid: str = Query(None),
                   wid: str = Query(None),
                   jid: str = Query(None),
-                  lv:str = Query(None)
+                  lv: str = Query(None)
                   ):
     """
     获取任务日志
@@ -377,14 +379,13 @@ async def get_log(request: Request,
         if not log_file_path:
             raise FileNotFoundError
 
-
         with open(log_file_path, encoding="utf-8") as f:
             log_content = f.read()
 
-        # todo 更新日志最新1000行
-        # log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
-        # if log_content_lines:
-        #     log_content = "\n".join(log_content)
+        # 更新日志最新1000行
+        log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
+        if log_content_lines:
+            log_content = "\n".join(log_content)
 
     except FileNotFoundError as FNFE:
         # 未找到指定文件
