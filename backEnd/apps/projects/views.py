@@ -382,10 +382,12 @@ async def get_log(request: Request,
         with open(log_file_path, encoding="utf-8") as f:
             log_content = f.read()
 
-        # 更新日志最新1000行
-        log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
-        if log_content_lines:
-            log_content = "\n".join(log_content)
+        # # 更新日志最新1000行
+        # log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
+        # if log_content_lines:
+        #     # log_content = "\n".join(log_content)
+        #     log_content = log_content
+        #     print(f"log_content...>{log_content}")
 
     except FileNotFoundError as FNFE:
         # 未找到指定文件
