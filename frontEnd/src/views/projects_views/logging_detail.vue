@@ -78,7 +78,7 @@
     </el-collapse>
     <p style="line-height: 50px">
       <el-tag class="ml-2" >日志内容（共{{ logLines.length }}行）</el-tag>
-      <el-tag class="ml-2" type="warning">由于网页的处理性能有限，大型日志建议使用日志下载功能。</el-tag>
+      <el-tag class="ml-2" type="warning">由于网页的处理性能有限，仅展示最新的1000行日志，大型日志建议使用日志下载功能。</el-tag>
     </p>
     <el-scrollbar>
       <ul>
@@ -226,7 +226,8 @@ const downloadLog = async () => {
     const response = (await downLoadLog(watiGetInfo))
     const date = new Date().toISOString().slice(0, 10);
     const filename = `日志导出-${logInfo.name}-${logInfo.jid}-${date}.log`;
-    const blob = new Blob([response.data + '\n' + date + "时导出日志..."], { type: 'application/octet-stream' });
+    console.log("response--->",response)
+    const blob = new Blob([response.data.content + '\n' + date + "时导出日志..."], { type: 'application/octet-stream' });
 
     // 写法一
     const link = document.createElement('a');
