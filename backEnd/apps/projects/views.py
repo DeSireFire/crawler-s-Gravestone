@@ -368,11 +368,8 @@ async def get_log(request: Request,
     callbackJson = constructResponse()
     callbackJson.statusCode = 200
     content = {}
-    print(f"pid:{pid}")
     job_info = get_query_all(model=JobInfos, pid=pid, wid=wid, jid=jid) or [{}]
     log_file_path = job_info[0].get("log_file_path", None)
-    pprint(job_info)
-    pprint(f"log_file_path --- > {log_file_path}")
     if lv:
         log_file_path = rename_log_file(log_file_path, lv)
     log_content = ""
@@ -414,30 +411,30 @@ async def get_log(request: Request,
     :return:
     """
     callbackJson = constructResponse()
-    callbackJson.statusCode = 400
+    callbackJson.statusCode = 200
     content = {}
-    print(f"pid:{pid}")
     job_info = get_query_all(model=JobInfos, pid=pid, wid=wid, jid=jid) or [{}]
     log_file_path = job_info[0].get("log_file_path", None)
-    pprint(job_info)
-    pprint(f"log_file_path --- > {log_file_path}")
     if lv:
         log_file_path = rename_log_file(log_file_path, lv)
     try:
         if not log_file_path:
             raise FileNotFoundError
 
-        # 处理完毕文件以后，生成了文件路径
-        filename = os.path.basename(log_file_path)#带后缀的文件名
-        return FileResponse(
-            filename=filename,  # 文件名
-            path=log_file_path,  # 这里的文件名是你要给用户展示的下载的文件名
-        )
+        with open(log_file_path, encoding="utf-8") as f:
+            log_content = f.read()
 
     except FileNotFoundError as FNFE:
         # 未找到指定文件
+        callbackJson.statusCode = 404
         callbackJson.message = "未查询到符合条件的日志..."
 
+    # 转换为业务响应数据
+    content["name"] = job_info[0].get("name", None)
+    content["p_nickname"] = job_info[0].get("p_nickname", None)
+    content["w_nickname"] = job_info[0].get("w_nickname", None)
+    content["run_user"] = job_info[0].get("run_user", None)
+    content["content"] = log_content or None
     return callbackJson.callBacker(content)
 
 @route.post("/add_job", summary="新增任务")
