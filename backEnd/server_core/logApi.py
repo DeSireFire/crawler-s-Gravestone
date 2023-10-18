@@ -168,7 +168,7 @@ async def update_logging(request: Request):
 
         # 获取日志文件路径
         # todo 测试交给守护程序处理
-        # await handleLogTextSave(job_info, log_data)
+        await handleLogTextSave(job_info, log_data)
 
         # 告警任务推送
         await handleAlarm(job_info, log_data)

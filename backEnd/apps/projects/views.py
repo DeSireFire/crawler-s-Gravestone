@@ -15,6 +15,7 @@ from typing import Dict
 from pprint import pprint
 from datetime import datetime
 from fastapi.responses import JSONResponse
+from starlette.responses import FileResponse
 from log_server.components import rename_log_file
 from server_core.control import constructResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -379,15 +380,14 @@ async def get_log(request: Request,
         if not log_file_path:
             raise FileNotFoundError
 
-        with open(log_file_path, encoding="utf-8") as f:
-            log_content = f.read()
+        # with open(log_file_path, encoding="utf-8") as f:
+        #     log_content = f.read()
 
-        # # 更新日志最新1000行
-        # log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
-        # if log_content_lines:
-        #     # log_content = "\n".join(log_content)
-        #     log_content = log_content
-        #     print(f"log_content...>{log_content}")
+        # 更新日志最新1000行
+        log_content_lines = read_latest_lines(log_file_path, num_lines=1000) or []
+        if log_content_lines:
+            log_content = "".join(log_content_lines).strip()
+            print(f"log_content...>{log_content}")
 
     except FileNotFoundError as FNFE:
         # 未找到指定文件
@@ -401,6 +401,44 @@ async def get_log(request: Request,
     content["content"] = log_content or None
     return callbackJson.callBacker(content)
 
+@route.get("/download_log", summary="下载任务日志")
+async def get_log(request: Request,
+                  pid: str = Query(None),
+                  wid: str = Query(None),
+                  jid: str = Query(None),
+                  lv: str = Query(None)
+                  ):
+    """
+    获取任务日志
+    :param request:
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 400
+    content = {}
+    print(f"pid:{pid}")
+    job_info = get_query_all(model=JobInfos, pid=pid, wid=wid, jid=jid) or [{}]
+    log_file_path = job_info[0].get("log_file_path", None)
+    pprint(job_info)
+    pprint(f"log_file_path --- > {log_file_path}")
+    if lv:
+        log_file_path = rename_log_file(log_file_path, lv)
+    try:
+        if not log_file_path:
+            raise FileNotFoundError
+
+        # 处理完毕文件以后，生成了文件路径
+        filename = os.path.basename(log_file_path)#带后缀的文件名
+        return FileResponse(
+            filename=filename,  # 文件名
+            path=log_file_path,  # 这里的文件名是你要给用户展示的下载的文件名
+        )
+
+    except FileNotFoundError as FNFE:
+        # 未找到指定文件
+        callbackJson.message = "未查询到符合条件的日志..."
+
+    return callbackJson.callBacker(content)
 
 @route.post("/add_job", summary="新增任务")
 async def add_job(request: Request, pid: str = Query(None), wid: str = Query(None), jid: str = Query(None)):
