@@ -149,6 +149,17 @@ export const getLogContent = (logInfo:any) => {
     });
 };
 
+// 下载任务日志文件
+// {jid:xxx}
+export const downLoadLog = (logInfo:any) => {
+    return handleGet({
+        url: API.PROJECTS.DOWNLOADLOG,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+        params: logInfo,
+    });
+};
+
 
 // 获取项目首页折线图
 // {pid:xxx}

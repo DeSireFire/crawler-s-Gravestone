@@ -56,6 +56,7 @@ export enum PROJECTS {
   DELJOBS = "/del_jobs",
 
   GETLOG = "/get_log",
+  DOWNLOADLOG = "/download_log",
 
   GETPTASKS = "/get_ptasks",
 }

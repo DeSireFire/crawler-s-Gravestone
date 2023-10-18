@@ -96,7 +96,7 @@ import {computed, reactive, ref, watch, watchEffect} from 'vue';
 import {useRoute} from "vue-router";
 import { useRouter } from 'vue-router';
 import {Delete, Edit, Search, FullScreen, Close, RefreshRight, Download, Back, Expand} from '@element-plus/icons-vue';
-import {getLogContent} from "~/api/projects";
+import {downLoadLog, getLogContent} from "~/api/projects";
 interface TableItem {
   id: string;
   wid: string;
@@ -208,8 +208,8 @@ const logInfo = reactive({
   run_user: "",
 })
 const logTextarea = ref('')
-// 下载日志文件
-function downloadLog() {
+// 保存当前日志到文件
+function saveLog() {
   const date = new Date().toISOString().slice(0, 10);
   const filename = `日志导出-${logInfo.name}-${logInfo.jid}-${date}.log`;
   const blob = new Blob([logTextarea.value + '\n' + date + "时导出日志..."], { type: 'text/plain' });
@@ -217,6 +217,32 @@ function downloadLog() {
   link.href = URL.createObjectURL(blob);
   link.download = filename;
   link.click();
+}
+
+// 下载全文日志文件
+const downloadLog = async () => {
+  let watiGetInfo:any = logMointForm;
+  try {
+    const response = (await downLoadLog(watiGetInfo))
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `日志导出-${logInfo.name}-${logInfo.jid}-${date}.log`;
+    const blob = new Blob([response.data + '\n' + date + "时导出日志..."], { type: 'application/octet-stream' });
+
+    // 写法一
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    // 写法二
+    // const url = window.URL.createObjectURL(blob);
+    // const a = document.createElement('a');
+    // a.href = url;
+    // a.download = filename; // 可以根据你的需求设置文件名
+    // a.click();
+    // window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('下载日志文件失败', error);
+  }
 }
 
 const logArray = ref<Array<string>>([]);
@@ -227,9 +253,10 @@ const handleLogContent = async () => {
   logMointForm.jid = jid.value as string;
   logMointForm.lv = lv.value;
   let watiGetInfo:any = logMointForm;
+  // 获取日志内容
   const response = (await getLogContent(watiGetInfo))
   logTextarea.value = response.data.content
-  logInfo.jid = jid.value
+  logInfo.jid = jid.value as string
   logInfo.name = response.data.name
   logInfo.w_nickname = response.data.w_nickname
   logInfo.p_nickname = response.data.p_nickname
