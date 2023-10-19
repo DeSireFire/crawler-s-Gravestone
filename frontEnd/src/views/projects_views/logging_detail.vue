@@ -226,7 +226,6 @@ const downloadLog = async () => {
     const response = (await downLoadLog(watiGetInfo))
     const date = new Date().toISOString().slice(0, 10);
     const filename = `日志导出-${logInfo.name}-${logInfo.jid}-${date}.log`;
-    console.log("response--->",response)
     const blob = new Blob([response.data.content + '\n' + date + "时导出日志..."], { type: 'application/octet-stream' });
 
     // 写法一

@@ -23,16 +23,16 @@
     </div>
     <el-scrollbar>
       <el-table
-        :data="tableResData"
-        :border="true"
-        stripe
-        class="table"
-        @sort-change="handleSortChange"
-        v-loading="table_loading"
-        header-cell-class-name="table-header"
-        height="520"
+          :data="tableResData"
+          :border="true"
+          stripe
+          class="table"
+          @sort-change="handleSortChange"
+          v-loading="table_loading"
+          header-cell-class-name="table-header"
+          height="520"
       >
-      <!--:default-sort="{ prop: 'end_time', order: 'null' }"-->
+        <!--:default-sort="{ prop: 'end_time', order: 'null' }"-->
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
         <el-table-column width="300" label="实例名称" :show-overflow-tooltip="true">
           <template #default="scope">
@@ -102,7 +102,7 @@
         <el-table-column label="操作" width="300" align="center" fixed="right">
           <template #default="scope">
             <el-button text :icon="Edit"
-             @click="$router.push({
+                       @click="$router.push({
              path: '/logging_detail',
              query: {
                pid: scope.row.pid,
@@ -112,7 +112,7 @@
                back: route.path,
              }
              })"
-             v-permiss="15">
+                       v-permiss="15">
               日志
             </el-button>
 
@@ -634,4 +634,3 @@ const filterEdit = async () => {
   color: rgb(99, 214, 211);
 }
 </style>
-

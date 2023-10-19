@@ -8,7 +8,7 @@
     <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新</el-button>
   </div>
   <el-scrollbar>
-    <el-table :data="tableResData" v-load="table_loading" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="480">
+    <el-table :data="tableResData" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="480">
       <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
       <el-table-column label="实例名称">
         <template #default="scope">
@@ -257,8 +257,8 @@ const handleResTable = () => {
   temp = jobsList.list;
 
   if (query.pageIndex >= 1) {
-    let cursor_start = (parseInt(query.pageIndex) - 1) * parseInt(query.pageSize)
-    let cursor_end = cursor_start + parseInt(query.pageSize)
+    let cursor_start = (query.pageIndex - 1) * query.pageSize
+    let cursor_end = cursor_start + query.pageSize
     temp = temp.slice(cursor_start, cursor_end);
   } else {
     temp = temp.slice(0, query.pageSize);
