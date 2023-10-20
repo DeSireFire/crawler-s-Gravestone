@@ -263,22 +263,25 @@ const handleFlush = async (init = true) => {
   }
   // 是否初始化
   if (init && res.data.pageTotal !== 0) {
+    let step:number = 0;
+    if (query.pageSize && query.pageIndex) {
+     step = (query.pageIndex-1) * query.pageSize
+    }
     // 载入数据
-    tableRawData.value = res.data.list.slice(0, query.pageSize);
+    tableRawData.value = res.data.list.slice(step, step+query.pageSize);
     if (tableRawData.value) {
       tableResData.value = tableRawData.value
     }
     pageTotal.value = res.data.pageTotal || 1;
 
     // 清空筛选器
-    query.filterKey = '';
-    query.filterValue = '';
-    query.keyword = '';
-
-    // 缓存数据
-    localStorage.setItem('jobs_list', JSON.stringify(res.data));
+    query.status=''
+    query.filterKey = ''
+    query.filterValue = ''
+    query.keyword = ''
   }
-
+  // 缓存数据
+  localStorage.setItem('jobs_list', JSON.stringify(res.data));
   table_loading.value = false;
 };
 // 打开页面就刷新
@@ -331,8 +334,8 @@ const handleTableDataResult = async () => {
   // 翻页处理：获取当前页数，计算经过过滤以后列表数据的分页，没超过总页数，直接翻页，超过直接返回第一页。
   // console.log("当前页数", query.pageIndex)
   if (query.pageIndex >= 1) {
-    let cursor_start = (parseInt(query.pageIndex) - 1) * parseInt(query.pageSize)
-    let cursor_end = cursor_start + parseInt(query.pageSize)
+    let cursor_start = (query.pageIndex - 1) * query.pageSize
+    let cursor_end = cursor_start + query.pageSize
     temp = temp.slice(cursor_start, cursor_end);
   } else {
     temp = temp.slice(0, query.pageSize);
