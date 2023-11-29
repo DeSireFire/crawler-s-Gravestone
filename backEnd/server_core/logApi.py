@@ -87,6 +87,8 @@ async def log_total(request: Request):
     for k, v in job_info.items():
         if k in result:
             result[k] = v
+    if not job_info or result["log_lv_info"]+result["log_lv_warning"] == 0:
+        logger.warning(f" 接口：/log_total，计数统计数据为0，或需要检查，result: {result}")
     if not result.get("jid"):
         callbackJson.statusCode = 404
     else:
@@ -168,7 +170,7 @@ async def update_logging(request: Request):
 
         # 获取日志文件路径
         # todo 测试交给守护程序处理
-        await handleLogTextSave(job_info, log_data)
+        # await handleLogTextSave(job_info, log_data)
 
         # 告警任务推送
         await handleAlarm(job_info, log_data)

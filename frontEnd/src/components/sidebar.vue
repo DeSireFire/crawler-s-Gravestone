@@ -157,6 +157,20 @@ const items = [
     ],
   },
   {
+    icon: 'Notebook',
+    index: '6',
+    title: '知识星球',
+    permiss: '6',
+    subs: [
+      {
+        index: '/wisdom_editor',
+        title: '文档编辑',
+        permiss: '61',
+
+      },
+    ],
+  },
+  {
     icon: 'Collection',
     index: '9',
     title: '帮助',

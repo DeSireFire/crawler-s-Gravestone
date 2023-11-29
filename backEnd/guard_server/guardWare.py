@@ -254,8 +254,10 @@ def update_logging(rkey: str = "crawl_monitor:RawLogList"):
         jid = extra_data.get("jid")
         # 预留备用信息传递
         meta = extra_data.get("meta")
+        wid = extra_data.get("token")
+        # 同步到数据库
         try:
-            # 同步到数据库
+
             # 获取工作流信息=>
             # 生成任务实例的jid=>
             # 通过jid获取任务实例信息，如果没有就生成新的任务实例=>
@@ -266,6 +268,14 @@ def update_logging(rkey: str = "crawl_monitor:RawLogList"):
             if not job_info:
                 err = f"{jid} 未查询到该任务实例。日志信息明细：{log_data}。 可能是任务被删除。"
                 logger.error(err)
+                alarm_handler = AlarmHandler()
+
+                asyncio.run(
+                    alarm_handler.handle_alarm(
+                        wid, f'{model_data["name"]}_有关告警信息',
+                        f"该任务接收到了一次报错日志！内容如下:"
+                        f"{log_data['msg']}"
+                    ))
                 callback = False
 
             # 状态

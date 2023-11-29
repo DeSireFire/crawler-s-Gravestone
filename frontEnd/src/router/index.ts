@@ -167,12 +167,21 @@ const routes: RouteRecordRaw[] = [
             },
             {
                 path: '/system_dashboard',
-                name: '系统仪表盘',
+                name: 'system_dashboard',
                 meta: {
                     title: '系统仪表盘',
                     permiss: '6',
                 },
                 component: () => import(/* webpackChunkName: "permission" */ '../views/dashboard/system_dashboard.vue'),
+            },
+            {
+                path: '/wisdom_editor',
+                name: 'wisdom_editor',
+                meta: {
+                    title: '知识星球_文档编辑',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "permission" */ '../views/wisdom_galaxy/wisdom_editor.vue'),
             },
         ],
     },

@@ -11,15 +11,16 @@
       <el-scrollbar>
         <el-table :data="tableData" border class="table" ref="multipleTable" header-cell-class-name="table-header" max-height="550">
           <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
-          <el-table-column label="项目名称" width="300" :show-overflow-tooltip="true">
+          <el-table-column width="350" label="项目名称"  :show-overflow-tooltip="true">
             <template #default="scope">
               <router-link :to="
               { path: '/projects_tabs', query: {
                 pid: scope.row.pid,
                 name:scope.row.name,
                 title:scope.row.name
-              }}">{{ scope.row.name }}
+              }}">{{ scope.row.nickname }}
               </router-link>
+<!--              (# 原名: {{ scope.row.name }})-->
             </template>
           </el-table-column>
           <el-table-column label="工作流数量" width="100" :show-overflow-tooltip="true">
@@ -42,11 +43,6 @@
           </el-table-column>
           <el-table-column width="200" label="创建时间">
             <template #default="scope">{{ scope.row.create_time }}</template>
-          </el-table-column>
-          <el-table-column width="150" label="备注" :show-overflow-tooltip="true">
-            <template #default="scope">
-              {{ scope.row.nickname }}
-            </template>
           </el-table-column>
           <el-table-column label="操作" width="200" align="center" fixed="right">
             <template #default="scope">
@@ -99,7 +95,7 @@
 
 		<el-dialog title="编辑项目" v-model="editVisible" width="40%">
       <el-form label-width="80px">
-        <el-form-item label="备注">
+        <el-form-item label="项目名称">
           <el-input v-model="editForm.nickname"></el-input>
         </el-form-item>
         <el-form-item label="委托方/人">
