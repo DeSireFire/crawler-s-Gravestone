@@ -11,10 +11,12 @@ import time
 import datetime
 from sqlalchemy.sql import func
 from server_core.log import logger
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from pydantic import BaseModel, Field, validator
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from server_core.db import engine, Newsession
+# from apps.docs.models import DocPermissions
 from apps import db_Base
 
 
@@ -38,12 +40,16 @@ class Users(db_Base, Basejson):
     create = Column(DateTime(), default=datetime.datetime.now())
     lastlogin = Column(DateTime())
 
+    # 关联关系
+    # doc_permissions = relationship('DocPermissions', backref='user')
+
     def __init__(self, name, nicename, password, role, status):
         self.name = name
         self.nicename = nicename
         self.password = password
         self.role = role
         self.status = status
+
     # def __str__(self):
     #     return self.name
 

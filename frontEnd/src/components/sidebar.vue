@@ -163,9 +163,27 @@ const items = [
     permiss: '6',
     subs: [
       {
-        index: '/wisdom_editor',
+        index: '/docs_editor',
         title: '文档编辑',
         permiss: '61',
+
+      },
+      {
+        index: '/docs_share',
+        title: '文档分享',
+        permiss: '62',
+
+      },
+      {
+        index: '/docs_list',
+        title: '文档管理',
+        permiss: '63',
+
+      },
+      {
+        index: '/docs_previwer',
+        title: '文档阅读',
+        permiss: '64',
 
       },
     ],

@@ -175,13 +175,40 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "permission" */ '../views/dashboard/system_dashboard.vue'),
             },
             {
-                path: '/wisdom_editor',
-                name: 'wisdom_editor',
+                path: '/docs_editor',
+                name: 'docs_editor',
                 meta: {
                     title: '知识星球_文档编辑',
                     permiss: '6',
                 },
-                component: () => import(/* webpackChunkName: "permission" */ '../views/wisdom_galaxy/wisdom_editor.vue'),
+                component: () => import(/* webpackChunkName: "permission" */ '../views/docs/docs_editor.vue'),
+            },
+            {
+                path: '/docs_list',
+                name: 'docs_list',
+                meta: {
+                    title: '知识星球_文档管理',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "permission" */ '../views/docs/docs_list.vue'),
+            },
+            {
+                path: '/docs_previwer',
+                name: 'docs_previwer',
+                meta: {
+                    title: '知识星球_文档浏览',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "permission" */ '../views/docs/docs_previwer.vue'),
+            },
+            {
+                path: '/docs_share',
+                name: 'docs_share',
+                meta: {
+                    title: '知识星球_文档分享',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "permission" */ '../views/docs/docs_shape.vue'),
             },
         ],
     },

@@ -27,6 +27,7 @@ def createapp():
     # app.mount('/static', StaticFiles(directory='apps/static'), name='static')
 
     # 应用相关
+    # 添加应用前，先在apps.route总路由文件中导入指定app
     app.include_router(users.route, tags=["用户管理"])
     app.include_router(workerLogs.route, tags=["日志收集模块"])
     app.include_router(extras.route, tags=["拓展接口"])
@@ -34,6 +35,7 @@ def createapp():
     app.include_router(projects.route, tags=["项目管理"])
     app.include_router(alarms.route, tags=["报警管理"])
     app.include_router(programs.route, tags=["程序管理"])
+    app.include_router(docs.route, tags=["知识星球"])
 
     # @app.get("/")
     # def home():

@@ -81,9 +81,6 @@
         <el-form-item label="背景描述">
           <el-input type="textarea" v-model="addForm.description"></el-input>
         </el-form-item>
-        <el-form-item label="备注">
-          <el-input v-model="addForm.nickname"></el-input>
-        </el-form-item>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
@@ -218,6 +215,7 @@ const updateView = (page_num: number, datas: [] = []) => {
 const addVisible = ref(false);
 let addForm = reactive({
   name: '',
+  nickname: '',
   author: '',
   customer: '',
   description: '',
@@ -226,6 +224,7 @@ const handleAdd = () => {
   addVisible.value = true;
 };
 const addSaveEdit = async () => {
+  addForm.nickname = addForm.name
   addForm.author = localStorage.getItem('ms_username') as string;
   // 向后端发起操作
   const response = (await addProjects(addForm));

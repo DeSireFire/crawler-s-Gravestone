@@ -119,8 +119,7 @@ onMounted(() => {
     localStorage.setItem('system_settings', JSON.stringify(systemSettings.value));
     if (!systemSettings.value.tags_switch) {
       closeAll();
-    }
-    ;
+    };
   });
 });
 

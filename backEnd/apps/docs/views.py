@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Author    : RaXianch
+# CreatDATE : 2023/5/25
+# CreatTIME : 17:29
+# Blog      : https://blog.raxianch.moe/
+# Github    : https://github.com/DeSireFire
+__author__ = 'RaXianch'
+
+from .components import get_query_all
+
+"""
+知识星球文档模块
+"""
+from .models import Docs
+from pprint import pprint
+from fastapi import requests
+from .components import get_user_by_author, achmey_to_dict, get_query_docs, get_query_all
+from server_core.db import engine, Newsession
+from server_core.control import constructResponse
+from fastapi import Header, HTTPException, Request, APIRouter, Body, Depends, status, Query
+
+route = APIRouter()
+
+
+@route.get("/get_my_docs", summary="获取个人文章列表")
+async def get_my_docs(request: Request, author: str = Query(None)):
+    """
+    获取共享文章列表
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    content = {}
+    _user = get_user_by_author(author) or None
+    if not _user:
+        callbackJson.statusCode = 500
+        callbackJson.message = "未查询到该用户..."
+        content["list"] = None
+        content["pageTotal"] = 0
+        return callbackJson.callBacker(content)
+
+    if 'xxxadmin' in _user.role:
+        res = get_query_all(Docs) or []
+    else:
+        res = get_query_docs(Docs, **{"author_id": _user.id}) or []
+
+    # 转换为业务响应数据
+    content["list"] = res or None
+    content["pageTotal"] = len(res)
+    return callbackJson.callBacker(content)
+
+
+@route.get("/get_shape", summary="获取共享文章列表")
+async def get_shape(request: Request):
+    """
+    获取共享文章列表
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    res = get_query_docs(Docs) or []
+    content = {}
+    # 转换为业务响应数据
+    content["list"] = res
+    print(f"get_shape:{content}")
+    return callbackJson.callBacker(content)
+
+
+# @route.post("/update_doc", summary="新增文档")
+# async def update_doc(request: Request, docId: str = Query(None)):
+#     """
+#     通过传入工作流实例wid等信息创建实际的任务实例记录
+#     {'docId': '', 'html': '<p>hello world</p>', 'title': 'hello world'
+#     :param request:
+#     :return:
+#     """
+#     fdata = await request.form()
+#     data = dict(fdata)
+#     callbackJson = constructResponse()
+#     callbackJson.statusCode = 400
+#     content = {}
+#     pprint(data)
+#     print(docId)
+#
+#     # 同步项目下的任务数量
+#     callbackJson.statusCode = 200
+#     content["docId"] = docId
+#     return callbackJson.callBacker(content)
+
+@route.post("/update_doc", summary="新增文档")
+async def update_doc(request: Request, docId: str = Query(None)):
+    """
+    通过传入工作流实例wid等信息创建实际的任务实例记录
+    :param request:
+    :param db: 数据库会话
+    :param docId: 文档ID
+    :return: 回调信息
+    """
+    fdata = await request.form()
+    data = dict(fdata)
+    callback_json = constructResponse()
+    callback_json.statusCode = 400
+    content = {}
+    pprint(data)
+    print(docId)
+
+    session = Newsession()
+
+    # 查询是否已存在相同的 doc_id
+    existing_doc = session.query(Docs).filter(Docs.doc_id == docId).first()
+
+    if existing_doc:
+        # 如果已存在相同的 doc_id，则不保存并打印信息
+        print(f"Document with doc_id {docId} already exists. Skipping save.")
+    else:
+        # # 如果docId为空，认为为新文章
+        # if not data.get('docId'):
+
+        # 如果不存在相同的 doc_id，则新增文档到数据库
+        try:
+            new_doc = Docs(**data)
+            session.add(new_doc)
+            session.commit()
+
+            # 设置成功的回调信息
+            callback_json.statusCode = 200
+            content["docId"] = docId
+        except Exception as e:
+            print(f"Error saving document: {str(e)}")
+            session.rollback()
+        finally:
+            session.close()
+
+    return callback_json.callBacker(content)

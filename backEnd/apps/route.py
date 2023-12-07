@@ -20,3 +20,4 @@ from apps import dashboard
 from apps import projects
 from apps import alarms
 from apps import programs
+from apps import docs

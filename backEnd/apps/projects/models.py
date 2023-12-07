@@ -81,7 +81,7 @@ class WorkerInfos(db_Base, BaseJson):
         self.extra = extra
         self.p_nickname = p_nickname if p_nickname else get_fetch_one(model=ProjectInfos, pid=self.pid).get("nickname")
         self.create_time = datetime.now(pytz.timezone('Asia/Shanghai'))
-        self.end_time = datetime.now(pytz.timezone('Asia/Shanghai'))
+        # self.end_time = datetime.now(pytz.timezone('Asia/Shanghai'))
 
 
 class JobInfos(db_Base, BaseJson):

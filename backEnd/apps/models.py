@@ -166,6 +166,7 @@ def initdb():
     from apps.workerLogs.models import worker_logs
     from apps.projects.models import ProjectInfos
     from apps.programs.models import ProgramInfos
+    from apps.docs.models import Docs
     db_Base.metadata.create_all(engine)
     inituser()
 
