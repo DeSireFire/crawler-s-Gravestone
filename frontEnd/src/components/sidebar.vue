@@ -163,8 +163,8 @@ const items = [
     permiss: '6',
     subs: [
       {
-        index: '/docs_editor',
-        title: '文档编辑',
+        index: '/docs_adder',
+        title: '文档新建',
         permiss: '61',
 
       },
@@ -180,9 +180,15 @@ const items = [
         permiss: '63',
 
       },
+      // {
+      //   index: '/docs_previwer',
+      //   title: '文档阅读',
+      //   permiss: '64',
+      //
+      // },
       {
-        index: '/docs_previwer',
-        title: '文档阅读',
+        index: '/docs_editor',
+        title: '文档编辑',
         permiss: '64',
 
       },

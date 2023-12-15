@@ -8,7 +8,9 @@
           <p>仅展示个人自己的文档列表。</p>
           <p>默认根据记录开始时间排序。</p>
         </template>
-        <el-icon><InfoFilled /></el-icon>
+        <el-icon>
+          <InfoFilled/>
+        </el-icon>
       </el-tooltip>
     </div>
     <div class="handle-box">
@@ -19,6 +21,7 @@
       </el-input>
       <el-button type="primary" :icon="Search" @click="filterVisible = true;">高级筛选</el-button>
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
+      <el-button type="primary" :icon="Refresh" @click="$router.push({path: '/docs_adder'})">文档新建</el-button>
     </div>
     <el-scrollbar>
       <el-table
@@ -34,7 +37,15 @@
         <el-table-column prop="id" label="编号" width="55" align="center"></el-table-column>
         <el-table-column label="文章标题" :show-overflow-tooltip="true">
           <template #default="scope">
-            {{ scope.row.title }}
+            <router-link :to="
+                { path: '/docs_previwer', query: {
+                 title: scope.row.title,
+                 author: scope.row.author,
+                 doc_id: scope.row.doc_id,
+                 back: route.path,
+                }}">
+              <h3> {{ scope.row.title }}</h3>
+            </router-link>
           </template>
         </el-table-column>
         <el-table-column prop="desc" width="200" label="文章描述" :show-overflow-tooltip="true"></el-table-column>
@@ -44,7 +55,7 @@
         <el-table-column prop="status" width="100" label="阅读权限" align="center">
           <template #default="scope">
             <el-tag type='success'>
-              {{scope.row.reading_permissions}}
+              {{ scope.row.reading_permissions }}
             </el-tag>
           </template>
         </el-table-column>
@@ -56,8 +67,22 @@
                          sortable :sort-method="sortTime('update_time')">
           <template #default="{ row }">{{ formatDate(row.update_time) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="300" align="center" fixed="right">
+        <el-table-column label="操作" width="400" align="center" fixed="right">
           <template #default="scope">
+            <el-button text :icon="FullScreen" v-permiss="16"
+                       @click="$router.push({
+             path: '/docs_previwer',
+             query: {
+               title: scope.row.title,
+               author: scope.row.author,
+               doc_id: scope.row.doc_id,
+               back: route.path,
+             }
+             })"
+            >
+              阅读
+            </el-button>
+
             <el-button text :icon="Edit"
                        @click="$router.push({
              path: '/docs_editor',
@@ -72,7 +97,7 @@
               编辑
             </el-button>
 
-            <el-button text :icon="Plus" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
+            <el-button text :icon="Plus" v-permiss="16">
               权限
             </el-button>
 
@@ -154,12 +179,13 @@
 </template>
 
 <script setup lang="ts" name="docs_list">
-import { ref, reactive, computed, nextTick } from 'vue';
-import { useRoute } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import {ref, reactive, computed, nextTick} from 'vue';
+import {useRoute} from 'vue-router';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import {getMydocs} from "~/api/docs";
 import {delJobs} from '~/api/projects';
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
+
 interface TableItem {
   "title": string,
   "id": number,
@@ -172,11 +198,12 @@ interface TableItem {
   "update_time": string,
   "create_time": string,
 }
+
 const name = localStorage.getItem('ms_username');
 // 获取路由对象
 const route = useRoute();
 const query = reactive({
-  status:'',
+  status: '',
   filterKey: '',
   filterValue: '',
   keyword: '',
@@ -194,7 +221,7 @@ const table_loading = ref(true);
 
 // 初始化query数据
 const clearQuery = () => {
-  query.status=''
+  query.status = ''
   query.filterKey = ''
   query.filterValue = ''
   query.keyword = ''
@@ -209,26 +236,26 @@ const handleFlush = async (init = true) => {
   }
 
   // 获取数据
-  const res = (await getMydocs({"author":name}))
+  const res = (await getMydocs({"author": name}))
 
   if (res.data.pageTotal == 0) {
     ElMessage.warning(`未查询到任务实例！`);
   }
   // 是否初始化
   if (init && res.data.pageTotal !== 0) {
-    let step:number = 0;
+    let step: number = 0;
     if (query.pageSize && query.pageIndex) {
-      step = (query.pageIndex-1) * query.pageSize
+      step = (query.pageIndex - 1) * query.pageSize
     }
     // 载入数据
-    tableRawData.value = res.data.list.slice(step, step+query.pageSize);
+    tableRawData.value = res.data.list.slice(step, step + query.pageSize);
     if (tableRawData.value) {
       tableResData.value = tableRawData.value
     }
     pageTotal.value = res.data.pageTotal || 1;
 
     // 清空筛选器
-    query.status=''
+    query.status = ''
     query.filterKey = ''
     query.filterValue = ''
     query.keyword = ''
@@ -246,7 +273,7 @@ let jobsList: { list: TableItem[] };
 // 表格数据处理
 const handleTableDataResult = async () => {
   // 初始化中间变量
-  let temp:TableItem[] = [];
+  let temp: TableItem[] = [];
   //启动加载状态
   table_loading.value = true;
 
@@ -328,7 +355,7 @@ const columnOptions = computed(() => {
       // 检查是否存在于映射中
       if (columnMapping[columnName as keyof typeof columnMapping]) {
         const variableName = columnMapping[columnName as keyof typeof columnMapping];
-        options.push({ label: columnName, value: variableName });
+        options.push({label: columnName, value: variableName});
       }
     }
   }
@@ -343,10 +370,10 @@ const handleFilter = (temp: TableItem[] = []) => {
   }
 
   let temp_fk = ""
-  let temp_fv:any = ""
+  let temp_fv: any = ""
 
-  console.log("query.filterKey",query.filterKey)
-  console.log("query.filterValue",query.filterValue)
+  console.log("query.filterKey", query.filterKey)
+  console.log("query.filterValue", query.filterValue)
   // 检查 query.filterKey 是否存在于 TableItem 的键名列表中
   const validKeys: (keyof TableItem)[] = Object.keys(temp[0]) as (keyof TableItem)[];
   if (!validKeys.includes(query.filterKey as keyof TableItem)) {
@@ -376,7 +403,7 @@ const handleFilter = (temp: TableItem[] = []) => {
 // 关键词搜索
 let keyword: string = '';
 // 处理搜索逻辑
-const handleSearch = (temp:TableItem[]=[]) => {
+const handleSearch = (temp: TableItem[] = []) => {
   if (!temp.length) {
     // 从localStorage中获取缓存数据
     jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
@@ -429,7 +456,7 @@ const customSortMethod = (propName: string) => {
 };
 
 // 排序处理
-const handleSortChange = ({ column, prop, order }: any) => {
+const handleSortChange = ({column, prop, order}: any) => {
   sortKey.value = prop;
   sortOrder.value = order;
   // console.log("column",column)
@@ -512,6 +539,7 @@ const filterEdit = async () => {
 .input-with-select .el-input-group__prepend {
   background-color: var(--el-fill-color-blank);
 }
+
 .handle-box {
   margin-bottom: 20px;
 }
@@ -523,22 +551,27 @@ const filterEdit = async () => {
 .handle-input {
   width: 300px;
 }
+
 .table {
   width: 100%;
   font-size: 12px;
 }
+
 .red {
   color: #F56C6C;
 }
+
 .mr10 {
   margin-right: 10px;
 }
+
 .table-td-thumb {
   display: block;
   margin: auto;
   width: 40px;
   height: 40px;
 }
+
 .log-num span {
   font-size: 20px;
   font-weight: bold;

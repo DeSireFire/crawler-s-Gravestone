@@ -34,3 +34,13 @@ export const getMydocs = (params: any) => {
         params,
     });
 };
+
+// 阅读指定文档
+export const getDoc = (params: any) => {
+    return handleGet({
+        url: API.DOCS.GETDOC,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+        params,
+    });
+};

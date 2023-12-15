@@ -175,6 +175,15 @@ const routes: RouteRecordRaw[] = [
                 component: () => import(/* webpackChunkName: "permission" */ '../views/dashboard/system_dashboard.vue'),
             },
             {
+                path: '/docs_adder',
+                name: 'docs_adder',
+                meta: {
+                    title: '知识星球_文档新建',
+                    permiss: '6',
+                },
+                component: () => import(/* webpackChunkName: "permission" */ '../views/docs/docs_adder.vue'),
+            },
+            {
                 path: '/docs_editor',
                 name: 'docs_editor',
                 meta: {

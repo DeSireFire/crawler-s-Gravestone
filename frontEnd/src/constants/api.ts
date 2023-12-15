@@ -100,6 +100,7 @@ export enum DOCS {
   UPDATEDOCINFO = "/update_doc_info",
   GETSHAPE = "/get_shape",
   GETMYDOCS = "/get_my_docs",
+  GETDOC = "/get_doc",
   DELMYDOCS = "/del_my_docs",
 }
 
