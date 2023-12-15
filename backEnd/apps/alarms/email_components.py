@@ -43,7 +43,8 @@ class EmailSender:
 if __name__ == "__main__":
     sender_email = ''
     sender_password = ''
-    receivers = ['1025212779@qq.com', 'xx@q.com']
+    # receivers = ['1025212779@qq.com', 'zio_one@biuloli.tk']
+    receivers = ['1025212779@qq.com']
     subject = 'SMTP 邮件测试'
     message_content = '欧耶！邮件发送成功'
 

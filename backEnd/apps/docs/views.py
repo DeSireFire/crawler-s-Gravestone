@@ -51,6 +51,26 @@ async def get_my_docs(request: Request, author: str = Query(None)):
     return callbackJson.callBacker(content)
 
 
+@route.get("/get_doc", summary="获取指定阅读文档")
+async def get_doc(request: Request, doc_id: str = Query(None)):
+    """
+    获取指定阅读文档
+    :return:
+    """
+    data = dict(request.query_params)
+    doc_id = data.get("doc_id")     # 用于文章的查询
+    reader = data.get("reader")     # 用于权限检查
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    doc_items = get_query_docs(Docs, **{"doc_id": doc_id}) or []
+    doc_item = doc_items[0] if len(doc_items) >= 1 else None
+    # todo 阅读者的权限检查
+    content = {}
+    # 转换为业务响应数据
+    content["doc"] = doc_item
+    return callbackJson.callBacker(content)
+
+
 @route.get("/get_shape", summary="获取共享文章列表")
 async def get_shape(request: Request):
     """
