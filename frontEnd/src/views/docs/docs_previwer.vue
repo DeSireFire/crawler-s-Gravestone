@@ -52,7 +52,6 @@ const doc = reactive({
 const route = useRoute();
 const router = useRouter();
 const doc_id = ref(route.query.doc_id||'');
-console.log("doc_id first", doc_id)
 const handleDocsInfo = () => {
   // (a === null || a !== b)
   const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);

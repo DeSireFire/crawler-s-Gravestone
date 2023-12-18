@@ -19,9 +19,9 @@
           <el-button :icon="Search" @click="filterEdit()"/>
         </template>
       </el-input>
-      <el-button type="primary" :icon="Search" @click="filterVisible = true;">高级筛选</el-button>
+<!--      <el-button type="primary" :icon="Search" @click="filterVisible = true;">高级筛选</el-button>-->
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
-      <el-button type="primary" :icon="Refresh" @click="$router.push({path: '/docs_adder'})">文档新建</el-button>
+      <el-button type="primary" :icon="Edit" @click="$router.push({path: '/docs_adder'})">文档新建</el-button>
     </div>
     <el-scrollbar>
       <el-table

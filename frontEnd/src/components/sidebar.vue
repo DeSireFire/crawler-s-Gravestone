@@ -186,12 +186,12 @@ const items = [
       //   permiss: '64',
       //
       // },
-      {
-        index: '/docs_editor',
-        title: '文档编辑',
-        permiss: '64',
-
-      },
+      // {
+      //   index: '/docs_editor',
+      //   title: '文档编辑',
+      //   permiss: '64',
+      //
+      // },
     ],
   },
   {

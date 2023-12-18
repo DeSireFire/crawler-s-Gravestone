@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="plugins-tips">
-      <b>知识星球-文档编辑</b>
+      <b>知识星球-文档新建</b>
     </div>
     <div class="container">
       <MdPreview :editorId="mdId" :modelValue="valueHtml" />
