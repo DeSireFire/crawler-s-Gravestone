@@ -26,6 +26,7 @@ if __name__ == '__main__':
                             "cron", hour="23", minute="30")
     # 最后更新时间超时任务的状态处理
     task_scheduler.add_task("clean_status_for_all_old_jobs", clean_status_for_all_old_jobs, "cron", hour=0, minute=0)
+
     # 定时将日志缓存，保存到日志文本
     task_scheduler.add_task("update_logs_file", update_logs_file,
                             "cron", hour="0-23", minute=",".join([str(x) for x in range(0, 60, 3)]))

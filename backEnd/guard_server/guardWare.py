@@ -150,6 +150,8 @@ def update_logs_file():
         log_directory = os.path.dirname(log_file_path)
         if not os.path.exists(log_directory):
             os.makedirs(log_directory)
+        else:
+            logger.info(f"目录已存在:{log_directory}")
 
         # 通过redis的key名称，弹出列表中的数据
         # log_records = batch_pop_from_redis_list(rk, 10) or [] # 调试时，但是后进后出
@@ -159,12 +161,14 @@ def update_logs_file():
         if log_records:
             # 总日志
             if not log_level:
+                logger.info(f"任务:{jid} 日志写入 {log_file_path}..")
                 with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
                     main_log.write('\n'.join(log_records) + '\n')
 
             # 等级分流日志
             if log_level:
                 sub_path = rename_log_file(log_file_path, log_level)
+                logger.info(f"任务:{jid} 日志写入 {sub_path}..")
                 with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
                     sub_log.write('\n'.join(log_records) + '\n')
 
@@ -272,9 +276,9 @@ def update_logging(rkey: str = "crawl_monitor:RawLogList"):
 
                 asyncio.run(
                     alarm_handler.handle_alarm(
-                        wid, f'{model_data["name"]}_有关告警信息',
-                        f"该任务接收到了一次报错日志！内容如下:"
-                        f"{log_data['msg']}"
+                        wid,
+                        f'任务名称: {job_info["name"]}\n',
+                        f'告警信息: {log_data["msg"]}\n',
                     ))
                 callback = False
 

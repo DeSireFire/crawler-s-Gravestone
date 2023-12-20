@@ -103,7 +103,7 @@ def batch_pop_from_redis_list_fifo(list_name, batch_size: int = -1):
     item = None
     try:
         items = rdb.server.rpop(name=list_name, count=batch_size) or []
-        if item is None:
+        if not items:
             return None
         data_to_pop += items
     except redis.exceptions.ResponseError as rere:
