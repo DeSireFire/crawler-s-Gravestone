@@ -97,19 +97,19 @@ const items = [
   },
   {
     icon: 'Grid',
-    index: '6',
+    index: '3',
     title: '程序管理',
-    permiss: '6',
+    permiss: '3',
     subs: [
       {
         index: '/program_register',
         title: '程序登记',
-        permiss: '61',
+        permiss: '31',
       },
       // {
       //   index: '/program_list',
       //   title: '程序列表',
-      //   permiss: '62',
+      //   permiss: '32',
       // },
     ],
   },
