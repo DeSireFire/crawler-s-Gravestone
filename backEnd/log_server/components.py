@@ -144,83 +144,83 @@ def count_logs_by_level(log_data_list):
     return log_count_by_token
 
 
-def log_to_save(redis_log_key, log_file_path, log_level):
-    """
-    从redis获取日志数据，保存到log文件
-    :param redis_log_key: str,从redis缓存中要读取的
-    :param log_file_path: str,日志要保存的路径
-    :param log_level: str，日志等级
-    :return:
-    """
-    # 创建目录
-    log_directory = os.path.dirname(log_file_path)
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
-
-    # 读取redis
-    # elements_to_pop = rdb.server.rpop(redis_log_key)
-    # 使用 llen 命令获取列表长度
-    list_length = rdb.server.llen(redis_log_key)
-    pop_step = -5
-    # 存储速度跟不上时动态提高日志内容弹出量
-    if list_length > 5:
-        # pop_step = (list_length//2 + 1) * -1
-        pop_step = list_length * -1
-
-    # 使用 LRANGE 获取列表中的多个元素（例如，从右端弹出前5个元素）
-    elements_to_pop = rdb.server.lrange(redis_log_key, pop_step, -1)
-    # 一次性删除多个元素
-    rdb.server.ltrim(redis_log_key, 0, -len(elements_to_pop) - 1)
-
-    sub_rkey = f"{redis_log_key}:{log_level}"
-    sub_list_length = rdb.server.llen(sub_rkey)
-    sub_pop_step = -5
-    # 存储速度跟不上时动态提高日志内容弹出量
-    if sub_list_length > 5:
-        # sub_pop_step = (sub_list_length//2 - 1) * -1
-        sub_pop_step = sub_list_length * -1
-    sub_elements_to_pop = rdb.server.lrange(sub_rkey, sub_pop_step, -1)
-    # 一次性删除多个元素
-    rdb.server.ltrim(redis_log_key, 0, -len(sub_elements_to_pop) - 1)
-
-    # 总日志
-    if elements_to_pop:
-        with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
-            elements_to_pop = [f"{i}\n" for i in elements_to_pop]
-            main_log.writelines(elements_to_pop)
-
-    # 等级分流日志
-    if sub_elements_to_pop:
-        sub_path = rename_log_file(log_file_path, log_level)
-        with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
-            sub_elements_to_pop = [f"{i}\n" for i in sub_elements_to_pop]
-            sub_log.writelines(sub_elements_to_pop)
-
-def log_file_save(log_details, log_file_path, log_level):
-    """
-    日志文本文件保存
-    :param log_details: dict,从redis缓存中要读取的
-    :param log_file_path: str,日志要保存的路径
-    :param log_level: str，日志等级
-    :return:
-    """
-    log_record = log_details.get("log_record")
-    log_record = f'{log_details.get("log_record")}\n' if log_record else None
-
-    # 创建目录
-    log_directory = os.path.dirname(log_file_path)
-    if not os.path.exists(log_directory):
-        os.makedirs(log_directory)
-
-    if log_record:
-        # 总日志
-        with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
-            main_log.write(log_record)
-
-        # 等级分流日志
-            sub_path = rename_log_file(log_file_path, log_level)
-            with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
-                sub_log.writelines(log_record)
+# def log_to_save(redis_log_key, log_file_path, log_level):
+#     """
+#     从redis获取日志数据，保存到log文件
+#     :param redis_log_key: str,从redis缓存中要读取的
+#     :param log_file_path: str,日志要保存的路径
+#     :param log_level: str，日志等级
+#     :return:
+#     """
+#     # 创建目录
+#     log_directory = os.path.dirname(log_file_path)
+#     if not os.path.exists(log_directory):
+#         os.makedirs(log_directory)
+#
+#     # 读取redis
+#     # elements_to_pop = rdb.server.rpop(redis_log_key)
+#     # 使用 llen 命令获取列表长度
+#     list_length = rdb.server.llen(redis_log_key)
+#     pop_step = -5
+#     # 存储速度跟不上时动态提高日志内容弹出量
+#     if list_length > 5:
+#         # pop_step = (list_length//2 + 1) * -1
+#         pop_step = list_length * -1
+#
+#     # 使用 LRANGE 获取列表中的多个元素（例如，从右端弹出前5个元素）
+#     elements_to_pop = rdb.server.lrange(redis_log_key, pop_step, -1)
+#     # 一次性删除多个元素
+#     rdb.server.ltrim(redis_log_key, 0, -len(elements_to_pop) - 1)
+#
+#     sub_rkey = f"{redis_log_key}:{log_level}"
+#     sub_list_length = rdb.server.llen(sub_rkey)
+#     sub_pop_step = -5
+#     # 存储速度跟不上时动态提高日志内容弹出量
+#     if sub_list_length > 5:
+#         # sub_pop_step = (sub_list_length//2 - 1) * -1
+#         sub_pop_step = sub_list_length * -1
+#     sub_elements_to_pop = rdb.server.lrange(sub_rkey, sub_pop_step, -1)
+#     # 一次性删除多个元素
+#     rdb.server.ltrim(redis_log_key, 0, -len(sub_elements_to_pop) - 1)
+#
+#     # 总日志
+#     if elements_to_pop:
+#         with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
+#             elements_to_pop = [f"{i}\n" for i in elements_to_pop]
+#             main_log.writelines(elements_to_pop)
+#
+#     # 等级分流日志
+#     if sub_elements_to_pop:
+#         sub_path = rename_log_file(log_file_path, log_level)
+#         with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
+#             sub_elements_to_pop = [f"{i}\n" for i in sub_elements_to_pop]
+#             sub_log.writelines(sub_elements_to_pop)
+#
+# def log_file_save(log_details, log_file_path, log_level):
+#     """
+#     日志文本文件保存
+#     :param log_details: dict,从redis缓存中要读取的
+#     :param log_file_path: str,日志要保存的路径
+#     :param log_level: str，日志等级
+#     :return:
+#     """
+#     log_record = log_details.get("log_record")
+#     log_record = f'{log_details.get("log_record")}\n' if log_record else None
+#
+#     # 创建目录
+#     log_directory = os.path.dirname(log_file_path)
+#     if not os.path.exists(log_directory):
+#         os.makedirs(log_directory)
+#
+#     if log_record:
+#         # 总日志
+#         with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
+#             main_log.write(log_record)
+#
+#         # 等级分流日志
+#             sub_path = rename_log_file(log_file_path, log_level)
+#             with open(sub_path, "a+", encoding="utf-8", ) as sub_log:
+#                 sub_log.writelines(log_record)
 
 
 def rename_log_file(log_file_path, log_level):

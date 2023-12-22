@@ -26,7 +26,8 @@ from server_core.conf import redisconf, logger
 from apps.alarms.alarmers_components import AlarmHandler
 from apps.projects import get_fetch_one, get_query_all, update_data
 from apps.projects.models import ProjectInfos, WorkerInfos, JobInfos
-from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
+# from log_server.components import create_log_message, count_logs_by_level, log_to_save, log_file_save
+from log_server.components import create_log_message, count_logs_by_level
 
 
 # 将数据表的id数字夯实，减少断续id

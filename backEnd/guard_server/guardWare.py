@@ -165,9 +165,10 @@ def update_logs_file():
 
         if log_records:
             # 总日志
-            logger.info(f"任务:{jid} 日志写入 {log_file_path}..")
-            with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
-                main_log.write('\n'.join(log_records) + '\n')
+            if not log_level:
+                logger.info(f"任务:{jid} 日志写入 {log_file_path}..")
+                with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
+                    main_log.write('\n'.join(log_records) + '\n')
 
             # 等级分流日志
             if log_level:

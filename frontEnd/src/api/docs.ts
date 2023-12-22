@@ -55,3 +55,12 @@ export const delDoc = (params: any) => {
         params: params,
     });
 };
+
+// 获取用户名列表
+export const get_users = () => {
+    return handleGet({
+        url: API.DOCS.GETUSERNAME,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+    });
+};

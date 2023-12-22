@@ -103,6 +103,7 @@ export enum DOCS {
   GETMYDOCS = "/get_my_docs",
   GETDOC = "/get_doc",
   DELMYDOCS = "/del_my_docs",
+  GETUSERNAME = "/get_user_name",
 }
 
 // api 输出

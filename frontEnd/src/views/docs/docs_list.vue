@@ -97,7 +97,7 @@
               编辑
             </el-button>
 
-            <el-button text :icon="Plus" v-permiss="16">
+            <el-button text :icon="Plus" @click="permissVisible = true;" v-permiss="16">
               权限
             </el-button>
 
@@ -175,6 +175,40 @@
 				</span>
       </template>
     </el-dialog>
+    <el-dialog title="阅读权限" v-model="permissVisible" width="32%">
+      <el-form-item label="选择开关:" prop="delivery">
+        <el-switch
+            v-model="isPublic"
+            inline-prompt
+            active-text="公开分享"
+            inactive-text="部分可见"
+        />
+      </el-form-item>
+      <div style="text-align: center">
+        <el-transfer
+            v-model="resDataList"
+            filterable
+            :titles="['不可阅读', '可阅读']"
+            :filter-method="filterMethod"
+            filter-placeholder="检索分享对象..."
+            :data="rawDataList"
+            :disabled="isPublic"
+        >
+          <template #default="{ option }">
+            <!-- 使用 scoped slot 自定义数据项的显示 -->
+            <span>{{option.key}} - {{ option.label }}</span>
+          </template>
+        </el-transfer>
+      </div>
+      <template #footer>
+				<span class="dialog-footer">
+          <el-button @click="">重 置</el-button>
+					<el-button @click="permissVisible = false">取 消</el-button>
+					<el-button type="primary" @click="">确 定</el-button>
+				</span>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -182,7 +216,7 @@
 import {ref, reactive, computed, nextTick} from 'vue';
 import {useRoute} from 'vue-router';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {getMydocs, delDoc} from "~/api/docs";
+import {getMydocs, delDoc, get_users} from "~/api/docs";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 
 interface TableItem {
@@ -519,12 +553,30 @@ const handleDelete = (index: number, row: any) => {
       });
 };
 
-// 高级搜索 弹窗
-const filterVisible = ref(false);
-const filterEdit = async () => {
-  handleTableDataResult();
-  filterVisible.value = false;
+// 权限编辑 弹窗
+const permissVisible = ref(false);
+const isPublic = ref(true)
+const permiseEdit = async () => {
+  // handleTableDataResult();
+  permissVisible.value = false;
 };
+
+// 列表数据元素的定义
+interface Option {
+  key: number
+  label: string
+  // disabled: boolean
+}
+// 列表数据
+const transferDataList = [
+  { key: 1, label: 'Item 1' },
+  { key: 2, label: 'Item 2' },
+  { key: 3, label: 'Item 3' },
+];
+// 待选择列表
+const rawDataList = ref<Option[]>(transferDataList)
+// 已选择列表
+const resDataList = ref([])
 
 </script>
 
