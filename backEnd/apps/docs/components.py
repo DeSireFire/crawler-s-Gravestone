@@ -9,6 +9,7 @@ __author__ = 'RaXianch'
 
 import uuid
 from datetime import datetime
+from server_core.log import logger
 from apps.users.models import Users
 from server_core.db import engine, Newsession
 from sqlalchemy.orm.exc import NoResultFound
@@ -127,3 +128,24 @@ def achmey_to_dict(achmey_obj):
         return temp
     else:
         return
+
+# 删除数据
+def del_data_one(model, **kwargs):
+    """
+    删除某条数据
+    :param model: 需要进行删除操作的数据表
+    :param kwargs: dict, 单条需要删除的数据
+    :return:
+    """
+    session = Newsession()
+    try:
+        fetch_one = session.query(model).filter_by(**kwargs).first()
+        session.delete(fetch_one)
+        session.commit()
+        return True
+    except Exception as e:
+        session.rollback()
+        logger.error(f"{del_data_one.__name__} 发生错误：{e}")
+        return False
+    finally:
+        session.close()

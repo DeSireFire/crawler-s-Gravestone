@@ -143,8 +143,13 @@ def update_logs_file():
             continue
 
         # 通过sqlalchemy获取mysql上指定jid相符的数据，返回值是一个字典
-        job_data = get_job_by_jid(jid=jid)
-        log_file_path = job_data["log_file_path"]
+        job_data = get_job_by_jid(jid=jid) or {}
+        log_file_path = job_data.get("log_file_path", None)
+        if not job_data:
+            # todo jid为空的情况。
+            print(job_data)
+            logger.error(f"{jid} 未能查询到有关的任务信息。")
+            return ""
 
         # 创建目录or目录检查
         log_directory = os.path.dirname(log_file_path)
@@ -160,10 +165,9 @@ def update_logs_file():
 
         if log_records:
             # 总日志
-            if not log_level:
-                logger.info(f"任务:{jid} 日志写入 {log_file_path}..")
-                with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
-                    main_log.write('\n'.join(log_records) + '\n')
+            logger.info(f"任务:{jid} 日志写入 {log_file_path}..")
+            with open(log_file_path, "a+", encoding="utf-8", ) as main_log:
+                main_log.write('\n'.join(log_records) + '\n')
 
             # 等级分流日志
             if log_level:

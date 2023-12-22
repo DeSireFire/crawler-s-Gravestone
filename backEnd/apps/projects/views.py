@@ -16,6 +16,7 @@ from pprint import pprint
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from starlette.responses import FileResponse
+from server_core.db import engine, Newsession
 from log_server.components import rename_log_file
 from server_core.control import constructResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -374,7 +375,7 @@ async def get_log(request: Request,
         log_file_path = rename_log_file(log_file_path, lv)
     log_content = ""
     try:
-        if not log_file_path:
+        if not log_file_path or not os.path.exists(log_file_path):
             raise FileNotFoundError
 
         # with open(log_file_path, encoding="utf-8") as f:
@@ -561,6 +562,31 @@ async def get_ptasks(request: Request, pid: str = Query(None)):
     # 转换为业务响应数据
     return callbackJson.callBacker(content)
 
+# 修改任务状态为结束
+@route.get("/update_status_to_finshed", summary="强制修改指定任务状态为结束")
+async def update_status_to_finshed(request: Request, jid: str = Query(None)):
+    """
+    强制修改指定任务状态为结束
+    :param request:
+    :return:
+    """
+    callbackJson = constructResponse()
+    callbackJson.statusCode = 200
+    _data = dict(request.query_params)
+    callbackJson.url = request.url
+    content = {}
+    session = Newsession()
+    # 查询是否已存在相同的 doc_id
+    doc_item = session.query(JobInfos).filter(JobInfos.jid == jid).first() or None
+    if doc_item:
+        doc_item.status = 2
+        session.commit()
+        callbackJson.message = '修改成功！'
+    else:
+        callbackJson.statusCode = 404
+        callbackJson.message = '操作失败！'
+
+    return callbackJson.callBacker(content)
 
 def random_int_list(start, stop, length):
     import random
