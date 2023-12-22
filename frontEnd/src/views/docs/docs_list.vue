@@ -182,8 +182,7 @@
 import {ref, reactive, computed, nextTick} from 'vue';
 import {useRoute} from 'vue-router';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {getMydocs} from "~/api/docs";
-import {delJobs} from '~/api/projects';
+import {getMydocs, delDoc} from "~/api/docs";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 
 interface TableItem {
@@ -261,7 +260,7 @@ const handleFlush = async (init = true) => {
     query.keyword = ''
   }
   // 缓存数据
-  localStorage.setItem('jobs_list', JSON.stringify(res.data));
+  localStorage.setItem('docs_list', JSON.stringify(res.data));
   table_loading.value = false;
 };
 // 打开页面就刷新
@@ -279,12 +278,12 @@ const handleTableDataResult = async () => {
 
   // 数据来源：后台获取、缓存读取
   // 从localStorage中获取缓存数据
-  jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
+  jobsList = JSON.parse(localStorage.getItem('docs_list') as string);
 
   // 如果缓存数据不存在，运行handleFlush函数并重新获取
   if (!jobsList) {
     handleFlush();
-    jobsList = JSON.parse(localStorage.getItem('jobs_list') as string);
+    jobsList = JSON.parse(localStorage.getItem('docs_list') as string);
   }
   temp = jobsList.list;
 
@@ -483,9 +482,8 @@ const formatDate = (time: string) => {
 
 // 删除操作
 let delform = reactive({
-  pid: '',
-  wid: '',
-  jid: '',
+  doc_id: '',
+  author: '',
 });
 const handleDelete = (index: number, row: any) => {
   // 二次确认删除
@@ -494,21 +492,16 @@ const handleDelete = (index: number, row: any) => {
   })
       .then(async () => { /* 处理正常时 */
         // 获取当前表行数据
-        delform.wid = row.wid;
-        delform.pid = row.pid;
-        delform.jid = row.jid;
+        delform.doc_id = row.doc_id;
+        delform.author = row.author;
+        console.log(row.doc_id)
         // 向后端发起删除操作
-        const response = (await delJobs(delform));
+        const response = (await delDoc(delform));
         if (response.isSuccess) {
           // 刷新缓存数据
           const sub_flush = (await getMydocs({}))
           console.log("sub_flush", sub_flush)
-          localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
-
-          // // todo 旧版bug待修复
-          // let temp = tableResData.value.splice(index, 1)[0];
-          // tableResData.value = sub_flush.data.list
-          // pageTotal.value -= 1
+          localStorage.setItem('docs_list', JSON.stringify(sub_flush.data));
 
           // todo 根据刷新的数据处理筛选条件
           handleTableDataResult();

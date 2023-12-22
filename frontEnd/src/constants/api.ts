@@ -59,6 +59,7 @@ export enum PROJECTS {
   DOWNLOADLOG = "/download_log",
 
   GETPTASKS = "/get_ptasks",
+  UPDATESTATUSFINISHED = "/update_status_to_finshed",
 }
 
 // 告警管理

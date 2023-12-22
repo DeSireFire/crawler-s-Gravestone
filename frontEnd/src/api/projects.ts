@@ -127,6 +127,16 @@ export const getJobs = (params: any) => {
     });
 };
 
+// 获取任务实例列表(带参数)
+export const updateStatusFinished = (params: any) => {
+    return handleGet({
+        url: API.PROJECTS.UPDATESTATUSFINISHED,
+        method: REQUEST_METHOD.GET,
+        headers: {},
+        params,
+    });
+};
+
 // 删除工作流
 export const delJobs = (DelData:job) => {
     return handleDelete({

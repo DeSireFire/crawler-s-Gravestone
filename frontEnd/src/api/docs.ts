@@ -1,6 +1,7 @@
 import { API } from "~/constants/api";
 import {CONTENT_TYPE, REQUEST_HEADER, REQUEST_METHOD} from "~/constants/request";
 import useHttp from "~/utils/request";
+import {alarm_jobs} from "~/api/types/alarms";
 const { handleGet,handleDelete, http, handlePost } = useHttp();
 
 // 创建文章
@@ -42,5 +43,15 @@ export const getDoc = (params: any) => {
         method: REQUEST_METHOD.GET,
         headers: {},
         params,
+    });
+};
+
+// 删除指定文档
+export const delDoc = (params: any) => {
+    return handleDelete({
+        url: API.DOCS.DELMYDOCS,
+        method: REQUEST_METHOD.DELETE,
+        headers: {},
+        params: params,
     });
 };

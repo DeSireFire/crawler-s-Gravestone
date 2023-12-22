@@ -99,7 +99,7 @@
                          sortable :sort-method="sortTime('end_time')">
           <template #default="{ row }">{{ formatDate(row.end_time) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="300" align="center" fixed="right">
+        <el-table-column label="操作" width="350" align="center" fixed="right">
           <template #default="scope">
             <el-button text :icon="Edit"
                        @click="$router.push({
@@ -115,7 +115,9 @@
                        v-permiss="15">
               日志
             </el-button>
-
+            <el-button text :icon="Finished" @click="handleStatus(scope.$index, scope.row)" v-permiss="16">
+              更为结束
+            </el-button>
             <el-button text :icon="Delete" class="red" @click="handleDelete(scope.$index, scope.row)" v-permiss="16">
               删除
             </el-button>
@@ -197,8 +199,8 @@
 import { ref, reactive, computed, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import {getJobs, delJobs, getLogContent, getProjectsNames, addProjects} from '~/api/projects';
-import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
+import {getJobs, delJobs, getLogContent, getProjectsNames, addProjects, updateStatusFinished} from '~/api/projects';
+import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh, Finished} from '@element-plus/icons-vue';
 
 interface TableItem {
   id: string;
@@ -360,7 +362,7 @@ const statusMapping = {
 const columnMapping = {
   // 'id': '编号',
   // 'name': '实例名称',
-  'status': '状态',
+  // 'status': '状态',
   'p_nickname': '所属项目',
   // 'w_nickname': '工作流',
   // 'log_lv_error': '错误',
@@ -582,6 +584,31 @@ const filterEdit = async () => {
   handleTableDataResult();
   filterVisible.value = false;
 };
+
+// 强制更改状态为结束
+let statusform = reactive({
+  jid: '',
+});
+const handleStatus = async (index: number, row: any) => {
+  statusform.jid = row.jid;
+  // 向后端发起操作
+  const response = (await updateStatusFinished(statusform));
+  if (response.isSuccess) {
+    // 刷新缓存数据
+    const sub_flush = (await getJobs({}))
+    console.log("sub_flush", sub_flush)
+    localStorage.setItem('jobs_list', JSON.stringify(sub_flush.data));
+
+    // todo 根据刷新的数据处理筛选条件
+    handleTableDataResult();
+
+    // 响应删除成功则弹出提示
+    ElMessage.success('强制更改任务状态完成！');
+  };
+};
+
+// 权限操作
+// const handlePer
 
 </script>
 
