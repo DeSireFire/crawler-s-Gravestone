@@ -104,6 +104,7 @@ export enum DOCS {
   GETDOC = "/get_doc",
   DELMYDOCS = "/del_my_docs",
   GETUSERNAME = "/get_user_name",
+  SAVEUIDDOCPERMISSIONS = "/save_uid_doc_permissions",
 }
 
 // api 输出

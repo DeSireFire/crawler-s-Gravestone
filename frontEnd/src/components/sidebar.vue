@@ -195,6 +195,12 @@ const items = [
     ],
   },
   {
+    icon: 'MagicStick',
+    index: '/navigation_icon',
+    title: '平台导航',
+    permiss: '7',
+  },
+  {
     icon: 'Collection',
     index: '9',
     title: '帮助',

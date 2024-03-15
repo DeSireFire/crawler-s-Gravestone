@@ -219,6 +219,24 @@ const routes: RouteRecordRaw[] = [
                 },
                 component: () => import(/* webpackChunkName: "permission" */ '../views/docs/docs_shape.vue'),
             },
+            {
+                path: '/navigation_icon',
+                name: 'navigation_icon',
+                meta: {
+                    title: '平台导航',
+                    permiss: '7',
+                },
+                component: () => import(/* webpackChunkName: "403" */ '../views/other/navigation_icon.vue'),
+            },
+            {
+                path: '/demo',
+                name: 'demo',
+                meta: {
+                    title: '测试页面',
+                },
+                component: () => import(/* webpackChunkName: "403" */ '../views/old/demo.vue'),
+            },
+
         ],
     },
     {
@@ -245,7 +263,6 @@ const routes: RouteRecordRaw[] = [
         },
         component: () => import(/* webpackChunkName: "403" */ '../views/base/404.vue'),
     },
-
     // 开发留档的demo测试页面
     {
         path: '/',

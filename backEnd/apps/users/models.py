@@ -56,6 +56,7 @@ class Users(db_Base, Basejson):
     def to_dict(self):
         return {c.name: getattr(self, c.name, None) for c in self.__table__.columns}
 
+
 class UserInDB(BaseModel):
     """ 这个模型是orm模型 """
     username: str
@@ -167,3 +168,4 @@ def del_user_info(data):
         session.rollback()
         logger.error(e)
         return False
+
