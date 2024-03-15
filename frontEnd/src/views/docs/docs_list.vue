@@ -19,7 +19,6 @@
           <el-button :icon="Search" @click="filterEdit()"/>
         </template>
       </el-input>
-<!--      <el-button type="primary" :icon="Search" @click="filterVisible = true;">高级筛选</el-button>-->
       <el-button type="primary" :icon="Refresh" @click="handleFlush()">刷新列表</el-button>
       <el-button type="primary" :icon="Edit" @click="$router.push({path: '/docs_adder'})">文档新建</el-button>
     </div>
@@ -97,7 +96,7 @@
               编辑
             </el-button>
 
-            <el-button text :icon="Plus" @click="permissVisible = true;" v-permiss="16">
+            <el-button text :icon="Plus" @click="handleDocPermiss(scope.$index, scope.row)" v-permiss="16">
               权限
             </el-button>
 
@@ -108,7 +107,6 @@
         </el-table-column>
       </el-table>
     </el-scrollbar>
-
     <!-- 分页组件 -->
     <div class="pagination">
       <el-pagination
@@ -126,85 +124,40 @@
     </div>
 
     <!--  功能弹窗  -->
-    <el-dialog title="高级搜索" v-model="filterVisible" width="30%">
-      <el-form label-width="80px">
-        <el-form-item label="任务状态:">
-          <el-select v-model="query.status" style="width: 150px" placeholder="选择状态">
-            <el-option
-                v-for="(status_number, status_name) in statusMapping"
-                :key="status_number"
-                :label="status_name"
-                :value="status_name"
-                @click="query.status = status_name"
-            />
-            <el-option key="0" label="无" value=""></el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="列名筛选:">
-          <el-input v-model="query.filterValue"
-                    placeholder="匹配的筛选值"
-                    class="input-with-select"
-                    style="width: 400px"
-                    clearable
-          >
-            <template #prepend>
-              <el-select v-model="query.filterKey" style="width: 150px" placeholder="选择列名">
-                <el-option
-                    v-for="(option, columnName) in columnOptions"
-                    :key="columnName"
-                    :label="option.value"
-                    :value="option.label"
-                    @click="query.filterKey = option.label"
-                />
-                <el-option key="0" label="无" value=""></el-option>
-              </el-select>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item label="模糊搜索:">
-          <el-input v-model="query.keyword" style="width: 400px"></el-input>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-				<span class="dialog-footer">
-          <el-button @click="clearQuery">重 置</el-button>
-					<el-button @click="filterVisible = false">取 消</el-button>
-					<el-button type="primary" @click="filterEdit();">确 定</el-button>
-				</span>
-      </template>
-    </el-dialog>
     <el-dialog title="阅读权限" v-model="permissVisible" width="32%">
       <el-form-item label="选择开关:" prop="delivery">
         <el-switch
-            v-model="isPublic"
+            v-model.lazy="isPublic"
             inline-prompt
             active-text="公开分享"
             inactive-text="部分可见"
+            @click="readersGet();"
         />
       </el-form-item>
       <div style="text-align: center">
         <el-transfer
-            v-model="resDataList"
+            v-model="rightDataList"
             filterable
             :titles="['不可阅读', '可阅读']"
-            :filter-method="filterMethod"
             filter-placeholder="检索分享对象..."
-            :data="rawDataList"
-            :disabled="isPublic"
+            :data="leftDataList"
+            disabled=false
+            :props="{
+              key: 'uid',
+              label: 'name',
+            }"
+            @change="handleChange"
         >
           <template #default="{ option }">
-            <!-- 使用 scoped slot 自定义数据项的显示 -->
-            <span>{{option.key}} - {{ option.label }}</span>
+            <span>{{ option.uid }} - {{ option.name }}</span>
           </template>
         </el-transfer>
       </div>
       <template #footer>
 				<span class="dialog-footer">
-          <el-button @click="">重 置</el-button>
+<!--          <el-button @click="">重 置</el-button>-->
 					<el-button @click="permissVisible = false">取 消</el-button>
-					<el-button type="primary" @click="">确 定</el-button>
+					<el-button type="primary" @click="readersSave();">确 定</el-button>
 				</span>
       </template>
     </el-dialog>
@@ -216,7 +169,7 @@
 import {ref, reactive, computed, nextTick} from 'vue';
 import {useRoute} from 'vue-router';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {getMydocs, delDoc, get_users} from "~/api/docs";
+import {getMydocs, delDoc, get_users, save_uid_doc_permissions} from "~/api/docs";
 import {Delete, Edit, Search, Plus, FullScreen, Close, RefreshRight, Refresh} from '@element-plus/icons-vue';
 
 interface TableItem {
@@ -554,29 +507,64 @@ const handleDelete = (index: number, row: any) => {
 };
 
 // 权限编辑 弹窗
+let doc_permissions_form = reactive({
+  doc_id: '',
+  doc_permissions: null,
+});
+const handleDocPermiss = (index: number, row: any) => {
+  doc_permissions_form.doc_id = row.doc_id;
+  permissVisible.value = true;
+}
 const permissVisible = ref(false);
 const isPublic = ref(true)
-const permiseEdit = async () => {
-  // handleTableDataResult();
-  permissVisible.value = false;
+const readersGet = async () => {
+  // 向后端发起删除操作
+  const response = (await get_users());
+  if (response.isSuccess) {
+    leftDataList.value = response.data.list
+  }
+  // permissVisible.value = false;
 };
+const readersSave = async () => {
+  console.log("doc_permissions_form",doc_permissions_form)
+  console.log("rightDataList.value",rightDataList.value)
+  doc_permissions_form.doc_permissions = JSON.stringify(rightDataList.value)
+  // 向后端发起保存权限的操作
+  const response = (await save_uid_doc_permissions(doc_permissions_form));
+  if (response.isSuccess) {
+    leftDataList.value = response.data.list
+  }
+  // permissVisible.value = false;
+};
+const handleChange = (
+    value: number | string,
+    direction: 'left' | 'right',
+    movedKeys: string[] | number[]
+) => {
+  console.log(value, direction, movedKeys,
+      rightDataList.value)
+}
+// // 将值传递到右侧列表
+// const addToRight = (option) => {
+//   if (!rightDataList.value.some(item => item.key === option.key)) {
+//     rightDataList.value.push({ uid: option.uid, name: option.name} );
+//     rightDataList2.value.push({ uid: option.uid, name: option.name} );
+//   }
+// };
 
 // 列表数据元素的定义
+// todo disabled控制已选项
 interface Option {
-  key: number
-  label: string
-  // disabled: boolean
+  uid: number
+  name: string
+  disabled: boolean
 }
 // 列表数据
-const transferDataList = [
-  { key: 1, label: 'Item 1' },
-  { key: 2, label: 'Item 2' },
-  { key: 3, label: 'Item 3' },
-];
+const transferDataList = null;
 // 待选择列表
-const rawDataList = ref<Option[]>(transferDataList)
+const leftDataList = ref<Option[]>()
 // 已选择列表
-const resDataList = ref([])
+const rightDataList = ref([3,9])
 
 </script>
 

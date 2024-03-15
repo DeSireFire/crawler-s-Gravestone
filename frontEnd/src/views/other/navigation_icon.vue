@@ -25,6 +25,7 @@ const iconList: Array<{ name: string; url: string; icon: string }> = [
   { name: '尚书台', url: 'http://shangshutai.sinohealth.cn/#/home', icon: 'tag' },
   { name: '天宫数智平台', url: 'http://dp.sinohealth.cn/#/', icon: 'tag' },
   { name: '运维工单系统', url: 'http://yunwei.sinohealth.cn/', icon: 'tag' },
+  { name: '主数据海豚调度', url: 'http://192.168.60.122:7070/dolphinscheduler/ui/#/home', icon: 'tag' },
 ];
 
 const keyword = ref('');

@@ -64,3 +64,14 @@ export const get_users = () => {
         headers: {},
     });
 };
+
+// 保存用户权限
+export const save_uid_doc_permissions = (payload: any) => {
+    return handlePost({
+        url: API.DOCS.SAVEUIDDOCPERMISSIONS,
+        headers: {
+            [REQUEST_HEADER.CONTENT_TYPE]: CONTENT_TYPE.FORM_URLENCODED,
+        },
+        data: payload,
+    });
+};
