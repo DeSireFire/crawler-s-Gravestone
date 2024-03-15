@@ -7,6 +7,7 @@
 # Github    : https://github.com/DeSireFire
 __author__ = 'RaXianch'
 
+import sys
 import uuid
 from datetime import datetime
 from server_core.log import logger
@@ -129,6 +130,7 @@ def achmey_to_dict(achmey_obj):
     else:
         return
 
+
 # 删除数据
 def del_data_one(model, **kwargs):
     """
@@ -146,6 +148,24 @@ def del_data_one(model, **kwargs):
     except Exception as e:
         session.rollback()
         logger.error(f"{del_data_one.__name__} 发生错误：{e}")
+        return False
+    finally:
+        session.close()
+
+
+# 获取所有用户名数据
+def get_users_name():
+    session = Newsession()
+    try:
+        users = session.query(Users).all()
+        # 获取查询结果并存储为列表
+        user_data = [{"uid": row.id, "name": row.name} for row in users if row.name not in ['admin', 'test']] or []
+        if user_data:
+            return user_data[::-1]
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"{sys._getframe().f_code.co_name} 发生错误：{e}")
         return False
     finally:
         session.close()
